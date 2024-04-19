@@ -45,14 +45,21 @@ class AppServiceProvider extends ServiceProvider
         $socialSetting = SocialSetting::where('status', '1')->first();
         $schedule_setting = ScheduleSetting::where('slug', 'fees-schedule')->first();
         $footer_pages = Page::where('language_id', Language::version()->id)
-                            ->where('status', '1')
-                            ->orderBy('id', 'asc')
-                            ->get();
+            ->where('status', '1')
+            ->orderBy('id', 'asc')
+            ->get();
 
         // Set Time Zone
         Config::set('app.timezone', $setting->time_zone);
 
-        View::share(['setting' => $setting, 'user_languages' => $user_languages, 'schedule_setting' => $schedule_setting, 'topbarSetting' => $topbarSetting, 'socialSetting' => $socialSetting, 'footer_pages' => $footer_pages]);
+        View::share([
+            'setting' => $setting,
+            'user_languages' => $user_languages,
+            'schedule_setting' => $schedule_setting,
+            'topbarSetting' => $topbarSetting,
+            'socialSetting' => $socialSetting,
+            'footer_pages' => $footer_pages
+        ]);
 
     }
 }

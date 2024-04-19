@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Session extends Model
 {
+    use HasStatus;
     /**
      * The attributes that are mass assignable.
      *
@@ -38,5 +41,11 @@ class Session extends Model
     public function contents()
     {
         return $this->hasMany(Content::class, 'session_id', 'id');
+    }
+
+
+    public function semester() : BelongsTo
+    {
+        return $this->belongsTo(Semester::class , 'semester_id');
     }
 }

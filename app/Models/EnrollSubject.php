@@ -12,7 +12,7 @@ class EnrollSubject extends Model
      * @var array
      */
     protected $fillable = [
-        'program_id', 'semester_id', 'section_id', 'status',
+        'program_id', 'session_id', 'section_id', 'status',
     ];
 
 
@@ -21,9 +21,9 @@ class EnrollSubject extends Model
         return $this->belongsTo(Program::class, 'program_id');
     }
 
-    public function semester()
+    public function session()
     {
-        return $this->belongsTo(Semester::class, 'semester_id');
+        return $this->belongsTo(Session::class, 'session_id');
     }
 
     public function section()

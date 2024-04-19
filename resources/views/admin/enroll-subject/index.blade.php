@@ -18,7 +18,7 @@
                         <div class="card-block">
                             <!-- Form Start -->
                             @include('common.inc.subject_enroll_filter')
-                      
+
                             <div class="form-group">
                                 <label for="subject">{{ __('field_subject') }} <span>* ({{ __('select_multiple') }})</span></label>
                                 <select class="form-control subject select2" name="subjects[]" id="subject" multiple required>
@@ -50,7 +50,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>{{ __('field_program') }}</th>
-                                        <th>{{ __('field_semester') }}</th>
+                                        <th>{{ __('field_session') }}</th>
                                         <th>{{ __('field_section') }}</th>
                                         <th>{{ __('field_subject') }}</th>
                                         <th>{{ __('field_status') }}</th>
@@ -62,7 +62,7 @@
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
                                         <td>{{ $row->program->title }}</td>
-                                        <td>{{ $row->semester->title }}</td>
+                                        <td>{{ $row->session?->title }}</td>
                                         <td>{{ $row->section->title }}</td>
                                         <td>
                                             @foreach($row->subjects->sortBy('code') as $key => $subject)

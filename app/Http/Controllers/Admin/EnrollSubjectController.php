@@ -10,6 +10,7 @@ use App\Models\Program;
 use App\Models\Section;
 use App\Models\Subject;
 use App\Models\Faculty;
+use App\Models\Session;
 use Toastr;
 
 class EnrollSubjectController extends Controller
@@ -52,7 +53,7 @@ class EnrollSubjectController extends Controller
         $data['faculties'] = Faculty::where('status', '1')
                             ->orderBy('title', 'asc')->get();
         $data['rows'] = EnrollSubject::orderBy('id', 'desc')->get();
-
+        $data['sessions']   =   Session::query()->status(1)->with('semester:id,title')->get(['id' , 'title']);
         return view($this->view.'.index', $data);
     }
 
@@ -77,15 +78,15 @@ class EnrollSubjectController extends Controller
         // Field Validation
         $request->validate([
             'program' => 'required',
-            'semester' => 'required',
+            'session' => 'required',
             'section' => 'required',
             'subjects' => 'required',
         ]);
 
         // Insert Data
         $enrollSubject = EnrollSubject::firstOrCreate(
-            ['program_id' => $request->program, 'semester_id' => $request->semester, 'section_id' => $request->section],
-            ['program_id' => $request->program, 'semester_id' => $request->semester, 'section_id' => $request->section]
+            ['program_id' => $request->program, 'session_id' => $request->session, 'section_id' => $request->section],
+            ['program_id' => $request->program, 'session_id' => $request->session, 'section_id' => $request->section]
         );
 
         // Attach Update
@@ -147,6 +148,7 @@ class EnrollSubjectController extends Controller
             $query->where('program_id', $enrollSubject->program_id);
         });
         $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
+        $data['sessions']   =   Session::query()->status(1)->with('semester:id,title')->get(['id' , 'title']);
 
 
         return view($this->view.'.edit', $data);
@@ -164,7 +166,7 @@ class EnrollSubjectController extends Controller
         // Field Validation
         $request->validate([
             'program' => 'required',
-            'semester' => 'required',
+            'session' => 'required',
             'section' => 'required',
             'subjects' => 'required',
         ]);
@@ -178,7 +180,7 @@ class EnrollSubjectController extends Controller
         {
             // Update Data
             $enrollSubject->program_id = $request->program;
-            $enrollSubject->semester_id = $request->semester;
+            $enrollSubject->session_id = $request->session;
             $enrollSubject->section_id = $request->section;
             $enrollSubject->save();
 

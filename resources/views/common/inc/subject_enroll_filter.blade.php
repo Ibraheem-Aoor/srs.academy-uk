@@ -33,20 +33,20 @@
     </div>
 </div>
 <div class="form-group">
-    <label for="semester">{{ __('field_semester') }} <span>*</span></label>
-    <select class="form-control semester" name="semester" id="semester" required>
+    <label for="semester">{{ __('field_session') }} <span>*</span></label>
+    <select class="form-control semester" name="session" id="semester" required>
         <option value="">{{ __('select') }}</option>
-        @if (isset($semesters))
-            @foreach ($semesters->sortBy('id') as $semester)
-                <option value="{{ $semester->id }}"
-                    @isset($row) {{ $row->semester_id == $semester->id ? 'selected' : '' }} @endisset>
-                    {{ $semester->title }}</option>
+        @if (isset($sessions))
+            @foreach ($sessions as $session)
+                <option value="{{ $session->id }}"
+                    @isset($row) {{ $row->session_id == $session->id ? 'selected' : '' }} @endisset>
+                    {{ $session->title }}</option>
             @endforeach
         @endif
     </select>
 
     <div class="invalid-feedback">
-        {{ __('required_field') }} {{ __('field_semester') }}
+        {{ __('required_field') }} {{ __('field_session') }}
     </div>
 </div>
 <div class="form-group">
