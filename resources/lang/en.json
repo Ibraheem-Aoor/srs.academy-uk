@@ -173,7 +173,7 @@
     "module_class_room" : "Class Room|Class Rooms",
 
     "module_subject" : "Course|Courses",
-    "module_enroll_subject" : "Enroll Course|Enroll Courses",
+    "module_enroll_subject" : "Offered Course|Offered Courses",
     "module_class_routine" : "Class Schedule|Class Schedules",
     "module_exam_routine" : "Exam Schedule|Exam Schedules",
     "module_teacher_routine" : "Teacher Schedule|Teacher Schedules",
@@ -889,7 +889,11 @@
 
 
     "direction_ltr" : "LTR",
-    "direction_rtl" : "RTL"
+    "direction_rtl" : "RTL",
+    "field_prerequisites": "Prerequists",
+    "invalid_prerequisites": "Field Prerequists Is Invalid",
+    "required_prerequisites": "Field Prerequists Is required"
+
 
 
 

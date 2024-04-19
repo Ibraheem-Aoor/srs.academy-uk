@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Program;
 use App\Models\Subject;
 use App\Models\Faculty;
+use App\Models\Prerequisit;
 use Toastr;
 use DB;
 
@@ -29,11 +30,11 @@ class SubjectController extends Controller
         $this->access = 'subject';
 
 
-        $this->middleware('permission:'.$this->access.'-view|'.$this->access.'-create|'.$this->access.'-edit|'.$this->access.'-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:'.$this->access.'-create', ['only' => ['create','store']]);
-        $this->middleware('permission:'.$this->access.'-edit', ['only' => ['edit','update']]);
-        $this->middleware('permission:'.$this->access.'-delete', ['only' => ['destroy']]);
-        $this->middleware('permission:'.$this->access.'-import', ['only' => ['index','import','importStore']]);
+        $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-create|' . $this->access . '-edit|' . $this->access . '-delete', ['only' => ['index', 'show']]);
+        $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:' . $this->access . '-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:' . $this->access . '-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:' . $this->access . '-import', ['only' => ['index', 'import', 'importStore']]);
     }
 
     /**
@@ -50,67 +51,63 @@ class SubjectController extends Controller
         $data['path'] = $this->path;
         $data['access'] = $this->access;
 
-        if(!empty($request->faculty) || $request->faculty != null){
+        if (!empty($request->faculty) || $request->faculty != null) {
             $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
+        } else {
             $data['selected_faculty'] = '0';
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = '0';
         }
 
-        if(!empty($request->subject_type) || $request->subject_type != null){
+        if (!empty($request->subject_type) || $request->subject_type != null) {
             $data['selected_subject_type'] = $subject_type = $request->subject_type;
-        }
-        else{
+        } else {
             $data['selected_subject_type'] = Null;
         }
 
-        if(!empty($request->class_type) || $request->class_type != null){
+        if (!empty($request->class_type) || $request->class_type != null) {
             $data['selected_class_type'] = $class_type = $request->class_type;
-        }
-        else{
+        } else {
             $data['selected_class_type'] = Null;
         }
 
 
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
-        if(!empty($request->faculty) || $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $request->faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+        if (!empty($request->faculty) || $request->faculty != '0') {
+            $data['programs'] = Program::where('faculty_id', $request->faculty)->where('status', '1')->orderBy('title', 'asc')->get();
         }
 
 
         // Subject Search
         $subject = Subject::where('id', '!=', null);
 
-        if(!empty($request->faculty) && $request->faculty != '0'){
-            $subject->with('programs.faculty')->whereHas('programs.faculty', function ($query) use ($faculty){
+        if (!empty($request->faculty) && $request->faculty != '0') {
+            $subject->with('programs.faculty')->whereHas('programs.faculty', function ($query) use ($faculty) {
                 $query->where('id', $faculty);
             });
         }
-        if(!empty($request->program) && $request->program != '0'){
-            $subject->with('programs')->whereHas('programs', function ($query) use ($program){
+        if (!empty($request->program) && $request->program != '0') {
+            $subject->with('programs')->whereHas('programs', function ($query) use ($program) {
                 $query->where('id', $program);
             });
         }
-        if(!empty($request->subject_type)){
-            if($subject_type == 2){
+        if (!empty($request->subject_type)) {
+            if ($subject_type == 2) {
                 $subject_type = 0;
             }
             $subject->where('subject_type', $subject_type);
         }
-        if(!empty($request->class_type)){
+        if (!empty($request->class_type)) {
             $subject->where('class_type', $class_type);
         }
 
         $data['rows'] = $subject->orderBy('title', 'asc')->get();
 
-        return view($this->view.'.index', $data);
+        return view($this->view . '.index', $data);
     }
 
     /**
@@ -127,7 +124,8 @@ class SubjectController extends Controller
 
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
 
-        return view($this->view.'.create', $data);
+        $data['courses'] = Subject::query()->status(1)->orderByDesc('created_at')->get(['title', 'name']);
+        return view($this->view . '.create', $data);
     }
 
     /**
@@ -145,7 +143,16 @@ class SubjectController extends Controller
             'credit_hour' => 'required|numeric',
             'subject_type' => 'required',
             'class_type' => 'required',
+            'prerequisites' => 'nullable|array',
+            'prerequisites.*' => 'required|array',
+            'prerequisites.*.*' => 'required',
+        ], [
+            'prerequisites.array' => __('invalid_prerequisites'),
+            'prerequisites.*.array' => __('invalid_prerequisites'),
+            'prerequisites.*.required' => __('required_prerequisites'),
+            'prerequisites.*.*.required' => __('required_prerequisites'),
         ]);
+
 
 
         DB::beginTransaction();
@@ -163,11 +170,22 @@ class SubjectController extends Controller
 
         // Attach
         $subject->programs()->attach($request->programs);
+
+        // Preqrequisites
+        if (is_array($request->prerequisites)) {
+            foreach ($request->prerequisites as $prerequisite) {
+                Prerequisit::create([
+                    'subject_id' => $subject->id,
+                    'prerequisit_id' => $prerequisite['prerequisit_id'],
+                    'type' => $prerequisite['type'],
+                ]);
+            }
+        }
         DB::commit();
 
         Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-        return redirect()->route($this->route.'.index');
+        return redirect()->route($this->route . '.index');
     }
 
     /**
@@ -186,7 +204,7 @@ class SubjectController extends Controller
 
         $data['row'] = $subject;
 
-        return view($this->view.'.show', $data);
+        return view($this->view . '.show', $data);
     }
 
     /**
@@ -205,8 +223,8 @@ class SubjectController extends Controller
 
         $data['row'] = $subject;
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
-
-        return view($this->view.'.edit', $data);
+        $data['courses'] = Subject::query()->status(1)->where('id', '!=', $subject->id)->orderByDesc('created_at')->get(['id', 'title']);
+        return view($this->view . '.edit', $data);
     }
 
     /**
@@ -220,11 +238,19 @@ class SubjectController extends Controller
     {
         // Field Validation
         $request->validate([
-            'title' => 'required|max:191|unique:subjects,title,'.$subject->id,
-            'code' => 'required|max:191|unique:subjects,code,'.$subject->id,
+            'title' => 'required|max:191|unique:subjects,title,' . $subject->id,
+            'code' => 'required|max:191|unique:subjects,code,' . $subject->id,
             'credit_hour' => 'required|numeric',
             'subject_type' => 'required',
             'class_type' => 'required',
+            'prerequisites' => 'nullable|array',
+            'prerequisites.*' => 'required|array',
+            'prerequisites.*.*' => 'required',
+        ], [
+            'prerequisites.array' => __('invalid_prerequisites'),
+            'prerequisites.*.array' => __('invalid_prerequisites'),
+            'prerequisites.*.required' => __('required_prerequisites'),
+            'prerequisites.*.*.required' => __('required_prerequisites'),
         ]);
 
 
@@ -243,6 +269,18 @@ class SubjectController extends Controller
 
         // Attach Update
         $subject->programs()->sync($request->programs);
+
+        // Preqrequisites
+        if (is_array($request->prerequisites)) {
+            $subject->prerequisites()->delete();
+            foreach ($request->prerequisites as $prerequisite) {
+                Prerequisit::create([
+                    'subject_id' => $subject->id,
+                    'prerequisit_id' => $prerequisite['prerequisit_id'],
+                    'type' => $prerequisite['type'],
+                ]);
+            }
+        }
         DB::commit();
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
@@ -261,11 +299,11 @@ class SubjectController extends Controller
         DB::beginTransaction();
         // Detach
         $subject->programs()->detach();
-        
+
         // Delete Data
         $subject->delete();
         DB::commit();
-        
+
         Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
 
         return redirect()->back();
@@ -279,17 +317,17 @@ class SubjectController extends Controller
     public function import(Request $request)
     {
         //
-        $data['title']     = $this->title;
-        $data['route']     = $this->route;
-        $data['view']      = $this->view;
-        $data['access']    = $this->access;
+        $data['title'] = $this->title;
+        $data['route'] = $this->route;
+        $data['view'] = $this->view;
+        $data['access'] = $this->access;
 
-        return view($this->view.'.import', $data);
+        return view($this->view . '.import', $data);
     }
 
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function importStore(Request $request)
     {
         // Field Validation
@@ -300,7 +338,7 @@ class SubjectController extends Controller
 
         // Passing Data
         Excel::import(new SubjectsImport, $request->file('import'));
-        
+
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 

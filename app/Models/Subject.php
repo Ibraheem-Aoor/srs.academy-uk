@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subject extends Model
 {
+    use HasStatus;
     /**
      * The attributes that are mass assignable.
      *
@@ -53,5 +56,14 @@ class Subject extends Model
     public function subjectMarks()
     {
         return $this->hasMany(SubjectMarking::class, 'subject_id', 'id');
+    }
+
+
+    /**
+     * Each Subject Might Have Prerequisites
+     */
+    public function prerequisites():HasMany
+    {
+        return $this->hasMany(Prerequisit::class , 'subject_id');
     }
 }
