@@ -14,7 +14,7 @@ class Semester extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'year', 'status',
+        'title', 'year', 'status', 'start_date' , 'end_date'
     ];
 
     public function programs()
