@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subject extends Model
@@ -15,12 +16,20 @@ class Subject extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'code', 'credit_hour', 'subject_type', 'class_type', 'total_marks', 'passing_marks', 'description', 'status',
+        'title',
+        'code',
+        'credit_hour',
+        'subject_type',
+        'class_type',
+        'total_marks',
+        'passing_marks',
+        'description',
+        'status',
     ];
 
     public function programs()
     {
-        return $this->belongsToMany(Program::class, 'program_subject', 'subject_id', 'program_id');
+        return $this->belongsToMany(Program::class, 'program_subject', 'subject_id', 'program_id')->withPivot(['subject_type', 'exam_type_category_id']);
     }
 
     public function subjectEnrolls()
@@ -62,8 +71,11 @@ class Subject extends Model
     /**
      * Each Subject Might Have Prerequisites
      */
-    public function prerequisites():HasMany
+    public function prerequisites(): HasMany
     {
-        return $this->hasMany(Prerequisit::class , 'subject_id');
+        return $this->hasMany(Prerequisit::class, 'subject_id');
     }
+
+
+
 }

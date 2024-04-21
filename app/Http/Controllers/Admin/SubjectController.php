@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ClassTypeEnum;
+use App\Enums\SubjectTypeEnum;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\SubjectsImport;
+use App\Models\ExamType;
+use App\Models\ExamTypeCategory;
 use Illuminate\Http\Request;
 use App\Models\Program;
 use App\Models\Subject;
@@ -15,6 +19,8 @@ use DB;
 
 class SubjectController extends Controller
 {
+    public $mark_distribution_systems;
+    public $subject_types;
     /**
      * Create a new controller instance.
      *
@@ -28,7 +34,11 @@ class SubjectController extends Controller
         $this->view = 'admin.subject';
         $this->path = 'subject';
         $this->access = 'subject';
-
+        $this->mark_distribution_systems = ExamTypeCategory::query()
+            ->status(1)
+            ->orderByDesc('created_at')
+            ->get(['id', 'title']);
+        $this->subject_types = SubjectTypeEnum::getValues();
 
         $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-create|' . $this->access . '-edit|' . $this->access . '-delete', ['only' => ['index', 'show']]);
         $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
@@ -124,8 +134,39 @@ class SubjectController extends Controller
 
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
 
-        $data['courses'] = Subject::query()->status(1)->orderByDesc('created_at')->get(['title', 'name']);
+        $data['courses'] = Subject::query()->status(1)->orderByDesc('created_at')->get(['id', 'title']);
+
+        $data['class_types'] = ClassTypeEnum::getValues();
+        $data['mark_distribution_systems'] = $this->mark_distribution_systems;
+        $data['subject_types'] = $this->subject_types;
         return view($this->view . '.create', $data);
+    }
+
+    /**
+     * Attach Programs To Each Subejct
+     */
+    public function attachPrograms(Subject $subject, Request $request)
+    {
+        foreach ($request->programs as $program_id => $attributes) {
+            $programs_to_sync[$program_id] = [
+                'subject_type' => $attributes['subject_type'],
+                'exam_type_category_id' => $attributes['category']
+            ];
+        }
+        $subject->programs()->sync($programs_to_sync);
+    }
+    /**
+     * Attach Prequisites To Each Subejct
+     */
+    public function attachPrerequisites(Subject $subject, Request $request)
+    {
+        foreach ($request->prerequisites as $prerequisite) {
+            Prerequisit::create([
+                'subject_id' => $subject->id,
+                'prerequisit_id' => $prerequisite['prerequisit_id'],
+                'type' => $prerequisite['type'],
+            ]);
+        }
     }
 
     /**
@@ -141,16 +182,18 @@ class SubjectController extends Controller
             'title' => 'required|max:191|unique:subjects,title',
             'code' => 'required|max:191|unique:subjects,code',
             'credit_hour' => 'required|numeric',
-            'subject_type' => 'required',
-            'class_type' => 'required',
             'prerequisites' => 'nullable|array',
             'prerequisites.*' => 'required|array',
             'prerequisites.*.*' => 'required',
+            'programs' => 'required|array',
+            'programs.*' => 'required',
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),
             'prerequisites.*.array' => __('invalid_prerequisites'),
             'prerequisites.*.required' => __('required_prerequisites'),
             'prerequisites.*.*.required' => __('required_prerequisites'),
+            'programs.array' => __('field_program_invalid'),
+            'programs.*.array' => __('field_program_invalid'),
         ]);
 
 
@@ -161,25 +204,17 @@ class SubjectController extends Controller
         $subject->title = $request->title;
         $subject->code = $request->code;
         $subject->credit_hour = $request->credit_hour;
-        $subject->subject_type = $request->subject_type;
-        $subject->class_type = $request->class_type;
         $subject->total_marks = $request->total_marks;
         $subject->passing_marks = $request->passing_marks;
         $subject->description = $request->description;
         $subject->save();
 
-        // Attach
-        $subject->programs()->attach($request->programs);
+        // Attach Programs
+        $this->attachPrograms(subject: $subject, request: $request);
 
         // Preqrequisites
         if (is_array($request->prerequisites)) {
-            foreach ($request->prerequisites as $prerequisite) {
-                Prerequisit::create([
-                    'subject_id' => $subject->id,
-                    'prerequisit_id' => $prerequisite['prerequisit_id'],
-                    'type' => $prerequisite['type'],
-                ]);
-            }
+            $this->attachPrerequisites(subject: $subject, request: $request);
         }
         DB::commit();
 
@@ -224,6 +259,9 @@ class SubjectController extends Controller
         $data['row'] = $subject;
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
         $data['courses'] = Subject::query()->status(1)->where('id', '!=', $subject->id)->orderByDesc('created_at')->get(['id', 'title']);
+        $data['mark_distribution_systems'] = $this->mark_distribution_systems;
+        $data['subject_types'] = $this->subject_types;
+
         return view($this->view . '.edit', $data);
     }
 
@@ -241,16 +279,18 @@ class SubjectController extends Controller
             'title' => 'required|max:191|unique:subjects,title,' . $subject->id,
             'code' => 'required|max:191|unique:subjects,code,' . $subject->id,
             'credit_hour' => 'required|numeric',
-            'subject_type' => 'required',
-            'class_type' => 'required',
             'prerequisites' => 'nullable|array',
             'prerequisites.*' => 'required|array',
             'prerequisites.*.*' => 'required',
+            'programs' => 'required|array',
+            'programs.*' => 'required',
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),
             'prerequisites.*.array' => __('invalid_prerequisites'),
             'prerequisites.*.required' => __('required_prerequisites'),
             'prerequisites.*.*.required' => __('required_prerequisites'),
+            'programs.array' => __('field_program_invalid'),
+            'programs.*.array' => __('field_program_invalid')
         ]);
 
 
@@ -259,8 +299,6 @@ class SubjectController extends Controller
         $subject->title = $request->title;
         $subject->code = $request->code;
         $subject->credit_hour = $request->credit_hour;
-        $subject->subject_type = $request->subject_type;
-        $subject->class_type = $request->class_type;
         $subject->total_marks = $request->total_marks;
         $subject->passing_marks = $request->passing_marks;
         $subject->description = $request->description;
@@ -268,18 +306,11 @@ class SubjectController extends Controller
         $subject->save();
 
         // Attach Update
-        $subject->programs()->sync($request->programs);
-
+        $this->attachPrograms(subject: $subject, request: $request);
         // Preqrequisites
+        $subject->prerequisites()->delete();
         if (is_array($request->prerequisites)) {
-            $subject->prerequisites()->delete();
-            foreach ($request->prerequisites as $prerequisite) {
-                Prerequisit::create([
-                    'subject_id' => $subject->id,
-                    'prerequisit_id' => $prerequisite['prerequisit_id'],
-                    'type' => $prerequisite['type'],
-                ]);
-            }
+            $this->attachPrerequisites(subject: $subject, request: $request);
         }
         DB::commit();
 
@@ -287,6 +318,7 @@ class SubjectController extends Controller
 
         return redirect()->back();
     }
+
 
     /**
      * Remove the specified resource from storage.

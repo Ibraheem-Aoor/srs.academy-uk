@@ -18,19 +18,6 @@
                                 </div>
                                 <div class="card-block">
                                     <!-- Form Start -->
-                                    {{-- Mark Distribution Category --}}
-                                    <div class="form-group">
-                                        <label for="title" class="form-label">{{ __('module_exam_type_category') }} <span>*</span></label>
-                                        <select name="category" id="category" class="form-control" required>
-                                            <option value="">{{ __('select') }}</option>
-                                            @foreach ($mark_distribution_categories as $category)
-                                                <option value="{{ $category->id  }}">{{ $category->title }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('module_exam_type_category') }}
-                                        </div>
-                                    </div>
                                     <div class="form-group">
                                         <label for="title" class="form-label">{{ __('field_title') }} <span>*</span></label>
                                         <input type="text" class="form-control" name="title" id="title"
@@ -42,23 +29,20 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="marks" class="form-label">{{ __('field_marks') }} <span>*</span></label>
-                                        <input type="text" class="form-control autonumber" name="marks" id="marks"
-                                            value="{{ old('marks') }}" required>
+                                        <label for="marks" class="form-label">{{ __('field_class_type') }}
+                                            <span>*</span></label>
 
+                                        <select class="form-control" name="class_type" name="type" id="class_type" required>
+                                            <option value="">{{ __('select') }}</option>
+                                            @foreach ($class_types as $key => $name)
+                                                <option value="{{ $name }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
                                         <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_marks') }}
+                                            {{ __('required_field') }} {{ __('field_class_type') }}
                                         </div>
                                     </div>
 
-                                    {{-- <div class="form-group">
-                                <label for="contribution" class="form-label">{{ __('field_result_contribution') }} (%) <span>*</span></label>
-                                <input type="text" class="form-control autonumber" name="contribution" id="contribution" value="{{ old('contribution') ?? 0 }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_result_contribution') }}
-                                </div>
-                            </div> --}}
                                     <!-- Form End -->
                                 </div>
                                 <div class="card-footer">
@@ -83,29 +67,19 @@
                                         <tr>
                                             <th>#</th>
                                             <th>{{ __('field_title') }}</th>
-                                            <th>{{ __('field_category') }}</th>
-                                            <th>{{ __('field_marks') }}</th>
-                                            <th>{{ __('field_result_contribution') }}</th>
+                                            <th>{{ __('field_type') }}</th>
+                                            <th>{{ __('field_total_marks') }}</th>
                                             <th>{{ __('field_status') }}</th>
                                             <th>{{ __('field_action') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @php
-                                            $total_marks = 0;
-                                            $total_contribution = 0;
-                                        @endphp
                                         @foreach ($rows as $key => $row)
-                                            @php
-                                                $total_marks = $total_marks + $row->marks;
-                                                $total_contribution = $total_contribution + $row->contribution;
-                                            @endphp
                                             <tr>
                                                 <td>{{ $key + 1 }}</td>
                                                 <td>{{ $row->title }}</td>
-                                                <td>{{ $row->category?->title }}</td>
-                                                <td>{{ round($row->marks, 2) }}</td>
-                                                <td>{{ round($row->contribution, 2) }} %</td>
+                                                <td>{{ $row->class_type }}</td>
+                                                <td>{{ $row->totalMarks() }}</td>
                                                 <td>
                                                     @if ($row->status == 1)
                                                         <span
@@ -139,16 +113,6 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th></th>
-                                            <th>{{ __('field_grand_total') }}</th>
-                                            <th>{{ round($total_marks, 2) }}</th>
-                                            <th>{{ round($total_contribution, 2) }} %</th>
-                                            <th></th>
-                                            <th></th>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                             <!-- [ Data table ] end -->

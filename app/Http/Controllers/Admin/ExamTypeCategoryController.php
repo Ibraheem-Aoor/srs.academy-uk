@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ClassTypeEnum;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ExamType;
 use App\Models\ExamTypeCategory;
 use Toastr;
 
-class ExamTypeController extends Controller
+class ExamTypeCategoryController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -18,11 +19,11 @@ class ExamTypeController extends Controller
     public function __construct()
     {
         // Module Data
-        $this->title = trans_choice('module_exam_type', 1);
-        $this->route = 'admin.exam-type';
-        $this->view = 'admin.exam-type';
-        $this->path = 'exam-type';
-        $this->access = 'exam-type';
+        $this->title = trans_choice('module_exam_type-category', 1);
+        $this->route = 'admin.exam-type-category';
+        $this->view = 'admin.exam-type-category';
+        $this->path = 'exam-type-category';
+        $this->access = 'exam-type-category';
 
 
         $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-create|' . $this->access . '-edit|' . $this->access . '-delete', ['only' => ['index', 'show']]);
@@ -45,9 +46,9 @@ class ExamTypeController extends Controller
         $data['path'] = $this->path;
         $data['access'] = $this->access;
 
-        $data['rows'] = ExamType::orderBy('contribution', 'desc')->get();
+        $data['rows'] = ExamTypeCategory::orderBy('created_at', 'desc')->get();
+        $data['class_types'] = ClassTypeEnum::getValues();
 
-        $data['mark_distribution_categories'] = ExamTypeCategory::query()->status(1)->get(['id', 'title']);
         return view($this->view . '.index', $data);
     }
 
@@ -71,20 +72,13 @@ class ExamTypeController extends Controller
     {
         // Field Validation
         $request->validate([
-            'title' => 'required|max:191|unique:exam_types,title',
-            'marks' => 'required|numeric',
-            'category' => 'required|exists:exam_type_categories,id',
-            // 'contribution' => 'required|numeric',
+            'title' => 'required|max:191|unique:exam_type_categories,title',
+            'class_type' => 'required',
         ]);
-        // Insert Data
-        $examType = new ExamType;
-        $examType->title = $request->title;
-        $examType->marks = $request->marks;
-        $examType->exam_type_category_id = $request->category;
-        // $examType->contribution = $request->contribution;
-        $examType->description = $request->description;
-        $examType->save();
-
+        $examTypeCategory = new ExamTypeCategory();
+        $examTypeCategory->title = $request->title;
+        $examTypeCategory->class_type = $request->class_type;
+        $examTypeCategory->save();
         Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
         return redirect()->back();
@@ -119,23 +113,19 @@ class ExamTypeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ExamType $examType)
+    public function update(Request $request, ExamTypeCategory $examTypeCategory)
     {
         // Field Validation
         $request->validate([
-            'title' => 'required|max:191|unique:exam_types,title,' . $examType->id,
-            'marks' => 'required|numeric',
-            'category' => 'required|exists:exam_type_categories,id',
-            // 'contribution' => 'required|numeric',
+            'title' => 'required|max:191|unique:exam_type_categories,title,' . $examTypeCategory->id,
+            'class_type' => 'required',
         ]);
+
         // Update Data
-        $examType->title = $request->title;
-        $examType->marks = $request->marks;
-        // $examType->contribution = $request->contribution;
-        $examType->description = $request->description;
-        $examType->status = $request->status;
-        $examType->exam_type_category_id = $request->category;
-        $examType->save();
+        $examTypeCategory->title = $request->title;
+        $examTypeCategory->class_type = $request->class_type;
+        $examTypeCategory->status = $request->status;
+        $examTypeCategory->save();
 
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
@@ -149,10 +139,10 @@ class ExamTypeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ExamType $examType)
+    public function destroy(ExamTypeCategory $examTypeCategory)
     {
         // Delete Data
-        $examType->delete();
+        $examTypeCategory->delete();
 
         Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
 

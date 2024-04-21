@@ -59,37 +59,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group col-md-4">
-                                        <label for="subject_type">{{ __('field_subject_type') }} <span>*</span></label>
-                                        <select class="form-control" name="subject_type" id="subject_type" required>
-                                            <option value="">{{ __('select') }}</option>
-                                            <option value="1" @if ($row->subject_type == 1) selected @endif>
-                                                {{ __('subject_type_compulsory') }}</option>
-                                            <option value="0" @if ($row->subject_type == 0) selected @endif>
-                                                {{ __('subject_type_optional') }}</option>
-                                        </select>
 
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_subject_type') }}
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group col-md-4">
-                                        <label for="class_type">{{ __('field_class_type') }} <span>*</span></label>
-                                        <select class="form-control" name="class_type" id="class_type" required>
-                                            <option value="">{{ __('select') }}</option>
-                                            <option value="1" @if ($row->class_type == 1) selected @endif>
-                                                {{ __('class_type_theory') }}</option>
-                                            <option value="2" @if ($row->class_type == 2) selected @endif>
-                                                {{ __('class_type_practical') }}</option>
-                                            <option value="3" @if ($row->class_type == 3) selected @endif>
-                                                {{ __('class_type_both') }}</option>
-                                        </select>
-
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_class_type') }}
-                                        </div>
-                                    </div>
 
                                     <div class="form-group col-md-4">
                                         <label for="status" class="form-label">{{ __('select_status') }}</label>
@@ -101,29 +71,63 @@
                                         </select>
                                     </div>
 
+                                    {{-- Start Subject Programs --}}
                                     @foreach ($faculties as $index => $faculty)
-                                        <div class="form-group col-md-6 col-lg-4 p-15">
-                                            <span class="badge badge-primary">{{ $faculty->title }}</span><br />
-
-                                            @foreach ($faculty->programs->where('status', 1)->sortBy('title') as $key => $program)
-                                                <br />
-                                                <div class="checkbox d-inline">
-                                                    <input type="checkbox" name="programs[]"
-                                                        id="program-{{ $key }}-{{ $index }}"
-                                                        value="{{ $program->id }}"
-                                                        @foreach ($row->programs as $selected_program)
-                                    @if ($selected_program->id == $program->id) checked @endif @endforeach>
-                                                    <label for="program-{{ $key }}-{{ $index }}"
-                                                        class="cr">{{ $program->title }}</label>
-                                                </div>
-                                            @endforeach
-
-                                            <div class="invalid-feedback">
-                                                {{ __('required_field') }} {{ __('field_program') }}
-                                            </div>
+                                        <div class="col-md-12">
+                                            <label>{{ __('course_per_program', ['faculty' => $faculty->title]) }}</label>
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{ __('field_program') }}</th>
+                                                        <th>{{ __('field_type') }}</th>
+                                                        <th>{{ __('module_exam_type') }}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($faculty->programs->where('status', 1)->sortBy('title') as $program)
+                                                        @php
+                                                            $program_object = $row
+                                                                ->programs()
+                                                                ->select(['id', 'title'])
+                                                                ->find($program);
+                                                        @endphp
+                                                        <tr>
+                                                            <td>
+                                                                <input required type="text" class="form-control"
+                                                                    value="{{ $program->title }}" disabled>
+                                                            </td>
+                                                            <td>
+                                                                <select required class="form-control"
+                                                                    name="programs[{{ $program->id }}][subject_type]"
+                                                                    id="subject_type" required>
+                                                                    <option value="">{{ __('select') }}</option>
+                                                                    @foreach ($subject_types as $key => $name)
+                                                                        <option value="{{ $name }}" @selected($name == $program_object->pivot['subject_type'])>
+                                                                            {{ $name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <select required class="form-control"
+                                                                    name="programs[{{ $program->id }}][category]"
+                                                                    id="category" required>
+                                                                    <option value="">{{ __('select') }}</option>
+                                                                    @foreach ($mark_distribution_systems as $mark_distribution_system)
+                                                                        <option
+                                                                            value="{{ $mark_distribution_system->id }}" @selected($mark_distribution_system->id == $program_object->pivot['exam_type_category_id'])>
+                                                                            {{ $mark_distribution_system->title }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
                                         </div>
                                     @endforeach
+                                    {{-- End Subject Programs --}}
                                     <div class="form-group col-md-4"></div>
+                                    {{-- Start Subject Prerequisites --}}
                                     <div class="col-md-12">
                                         <label>{{ __('field_prerequisites') }}</label>
                                         <table class="table table-bordered" id="prerequisitesTable">
@@ -136,27 +140,32 @@
                                             </thead>
                                             <tbody>
                                                 @foreach ($row->prerequisites as $prerequisit)
-                                                <tr>
-                                                    <td>
-                                                        <select name="prerequisites[{{ $loop->index }}][prerequisit_id]"
-                                                            class="form-control prerequisite-course" required>
-                                                            @foreach ($courses as $course)
-                                                                <option value="{{ $course->id }}" @selected($course->id == $prerequisit->prerequisit_id)>{{ $course->title }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="prerequisites[{{ $loop->index }}][type]" class="form-control">
-                                                            <option value="parallel"  @selected($prerequisit->type == 'parallel')>{{ __('parallel') }}</option>
-                                                            <option value="prior"  @selected($prerequisit->type == 'prior')>{{ __('prior') }}</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-danger removeRow"><i
-                                                                class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <select
+                                                                name="prerequisites[{{ $loop->index }}][prerequisit_id]"
+                                                                class="form-control prerequisite-course" required>
+                                                                @foreach ($courses as $course)
+                                                                    <option value="{{ $course->id }}"
+                                                                        @selected($course->id == $prerequisit->prerequisit_id)>{{ $course->title }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select name="prerequisites[{{ $loop->index }}][type]"
+                                                                class="form-control">
+                                                                <option value="parallel" @selected($prerequisit->type == 'parallel')>
+                                                                    {{ __('parallel') }}</option>
+                                                                <option value="prior" @selected($prerequisit->type == 'prior')>
+                                                                    {{ __('prior') }}</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-danger removeRow"><i
+                                                                    class="fa fa-trash"></i></button>
+                                                        </td>
+                                                    </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -167,6 +176,7 @@
                                                 class="btn btn-primary text-center ">{{ __('btn_add_new') }}</button>
                                         </div>
                                     </div>
+                                    {{-- End Subject Prerequisites --}}
                                     <!-- Form End -->
                                 </div>
                             </div>
@@ -197,7 +207,8 @@
                 });
 
                 var html = '<tr>';
-                html += '<td><select required name="prerequisites[' + $('#prerequisitesTable tbody tr').length +
+                html += '<td><select required name="prerequisites[' + $('#prerequisitesTable tbody tr')
+                    .length +
                     '][prerequisit_id]" class="form-control prerequisite-course" required>';
                 @foreach ($courses as $course)
                     if (!existingOptions.includes('{{ $course->id }}')) {
@@ -205,7 +216,8 @@
                     }
                 @endforeach
                 html += '</select></td>';
-                html += '<td><select required name="prerequisites[' + $('#prerequisitesTable tbody tr').length +
+                html += '<td><select required name="prerequisites[' + $('#prerequisitesTable tbody tr')
+                    .length +
                     '][type]" class="form-control"><option value="parallel">{{ __('parallel') }}</option><option value="prior">{{ __('prior') }}</option></select></td>';
                 html +=
                     '<td><button type="button" class="btn btn-danger removeRow"><i class="fa fa-trash"></i></button></td>';

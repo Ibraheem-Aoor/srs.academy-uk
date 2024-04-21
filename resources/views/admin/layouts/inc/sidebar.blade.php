@@ -156,7 +156,7 @@
                 @canany(['semester-create', 'semester-view'])
                 <li class="{{ Request::is('admin/academic/semester*') ? 'active' : '' }}"><a href="{{ route('admin.semester.index') }}" class="">{{ trans_choice('module_semester', 2) }}</a></li>
                 @endcanany
-                
+
                 @canany(['session-create', 'session-view'])
                 <li class="{{ Request::is('admin/academic/session*') ? 'active' : '' }}"><a href="{{ route('admin.session.index') }}" class="">{{ trans_choice('module_session', 2) }}</a></li>
                 @endcanany
@@ -243,8 +243,11 @@
                 <li class="{{ Request::is('admin/exam/grade*') ? 'active' : '' }}"><a href="{{ route('admin.grade.index') }}" class="">{{ trans_choice('module_grade', 2) }}</a></li>
                 @endcanany
 
+                @canany(['exam-type-category-view', 'exam-type-category-create'])
+                <li class="{{ Request::is('admin/exam/exam-type-category*') ? 'active' : '' }}"><a href="{{ route('admin.exam-type-category.index') }}" class="">{{ trans_choice('module_exam_type_category', 2) }}</a></li>
+                @endcanany
                 @canany(['exam-type-view', 'exam-type-create'])
-                <li class="{{ Request::is('admin/exam/exam-type*') ? 'active' : '' }}"><a href="{{ route('admin.exam-type.index') }}" class="">{{ trans_choice('module_exam_type', 2) }}</a></li>
+                <li class="{{ Request::is('admin/exam/exam-type') ? 'active' : '' }}"><a href="{{ route('admin.exam-type.index') }}" class="">{{ trans_choice('module_exam_type', 2) }}</a></li>
                 @endcanany
 
                 @canany(['admit-card-view', 'admit-card-print', 'admit-card-download'])
