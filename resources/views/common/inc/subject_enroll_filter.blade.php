@@ -57,7 +57,7 @@
             @foreach ($sections->sortBy('title') as $section)
                 <option value="{{ $section->id }}"
                     @isset($row) {{ $row->section_id == $section->id ? 'selected' : '' }} @endisset>
-                    {{ $section-?>title }}</option>
+                    {{ $section?->title }}</option>
             @endforeach
         @endif
     </select>

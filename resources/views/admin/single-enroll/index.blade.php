@@ -263,7 +263,7 @@
                                 <select class="form-control next_section" name="section" id="section" required>
                                   <option value="">{{ __('select') }}</option>
                                   @foreach( $sections as $section )
-                                  <option value="{{ $section->id }}" @if( $enroll->section_id == $section->id) selected @endif>{{ $section-?>title }}</option>
+                                  <option value="{{ $section->id }}" @if( $enroll->section_id == $section->id) selected @endif>{{ $section?->title }}</option>
                                   @endforeach
                                 </select>
 
