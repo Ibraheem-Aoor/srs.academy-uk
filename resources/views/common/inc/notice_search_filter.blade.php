@@ -64,7 +64,7 @@
 		<option value="0">{{ __('all') }}</option>
 		@if(isset($sections))
 		@foreach( $sections->sortBy('title') as $section )
-		<option value="{{ $section->id }}">{{ $section->title }}</option>
+		<option value="{{ $section->id }}">{{ $section-?>title }}</option>
 		@endforeach
 		@endif
 	</select>

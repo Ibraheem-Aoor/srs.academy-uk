@@ -82,7 +82,7 @@
                                     <p><mark class="text-primary">{{ __('field_name') }}:</mark> {{ $row->first_name }} {{ $row->last_name }}</p>
                                     <hr/>
 
-                                    <p><mark class="text-primary">{{ __('field_gender') }}:</mark> 
+                                    <p><mark class="text-primary">{{ __('field_gender') }}:</mark>
                                         @if( $row->gender == 1 )
                                         {{ __('gender_male') }}
                                         @elseif( $row->gender == 2 )
@@ -95,7 +95,7 @@
                                     <p><mark class="text-primary">{{ __('field_total_credit_hour') }}:</mark> {{ round($total_credits, 2) }}</p>
                                     <hr/>
 
-                                    <p><mark class="text-primary">{{ __('field_cumulative_gpa') }}:</mark> 
+                                    <p><mark class="text-primary">{{ __('field_cumulative_gpa') }}:</mark>
                                         @php
                                         if($total_credits <= 0){
                                             $total_credits = 1;
@@ -126,7 +126,7 @@
                     @endif
                 </div>
 
-                @if(isset($row))  
+                @if(isset($row))
                 <div class="card">
                     <div class="card-header">
                         <h5>{{ __('status_current') }} {{ __('field_session') }}: {{ $row->currentEnroll->session->title ?? '' }} | {{ $row->currentEnroll->semester->title ?? '' }} | {{ $row->currentEnroll->section->title ?? '' }}</h5>
@@ -156,7 +156,7 @@
                                         $semester_credits = $semester_credits + $subject->credit_hour;
                                         $subject_grade = null;
                                     @endphp
-                                    
+
                                     <tr>
                                         <td>{{ $subject->code }}</td>
                                         <td>
@@ -208,7 +208,7 @@
                     </div>
                 </div>
 
-                
+
                 <form action="{{ route($route.'.store') }}" method="post">
                 @csrf
                 <div class="card">
@@ -263,7 +263,7 @@
                                 <select class="form-control next_section" name="section" id="section" required>
                                   <option value="">{{ __('select') }}</option>
                                   @foreach( $sections as $section )
-                                  <option value="{{ $section->id }}" @if( $enroll->section_id == $section->id) selected @endif>{{ $section->title }}</option>
+                                  <option value="{{ $section->id }}" @if( $enroll->section_id == $section->id) selected @endif>{{ $section-?>title }}</option>
                                   @endforeach
                                 </select>
 
