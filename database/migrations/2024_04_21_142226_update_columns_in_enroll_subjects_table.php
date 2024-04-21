@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('enroll_subjects', function (Blueprint $table) {
-            $table->integer('semester_id')->unsigned()->nullable()->change();
+            $table->integer('section_id')->unsigned()->nullable()->change();
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('enroll_subjects', function (Blueprint $table) {
-            $table->integer('semester_id')->unsigned();
+            $table->integer('section_id')->unsigned();
         });
     }
 };

@@ -14,7 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('subjects', function (Blueprint $table) {
-            $table->dropColumn(['subject_type' , 'class_type']);
+            $table->integer('subject_type')->nullable()->change();
+            $table->integer('class_type')->nullable()->change();
+
+
         });
     }
 

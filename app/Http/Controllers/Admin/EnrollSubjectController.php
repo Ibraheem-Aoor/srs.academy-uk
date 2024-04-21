@@ -79,7 +79,7 @@ class EnrollSubjectController extends Controller
         $request->validate([
             'program' => 'required',
             'session' => 'required',
-            'section' => 'required',
+            'section' => 'nullable',
             'subjects' => 'required',
         ]);
 
@@ -167,7 +167,7 @@ class EnrollSubjectController extends Controller
         $request->validate([
             'program' => 'required',
             'session' => 'required',
-            'section' => 'required',
+            'section' => 'nullable',
             'subjects' => 'required',
         ]);
 
