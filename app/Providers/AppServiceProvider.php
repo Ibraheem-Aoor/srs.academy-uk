@@ -34,32 +34,32 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-        // Schema::defaultStringLength(191);
-        // Paginator::useBootstrap();
+        Schema::defaultStringLength(191);
+        Paginator::useBootstrap();
 
 
-        // // Share view for Common Data
-        // $user_languages = Language::where('status', '1')->get();
-        // $setting = Setting::where('status', '1')->first();
-        // $topbarSetting = TopbarSetting::where('status', '1')->first();
-        // $socialSetting = SocialSetting::where('status', '1')->first();
-        // $schedule_setting = ScheduleSetting::where('slug', 'fees-schedule')->first();
-        // $footer_pages = Page::where('language_id', Language::version()->id)
-        //     ->where('status', '1')
-        //     ->orderBy('id', 'asc')
-        //     ->get();
+        // Share view for Common Data
+        $user_languages = Language::where('status', '1')->get();
+        $setting = Setting::where('status', '1')->first();
+        $topbarSetting = TopbarSetting::where('status', '1')->first();
+        $socialSetting = SocialSetting::where('status', '1')->first();
+        $schedule_setting = ScheduleSetting::where('slug', 'fees-schedule')->first();
+        $footer_pages = Page::where('language_id', Language::version()->id)
+            ->where('status', '1')
+            ->orderBy('id', 'asc')
+            ->get();
 
-        // // Set Time Zone
-        // Config::set('app.timezone', $setting->time_zone);
+        // Set Time Zone
+        Config::set('app.timezone', $setting->time_zone);
 
-        // View::share([
-        //     'setting' => $setting,
-        //     'user_languages' => $user_languages,
-        //     'schedule_setting' => $schedule_setting,
-        //     'topbarSetting' => $topbarSetting,
-        //     'socialSetting' => $socialSetting,
-        //     'footer_pages' => $footer_pages
-        // ]);
+        View::share([
+            'setting' => $setting,
+            'user_languages' => $user_languages,
+            'schedule_setting' => $schedule_setting,
+            'topbarSetting' => $topbarSetting,
+            'socialSetting' => $socialSetting,
+            'footer_pages' => $footer_pages
+        ]);
 
     }
 }
