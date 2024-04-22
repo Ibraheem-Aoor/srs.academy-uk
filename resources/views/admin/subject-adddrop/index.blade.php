@@ -70,7 +70,7 @@
                             @endif
 
                         @endforeach
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <fieldset class="row gx-2 scheduler-border">
@@ -81,7 +81,7 @@
                                     <p><mark class="text-primary">{{ __('field_name') }}:</mark> {{ $row->first_name }} {{ $row->last_name }}</p>
                                     <hr/>
 
-                                    <p><mark class="text-primary">{{ __('field_gender') }}:</mark> 
+                                    <p><mark class="text-primary">{{ __('field_gender') }}:</mark>
                                         @if( $row->gender == 1 )
                                         {{ __('gender_male') }}
                                         @elseif( $row->gender == 2 )
@@ -94,7 +94,7 @@
                                     <p><mark class="text-primary">{{ __('field_total_credit_hour') }}:</mark> {{ round($total_credits, 2) }}</p>
                                     <hr/>
 
-                                    <p><mark class="text-primary">{{ __('field_cumulative_gpa') }}:</mark> 
+                                    <p><mark class="text-primary">{{ __('field_cumulative_gpa') }}:</mark>
                                         @php
                                         if($total_credits <= 0){
                                             $total_credits = 1;
@@ -126,10 +126,10 @@
                 </div>
 
 
-                @if(isset($row))  
+                @if(isset($row))
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('status_current') }} {{ __('field_session') }}: {{ $row->currentEnroll->session->title ?? '' }} | {{ $row->currentEnroll->semester->title ?? '' }} | {{ $row->currentEnroll->section->title ?? '' }}</h5>
+                        <h5>{{ __('status_current') }} {{ __('field_session') }}: {{ $row->currentEnroll->session->title ?? '' }} | {{ $row->currentEnroll->semester->title ?? '' }} </h5>
                     </div>
                     <div class="card-block">
                         <!-- [ Data table ] start -->
@@ -156,7 +156,7 @@
                                         $semester_credits = $semester_credits + $subject->credit_hour;
                                         $subject_grade = null;
                                     @endphp
-                                    
+
                                     <tr>
                                         <td>{{ $subject->code }}</td>
                                         <td>
@@ -242,7 +242,7 @@
                                     <!-- Include Confirm modal -->
                                     @include($view.'.confirm')
                                 </div>
-                                
+
                             </div>
                         </form>
                     </div>

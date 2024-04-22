@@ -190,7 +190,7 @@ class ClassRoutineController extends Controller
             $data['selected_section'] = $section = $request->section;
         }
         else{
-            $data['selected_section'] = '0';
+            $data['selected_section'] = null;
         }
 
 
@@ -201,32 +201,32 @@ class ClassRoutineController extends Controller
         {
         $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
 
-
         $sessions = Session::where('status', 1);
         $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
+            $query->whereIn('program_id', $program);
         });
         $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
 
         $semesters = Semester::where('status', 1);
         $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
+            $query->whereIn('program_id', $program);
         });
         $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
 
         $sections = Section::where('status', 1);
         $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
             $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
+            // $query->where('semester_id', $semester);
         });
         $data['sections'] = $sections->orderBy('title', 'asc')->get();
 
         $subjects = Subject::where('status', 1);
         $subjects->with('subjectEnrolls')->whereHas('subjectEnrolls', function ($query) use ($program, $semester){
-            $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
+            $query->whereIn('program_id', $program);
+            // $query->where('semester_id', $semester);
         });
         $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
+        // dd($data);
         }
 
 

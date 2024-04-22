@@ -52,7 +52,7 @@ class StudentSingleEnrollController extends Controller
 
 
         $data['students'] = Student::whereHas('currentEnroll')->where('status', '1')->orderBy('student_id', 'asc')->get();
-        
+
         if(!empty($request->student) && $request->student != Null){
 
             $data['selected_student'] = $request->student;
@@ -65,7 +65,7 @@ class StudentSingleEnrollController extends Controller
             $data['sessions'] = Session::with('programs')->whereHas('programs', function ($query) use ($student){
                 $query->where('program_id', $student->program_id);
             })->where('status', '1')->orderBy('id', 'desc')->get();
-            
+
             $data['semesters'] = Semester::with('programs')->whereHas('programs', function ($query) use ($student){
                 $query->where('program_id', $student->program_id);
             })->where('status', '1')->orderBy('id', 'asc')->get();
@@ -101,7 +101,7 @@ class StudentSingleEnrollController extends Controller
             'program' => 'required',
             'semester' => 'required',
             'session' => 'required',
-            'section' => 'required',
+            'section' => 'nullable',
             'subjects' => 'required',
         ]);
 
@@ -109,7 +109,7 @@ class StudentSingleEnrollController extends Controller
         try{
             DB::beginTransaction();
             // Duplicate Enroll Check
-            $duplicate_check = StudentEnroll::where('student_id', $request->student)->where('session_id', $request->session)->where('semester_id', $request->semester)->where('section_id', $request->section)->first();
+            $duplicate_check = StudentEnroll::where('student_id', $request->student)->where('session_id', $request->session)->where('semester_id', $request->semester)->first();
             $session_check = StudentEnroll::where('student_id', $request->student)->where('session_id', $request->session)->first();
             // $semester_check = StudentEnroll::where('student_id', $request->student)->where('semester_id', $request->semester)->first();
 
@@ -127,7 +127,7 @@ class StudentSingleEnrollController extends Controller
                 $enroll->program_id = $request->program;
                 $enroll->session_id = $request->session;
                 $enroll->semester_id = $request->semester;
-                $enroll->section_id = $request->section;
+                $enroll->section_id = $request->section ?? '0';
                 $enroll->created_by = Auth::guard('web')->user()->id;
                 $enroll->save();
 

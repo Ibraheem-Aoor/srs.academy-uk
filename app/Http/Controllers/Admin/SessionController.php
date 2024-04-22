@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Session;
 use App\Models\Program;
 use App\Models\Semester;
+use App\Models\StudentEnroll;
 use Toastr;
 
 class SessionController extends Controller
@@ -184,15 +185,19 @@ class SessionController extends Controller
     public function current($id)
     {
         // Set current
-        Session::where('id', '=', $id)->update([
+        $target_session = Session::findOrFail($id);
+        $target_session->update([
             'current' => 1,
             'status' => 1
         ]);
+
 
         // Unset current
         Session::where('id', '!=', $id)->update([
             'current' => 0
         ]);
+        StudentEnroll::query()->update(['session_id' => $target_session->id]);
+        StudentEnroll::query()->update(['semester_id' => $target_session->semester?->id]);
 
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
