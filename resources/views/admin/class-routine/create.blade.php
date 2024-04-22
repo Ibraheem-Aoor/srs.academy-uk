@@ -73,7 +73,9 @@
                                     <div class="col-md-12">
                                     <form class="needs-validation" novalidate action="{{ route($route.'.store') }}" method="post" id="fields" enctype="multipart/form-data">
                                     @csrf
-                                    <input type="text" name="program" value="{{ $selected_program }}" hidden>
+                                    @foreach ($selected_program as $program)
+                                    <input type="text" name="program[]" value="{{ $program }}" hidden>
+                                    @endforeach
                                     <input type="text" name="session" value="{{ $selected_session }}" hidden>
                                     <input type="text" name="semester" value="{{ $selected_semester }}" hidden>
                                     <input type="text" name="section" value="{{ $selected_section }}" hidden>

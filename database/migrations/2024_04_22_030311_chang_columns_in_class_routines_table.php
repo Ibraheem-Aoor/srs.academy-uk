@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::table('class_routines', function (Blueprint $table) {
             $table->integer('section_id')->unsigned()->nullable()->change();
+            $table->integer('program_id')->unsigned()->nullable()->change();
         });
     }
 
@@ -27,6 +28,7 @@ return new class extends Migration
     {
         Schema::table('class_routines', function (Blueprint $table) {
             $table->integer('section_id')->unsigned()->change();
+            $table->integer('program_id')->unsigned()->change();
 
         });
     }

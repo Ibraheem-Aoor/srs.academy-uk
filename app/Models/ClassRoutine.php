@@ -35,10 +35,6 @@ class ClassRoutine extends Model
         return $this->belongsTo(Session::class, 'session_id');
     }
 
-    public function program()
-    {
-        return $this->belongsTo(Program::class, 'program_id');
-    }
 
     public function semester()
     {
@@ -48,5 +44,13 @@ class ClassRoutine extends Model
     public function section()
     {
         return $this->belongsTo(Section::class, 'section_id');
+    }
+
+    /**
+     * Each Class routine might introduce with multiple programs
+     */
+    public function programs()
+    {
+        return $this->belongsToMany(Program::class, 'program_class_routines','class_routine_id', 'program_id');
     }
 }
