@@ -58,9 +58,9 @@
 		{{ __('required_field') }} {{ __('field_semester') }}
 	</div>
 </div>
-<div class="form-group col-md-3">
+<div class="form-group col-md-3 d-none">
   <label for="section">{{ __('field_section') }} <span>*</span></label>
-	<select class="form-control section" name="section" id="section" required>
+	<select class="form-control section" name="section" id="section" >
 		<option value="">{{ __('select') }}</option>
 		@if(isset($sections))
 		@foreach( $sections->sortBy('title') as $section )
