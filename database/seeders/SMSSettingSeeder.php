@@ -16,17 +16,17 @@ class SMSSettingSeeder extends Seeder
     public function run()
     {
         DB::table('s_m_s_settings')->delete();
-        
+
         $s_m_s_settings = SMSSetting::create([
 
             'nexmo_key'=>'7e29c3ce',
             'nexmo_secret'=>'6gK9ve4soFO6RP5d',
             'nexmo_sender_name'=>'ABC',
-            'twilio_sid'=>'AC8f4bfd69c98ad28c8f3a1dc8a8cca836',
-            'twilio_auth_token'=>'4c880b6a9061a145d5c2a92de7e51cdf',
-            'twilio_number'=>'+14154461617',
+            'twilio_sid'=>env('TWILIO_SID'),
+            'twilio_auth_token'=>env('TWILIO_AUTH_TOKEN'),
+            'twilio_number'=> env('TWILIO_NUMBER'),
             'status'=>'1',
-            
+
         ]);
     }
 }
