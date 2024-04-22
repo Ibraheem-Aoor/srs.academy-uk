@@ -201,8 +201,8 @@
     $(document).ready(function() {
         $("select.program").each(function() {
             $(this).select2().on('select2:select select2:unselect', function(e) {
-                var session = $(this).closest('.form-group').find('.session');
-                var semester = $(this).closest('.form-group').find('.semester');
+                var session = $(".session");
+                var semester = $(".semester");
                 var section = $(this).closest('.form-group').find('.section');
 
                 // Ajax calls or any other logic you have
