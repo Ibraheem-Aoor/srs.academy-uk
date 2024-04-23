@@ -19,7 +19,7 @@ class ExamTypeCategoryController extends Controller
     public function __construct()
     {
         // Module Data
-        $this->title = trans_choice('module_exam_type-category', 1);
+        $this->title = trans_choice('module_exam_type_category', 1);
         $this->route = 'admin.exam-type-category';
         $this->view = 'admin.exam-type-category';
         $this->path = 'exam-type-category';

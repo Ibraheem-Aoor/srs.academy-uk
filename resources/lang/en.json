@@ -896,6 +896,7 @@
     "required_prerequisites": "Field Prerequists Is required",
     "course_per_program": " :faculty Programs Course Type",
     "field_program_invalid": "Course Per Program Details Invalid",
-    "field_session_period_invalid_for_semester": "Session Date Is Invalid According To Selected Semester"
+    "field_session_period_invalid_for_semester": "Session Date Is Invalid According To Selected Semester",
+    "field_exam_type_title_exsits_for_selected_category": "Title Exsits Already  For Selected Category"
 
 }

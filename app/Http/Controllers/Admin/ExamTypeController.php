@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Rules\Admin\ExamTypeTitleNotRepeated;
 use Illuminate\Http\Request;
 use App\Models\ExamType;
 use App\Models\ExamTypeCategory;
@@ -71,9 +72,9 @@ class ExamTypeController extends Controller
     {
         // Field Validation
         $request->validate([
-            'title' => 'required|max:191|unique:exam_types,title',
+            'title' => 'required|max:191',
             'marks' => 'required|numeric',
-            'category' => 'required|exists:exam_type_categories,id',
+            'category' => ['required','exists:exam_type_categories,id' , new ExamTypeTitleNotRepeated(title:$request->title)],
             // 'contribution' => 'required|numeric',
         ]);
         // Insert Data
@@ -123,9 +124,9 @@ class ExamTypeController extends Controller
     {
         // Field Validation
         $request->validate([
-            'title' => 'required|max:191|unique:exam_types,title,' . $examType->id,
+            'title' => 'required|max:191',
             'marks' => 'required|numeric',
-            'category' => 'required|exists:exam_type_categories,id',
+            'category' => ['required','exists:exam_type_categories,id' , new ExamTypeTitleNotRepeated(title:$request->title)],
             // 'contribution' => 'required|numeric',
         ]);
         // Update Data

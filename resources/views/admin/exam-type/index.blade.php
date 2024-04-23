@@ -24,7 +24,7 @@
                                         <select name="category" id="category" class="form-control" required>
                                             <option value="">{{ __('select') }}</option>
                                             @foreach ($mark_distribution_categories as $category)
-                                                <option value="{{ $category->id  }}">{{ $category->title }}</option>
+                                                <option value="{{ $category->id  }}" @selected(old('category') == $category->id)>{{ $category->title }}</option>
                                             @endforeach
                                         </select>
                                         <div class="invalid-feedback">
