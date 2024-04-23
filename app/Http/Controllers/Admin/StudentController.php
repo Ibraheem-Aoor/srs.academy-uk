@@ -37,7 +37,7 @@ use DB;
 class StudentController extends Controller
 {
     use FileUploader;
-    
+
     /**
      * Create a new controller instance.
      *
@@ -126,7 +126,7 @@ class StudentController extends Controller
         else{
             $data['selected_student_id'] = Null;
         }
-        
+
 
         // Search Filter
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
@@ -217,11 +217,10 @@ class StudentController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
 
-        
+
         $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
         $data['statuses'] = StatusType::where('status', '1')->orderBy('title', 'asc')->get();
         $data['provinces'] = Province::where('status', '1')->orderBy('title', 'asc')->get();
-
         return view($this->view.'.create', $data);
     }
 
@@ -258,7 +257,7 @@ class StudentController extends Controller
         // Insert Data
         try{
             DB::beginTransaction();
-            
+
             $student = new Student;
             $student->student_id = $request->student_id;
             $student->batch_id = $request->batch;
@@ -366,7 +365,7 @@ class StudentController extends Controller
 
                 }
             }}
-            
+
 
             // Student Enroll
             $enroll = new StudentEnroll();
@@ -381,7 +380,7 @@ class StudentController extends Controller
 
             // Assign Subjects
             $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('semester_id', $request->semester)->where('section_id', $request->section)->first();
-            
+
             if(isset($enrollSubject)){
                 foreach($enrollSubject->subjects as $subject){
                     // Attach Subject
@@ -444,7 +443,7 @@ class StudentController extends Controller
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['path'] = $this->path;
-        
+
 
         $data['provinces'] = Province::where('status', '1')
                             ->orderBy('title', 'asc')->get();
@@ -456,7 +455,7 @@ class StudentController extends Controller
                             ->orderBy('title', 'asc')->get();
         $data['statuses'] = StatusType::where('status', '1')->get();
         $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
-
+        $student->load('batch:id,title','batch.programs:id,title');
         $data['row'] = $student;
 
 
@@ -476,6 +475,7 @@ class StudentController extends Controller
         $request->validate([
             'student_id' => 'required|unique:students,student_id,'.$student->id,
             'batch' => 'required',
+            'program' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:students,email,'.$student->id,
@@ -490,9 +490,10 @@ class StudentController extends Controller
         // Update Data
         try{
             DB::beginTransaction();
-            
+
             $student->student_id = $request->student_id;
             $student->batch_id = $request->batch;
+            $student->program_id = $request->program;
             $student->admission_date = $request->admission_date;
 
             $student->first_name = $request->first_name;
@@ -608,7 +609,7 @@ class StudentController extends Controller
             Toastr::error(__('msg_updated_error'), __('msg_error'));
 
             return redirect()->back();
-        }        
+        }
     }
 
     /**
@@ -634,7 +635,7 @@ class StudentController extends Controller
         $student->hostelRoom()->delete();
         $student->transport()->delete();
         $student->notes()->delete();
-        
+
         $student->delete();
         DB::commit();
 
@@ -650,7 +651,7 @@ class StudentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function status($id)
-    {   
+    {
         // Set Status
         $user = Student::where('id', $id)->firstOrFail();
 
@@ -675,7 +676,7 @@ class StudentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function sendPassword($id)
-    {   
+    {
         //
         $user = Student::where('id', $id)->firstOrFail();
 
@@ -696,12 +697,12 @@ class StudentController extends Controller
             $data['subject'] = __('msg_your_login_credentials');
             $data['from'] = $mail->sender_email;
             $data['sender'] = $mail->sender_name;
-            
+
 
             // Send Mail
             Mail::to($sendTo, $receiver)->send(new SendPassword($data));
 
-            
+
             Toastr::success(__('msg_sent_successfully'), __('msg_success'));
         }
         else{
@@ -723,7 +724,7 @@ class StudentController extends Controller
         $data['title'] = $this->title;
         $data['route'] = $this->route;
         $data['view'] = $this->view;
-        
+
         $data['row'] = Student::where('id', $id)->firstOrFail();
 
         return view($this->view.'.password-print', $data);
@@ -820,7 +821,7 @@ class StudentController extends Controller
         $data['section'] = $request->section;
 
         Excel::import(new StudentsImport($data), $request->file('import'));
-        
+
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
