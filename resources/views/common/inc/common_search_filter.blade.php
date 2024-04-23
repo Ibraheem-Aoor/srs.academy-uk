@@ -14,22 +14,41 @@
         {{ __('required_field') }} {{ __('field_faculty') }}
     </div>
 </div>
-<div class="form-group col-md-3">
-    <label for="program">{{ __('field_program') }} <span>*</span></label>
-    <select class="form-control program select2" multiple name="program[]" id="program" required>
-        <option value="">{{ __('select') }}</option>
-        @if (isset($programs))
-            @foreach ($programs->sortBy('title') as $program)
-                <option value="{{ $program->id }}" @if (in_array($program->id, $selected_program)) selected @endif>
-                    {{ $program->title }}</option>
-            @endforeach
-        @endif
-    </select>
+@if (Request::is('*/class-routine') || Request::is('*/class-routine/*'))
+    <div class="form-group col-md-3">
+        <label for="program">{{ __('field_program') }} <span>*</span></label>
+        <select class="form-control program select2" multiple name="program[]" id="program" required>
+            <option value="">{{ __('select') }}</option>
+            @if (isset($programs))
+                @foreach ($programs->sortBy('title') as $program)
+                    <option value="{{ $program->id }}" @if (in_array($program->id, $selected_program)) selected @endif>
+                        {{ $program->title }}</option>
+                @endforeach
+            @endif
+        </select>
 
-    <div class="invalid-feedback">
-        {{ __('required_field') }} {{ __('field_program') }}
+        <div class="invalid-feedback">
+            {{ __('required_field') }} {{ __('field_program') }}
+        </div>
     </div>
-</div>
+@else
+    <div class="form-group col-md-3">
+        <label for="program">{{ __('field_program') }} <span>*</span></label>
+        <select class="form-control program "  name="program" id="program" required>
+            <option value="">{{ __('select') }}</option>
+            @if (isset($programs))
+                @foreach ($programs->sortBy('title') as $program)
+                    <option value="{{ $program->id }}" @if (in_array($program->id, $selected_program)) selected @endif>
+                        {{ $program->title }}</option>
+                @endforeach
+            @endif
+        </select>
+
+        <div class="invalid-feedback">
+            {{ __('required_field') }} {{ __('field_program') }}
+        </div>
+    </div>
+@endif
 <div class="form-group col-md-3">
     <label for="session">{{ __('field_session') }} <span>*</span></label>
     <select class="form-control session" name="session" id="session" required>
