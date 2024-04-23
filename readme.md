@@ -27,17 +27,7 @@ This Student Registration System is tailored for the needs of an online licensed
 - **Document Management:** Upload and manage important documents for student records.
 - **Communication Tools:** Facilitate communication between students, faculty, and administrators.
 
-## Getting Started
 
-To get started with the Student Registration System, follow these steps:
-
-1. Clone the repository to your local machine.
-2. Install dependencies using Composer.
-3. Set up your environment variables.
-4. Migrate and seed the database.
-5. Run the application and start managing student registrations!
-
-For detailed instructions, refer to the [documentation](https://laravel.com/docs).
 
 
 
