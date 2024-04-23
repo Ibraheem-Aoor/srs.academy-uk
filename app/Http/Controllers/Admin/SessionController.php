@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Rules\Admin\SessionDateWithinSemesterPeriodRule;
 use Illuminate\Http\Request;
 use App\Models\Session;
 use App\Models\Program;
@@ -78,7 +79,8 @@ class SessionController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'programs' => 'required',
-            'semester_id' => 'required|exists:semesters,id',
+            'semester_id' => ['required', 'exists:semesters,id', new SessionDateWithinSemesterPeriodRule(start_date: $request->start_date, end_date: $request->end_date)],
+
         ]);
 
         // Insert Data
@@ -140,7 +142,7 @@ class SessionController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'programs' => 'required',
-            'semester_id' => 'required|exists:semesters,id',
+            'semester_id' => ['required', 'exists:semesters,id', new SessionDateWithinSemesterPeriodRule(start_date: $request->start_date, end_date: $request->end_date)],
         ]);
 
         // Update Data
