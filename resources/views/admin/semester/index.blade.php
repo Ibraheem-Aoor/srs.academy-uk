@@ -122,7 +122,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>{{ __('field_title') }}</th>
-                                            <th>{{ __('field_year') }}</th>
+                                            <th>{{ __('field_date') }}</th>
                                             <th>{{ __('field_program') }}</th>
                                             <th>{{ __('field_status') }}</th>
                                             <th>{{ __('field_action') }}</th>
@@ -134,22 +134,16 @@
                                                 <td>{{ $key + 1 }}</td>
                                                 <td>{{ $row->title }}</td>
                                                 <td>
-                                                    @if ($row->year == 1)
-                                                        {{ __('1st_year') }}
-                                                    @elseif($row->year == 2)
-                                                        {{ __('2nd_year') }}
-                                                    @elseif($row->year == 3)
-                                                        {{ __('3rd_year') }}
-                                                    @elseif($row->year == 4)
-                                                        {{ __('4th_year') }}
-                                                    @elseif($row->year == 5)
-                                                        {{ __('5th_year') }}
-                                                    @elseif($row->year == 6)
-                                                        {{ __('6th_year') }}
-                                                    @elseif($row->year == 7)
-                                                        {{ __('7th_year') }}
-                                                    @elseif($row->year == 8)
-                                                        {{ __('8th_year') }}
+                                                    @if (isset($setting->date_format))
+                                                        {{ date($setting->date_format, strtotime($row->start_date)) }}
+                                                    @else
+                                                        {{ date('Y-m-d', strtotime($row->start_date)) }}
+                                                    @endif
+                                                    <br />
+                                                    @if (isset($setting->date_format))
+                                                        {{ date($setting->date_format, strtotime($row->end_date)) }}
+                                                    @else
+                                                        {{ date('Y-m-d', strtotime($row->end_date)) }}
                                                     @endif
                                                 </td>
                                                 <td>
