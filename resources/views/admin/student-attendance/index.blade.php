@@ -22,7 +22,7 @@
                                 @include('common.inc.subject_search_filter')
 
                                 <div class="form-group col-md-3">
-                                    <label for="date">{{ __('field_date') }} <span>*</span></label>
+                                    <label for="date">{{ __('field_date') }} @if(!isset($is_optional_search))<span>*</span>@endif</label>
                                     <input type="date" class="form-control date" name="date" value="{{ $selected_date }}" required>
 
                                     <div class="invalid-feedback">
@@ -139,7 +139,7 @@
                                             </div>
                                             <div class="form-group d-inline">
                                                 <div class="radio radio-danger d-inline">
-                                                    <input class="c-absent" type="radio" data_id="{{ $row->id }}"name="attendances-{{ $key }}" id="attendance-a-{{ $key }}" value="2" 
+                                                    <input class="c-absent" type="radio" data_id="{{ $row->id }}"name="attendances-{{ $key }}" id="attendance-a-{{ $key }}" value="2"
 
                                                     @if(isset($attendances))
                                                     @foreach($attendances as $attendance)
@@ -184,7 +184,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <input type="text" style="width: 100px;" class="form-control" name="notes[]" id="note-{{ $key }}" 
+                                            <input type="text" style="width: 100px;" class="form-control" name="notes[]" id="note-{{ $key }}"
                                             @if(isset($attendances))
                                             @foreach($attendances as $attendance)
                                                 @if($attendance->student_enroll_id == $row->id)
