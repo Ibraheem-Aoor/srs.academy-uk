@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\HasStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentEnroll extends Model
 {
+    use HasStatus;
     /**
      * The attributes that are mass assignable.
      *

@@ -198,8 +198,8 @@ class SessionController extends Controller
         Session::where('id', '!=', $id)->update([
             'current' => 0
         ]);
-        StudentEnroll::query()->update(['session_id' => $target_session->id]);
-        StudentEnroll::query()->update(['semester_id' => $target_session->semester?->id]);
+        StudentEnroll::query()->status(1)->where->update(['session_id' => $target_session->id]);
+        StudentEnroll::query()->status(1)->update(['semester_id' => $target_session->semester?->id]);
 
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));

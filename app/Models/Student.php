@@ -117,6 +117,11 @@ class Student extends Authenticatable
         });
     }
 
+    public function preEnrolls()
+    {
+        return $this->studentEnrolls()->status(0)->get() ?? [];
+    }
+
     public function relatives()
     {
         return $this->hasMany(StudentRelative::class, 'student_id', 'id');

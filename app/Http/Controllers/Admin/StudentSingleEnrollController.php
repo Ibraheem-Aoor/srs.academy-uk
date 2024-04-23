@@ -83,7 +83,6 @@ class StudentSingleEnrollController extends Controller
         else {
             $data['selected_student'] = Null;
         }
-
         return view($this->view.'.index', $data);
     }
 
@@ -104,7 +103,6 @@ class StudentSingleEnrollController extends Controller
             'section' => 'nullable',
             'subjects' => 'required',
         ]);
-
 
         try{
             DB::beginTransaction();
