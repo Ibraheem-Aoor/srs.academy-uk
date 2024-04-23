@@ -164,7 +164,7 @@
 
 
                 @canany(['section-create', 'section-view'])
-                <li class="{{ Request::is('admin/academic/section*') ? 'active' : '' }}"><a href="{{ route('admin.section.index') }}" class="">{{ trans_choice('module_section', 2) }}</a></li>
+                <li class="d-none {{ Request::is('admin/academic/section*') ? 'active' : '' }}"><a href="{{ route('admin.section.index') }}" class="">{{ trans_choice('module_section', 2) }}</a></li>
                 @endcanany
 
                 @canany(['class-room-create', 'class-room-view'])
