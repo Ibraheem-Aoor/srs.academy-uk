@@ -198,7 +198,7 @@ class SessionController extends Controller
         Session::where('id', '!=', $id)->update([
             'current' => 0
         ]);
-        StudentEnroll::query()->status(1)->where->update(['session_id' => $target_session->id]);
+        StudentEnroll::query()->status(1)->update(['session_id' => $target_session->id]);
         StudentEnroll::query()->status(1)->update(['semester_id' => $target_session->semester?->id]);
 
 
