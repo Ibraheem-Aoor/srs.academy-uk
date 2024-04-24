@@ -54,11 +54,10 @@ class ClassRoutineController extends Controller
                         ->where('session_id', $enroll->session_id)
                         ->where('program_id', $enroll->program_id)
                         ->where('semester_id', $enroll->semester_id)
-                        ->where('section_id', $enroll->section_id)
                         ->orderBy('start_time', 'asc')
                         ->get();
         }
-        
+
 
         return view($this->view.'.index', $data);
     }
