@@ -17,6 +17,7 @@ use App\User;
 use Toastr;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class ClassRoutineController extends Controller
 {
@@ -138,6 +139,7 @@ class ClassRoutineController extends Controller
             // }
             $data['rows'] = $routines->orderBy('start_time', 'asc')->get();
         }
+        $data['is_mulit_programs'] = Route::currentRouteName() == 'admin.class-routine.index';
         return view($this->view . '.index', $data);
     }
 
@@ -251,8 +253,7 @@ class ClassRoutineController extends Controller
             // }
             $data['rows'] = $routines->orderBy('start_time', 'asc')->get();
         }
-
-
+        $data['is_mulit_programs'] = Route::currentRouteName() == 'admin.class-routine.index';
         return view($this->view . '.create', $data);
     }
 

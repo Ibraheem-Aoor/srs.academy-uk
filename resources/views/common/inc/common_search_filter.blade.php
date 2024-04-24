@@ -14,7 +14,7 @@
         {{ __('required_field') }} {{ __('field_faculty') }}
     </div>
 </div>
-@if (Request::is('*/class-routine') || Request::is('*/class-routine/*'))
+@if (isset($is_mulit_programs))
     <div class="form-group col-md-3">
         <label for="program">{{ __('field_program') }} <span>*</span></label>
         <select class="form-control program select2" multiple name="program[]" id="program" required>
@@ -34,7 +34,7 @@
 @else
     <div class="form-group col-md-3">
         <label for="program">{{ __('field_program') }} <span>*</span></label>
-        <select class="form-control program "  name="program" id="program" required>
+        <select class="form-control program " name="program" id="program" required>
             <option value="">{{ __('select') }}</option>
             @if (isset($programs))
                 @foreach ($programs->sortBy('title') as $program)
@@ -217,67 +217,71 @@
         });
     });
 
-    $(document).ready(function() {
-        $("select.program").each(function() {
-            $(this).select2().on('select2:select select2:unselect', function(e) {
-                var session = $(".session");
-                var semester = $(".semester");
-                var section = $(this).closest('.form-group').find('.section');
+    @if (isset($is_mulit_programs))
+        $(document).ready(function() {
+            $("select.program").each(function() {
+                $(this).select2().on('select2:select select2:unselect', function(e) {
+                    var session = $(".session");
+                    var semester = $(".semester");
+                    var section = $(this).closest('.form-group').find('.section');
 
-                // Ajax calls or any other logic you have
-                // For example:
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
+                    // Ajax calls or any other logic you have
+                    // For example:
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+
+                    // Sample Ajax call for session filtering
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('filter-session') }}",
+                        data: {
+                            _token: $('input[name=_token]').val(),
+                            program: $(this).val()
+                        },
+                        success: function(response) {
+                            // var jsonData=JSON.parse(response);
+                            $('option', session).remove();
+                            $('.session').append(
+                                '<option value="">{{ __('select') }}</option>'
+                                );
+                            $.each(response, function() {
+                                $('<option/>', {
+                                    'value': this.id,
+                                    'text': this.title
+                                }).appendTo('.session');
+                            });
+                        }
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('filter-semester') }}",
+                        data: {
+                            _token: $('input[name=_token]').val(),
+                            program: $(this).val()
+                        },
+                        success: function(response) {
+                            // var jsonData=JSON.parse(response);
+                            $('option', semester).remove();
+                            $('.semester').append(
+                                '<option value="">{{ __('select') }}</option>'
+                                );
+                            $.each(response, function() {
+                                $('<option/>', {
+                                    'value': this.id,
+                                    'text': this.title
+                                }).appendTo('.semester');
+                            });
+                        }
+
+                    });
+
+
                 });
-
-                // Sample Ajax call for session filtering
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('filter-session') }}",
-                    data: {
-                        _token: $('input[name=_token]').val(),
-                        program: $(this).val()
-                    },
-                    success: function(response) {
-                        // var jsonData=JSON.parse(response);
-                        $('option', session).remove();
-                        $('.session').append(
-                            '<option value="">{{ __('select') }}</option>');
-                        $.each(response, function() {
-                            $('<option/>', {
-                                'value': this.id,
-                                'text': this.title
-                            }).appendTo('.session');
-                        });
-                    }
-                });
-
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('filter-semester') }}",
-                    data: {
-                        _token: $('input[name=_token]').val(),
-                        program: $(this).val()
-                    },
-                    success: function(response) {
-                        // var jsonData=JSON.parse(response);
-                        $('option', semester).remove();
-                        $('.semester').append(
-                            '<option value="">{{ __('select') }}</option>');
-                        $.each(response, function() {
-                            $('<option/>', {
-                                'value': this.id,
-                                'text': this.title
-                            }).appendTo('.semester');
-                        });
-                    }
-
-                });
-
-
             });
         });
-    });
+    @endif
 </script>

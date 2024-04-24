@@ -16,7 +16,6 @@
                         <form class="needs-validation" novalidate method="get" action="{{ route($route.'.index') }}">
                             <div class="row gx-2">
                                 @include('common.inc.common_search_filter')
-
                                 <div class="form-group col-md-3">
                                     <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-search"></i> {{ __('btn_search') }}</button>
                                 </div>
