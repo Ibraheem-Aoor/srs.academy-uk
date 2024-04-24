@@ -63,7 +63,7 @@ Route::middleware(['XSS'])->group(function () {
 
 
 // Set Lang Version
-Route::get('locale/language/{locale}', function ($locale){
+Route::get('locale/language/{locale}', function ($locale) {
 
     \Session::put('locale', $locale);
 
@@ -216,7 +216,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::resource('staff/tax-setting', 'TaxSettingController');
 
     // Staff Routes
-    Route::resource('staff/user','UserController');
+    Route::resource('staff/user', 'UserController');
     Route::get('staff/user-status/{id}', 'UserController@status')->name('user.status');
     Route::post('staff/user-send-password/{id}', 'UserController@sendPassword')->name('user.send-password');
     // Route::get('staff/user-print-password/{id}', 'UserController@printPassword')->name('user.print-password');
@@ -390,8 +390,8 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::post('setting/siteinfo', 'SettingController@siteInfo')->name('setting.siteinfo');
 
     // Address Routes
-    Route::resource('setting/province','ProvinceController');
-    Route::resource('setting/district','DistrictController');
+    Route::resource('setting/province', 'ProvinceController');
+    Route::resource('setting/district', 'DistrictController');
 
     // Language Routes
     Route::resource('setting/language', 'LanguageController');
@@ -405,11 +405,11 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::delete('translations/destroy/{key}', 'TranslateController@destroy')->name('translations.destroy');
 
     // Roles And Permission Routes
-    Route::resource('setting/role','RoleController');
+    Route::resource('setting/role', 'RoleController');
 
     // Env Setting Routes
-    Route::resource('setting/mail-setting','MailSettingController');
-    Route::resource('setting/sms-setting','SMSSettingController');
+    Route::resource('setting/mail-setting', 'MailSettingController');
+    Route::resource('setting/sms-setting', 'SMSSettingController');
 
     // DB Import Export Routes
     // Route::get('setting/bulk-import-export', 'BulkImportExportController@importExportView')->name('bulk.import-export');
@@ -432,7 +432,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
 
 
     // Profile Routes
-    Route::resource('profile','ProfileController');
+    Route::resource('profile', 'ProfileController');
     Route::get('profile/account', 'ProfileController@account')->name('profile.account');
     Route::post('profile/changemail', 'ProfileController@changeMail')->name('profile.changemail');
     Route::post('profile/changepass', 'ProfileController@changePass')->name('profile.changepass');
@@ -460,14 +460,14 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
 
 
 // Student Login Routes
-Route::prefix('student')->name('student.')->namespace('Student')->group(function(){
+Route::prefix('student')->name('student.')->namespace('Student')->group(function () {
 
-    Route::namespace('Auth')->group(function(){
+    Route::namespace ('Auth')->group(function () {
 
         // Login Routes
-        Route::get('/login','LoginController@showLoginForm')->name('login');
-        Route::post('/login','LoginController@login')->name('login.store');
-        Route::post('/logout','LoginController@logout')->name('logout');
+        Route::get('/login', 'LoginController@showLoginForm')->name('login');
+        Route::post('/login', 'LoginController@login')->name('login.store');
+        Route::post('/logout', 'LoginController@logout')->name('logout');
 
         // Register Routes
         // Route::get('/register','RegisterController@showRegisterForm')->name('register');
@@ -531,8 +531,16 @@ Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')-
     Route::get('download/{id}', 'DownloadCenterController@show')->name('download.show');
 
     // Profile Routes
-    Route::resource('profile','ProfileController');
+    Route::resource('profile', 'ProfileController');
     Route::get('profile/account', 'ProfileController@account')->name('profile.account');
     // Route::post('profile/changemail', 'ProfileController@changeMail')->name('profile.changemail');
     // Route::post('profile/changepass', 'ProfileController@changePass')->name('profile.changepass');
 });
+
+
+
+// Meeting Routes
+Route::get('class-routine/meeting/join/{routineId}', 'VClassController@joinMeeting')->middleware(['auth:web,student', 'XSS']);
+Route::get('class-routine/meeting/recording/{routineId}', 'VClassController@getClassRecordings')->middleware(['auth:web,student', 'XSS']);
+Route::get('class-routine/meeting/recording/delete/{recordingId}', 'VClassController@deleteRecording')->middleware(['auth:web,student', 'XSS']);
+Route::get('class-routine/meeting/recording/download/{recordingId}', 'VClassController@downloadRecording')->middleware(['auth:web,student', 'XSS']);
