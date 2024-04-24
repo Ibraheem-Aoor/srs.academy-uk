@@ -12,32 +12,36 @@
                         <div class="card-header">
                             <h5>{{ $title }}</h5>
                         </div>
-                        <div class="card-block">
-                            <form class="needs-validation" novalidate method="get" action="{{ route($route . '.teacher') }}">
-                                <div class="row gx-2">
-                                    <div class="form-group col-md-3">
-                                        <label for="teacher">{{ __('field_staff_id') }} <span>*</span></label>
-                                        <select class="form-control select2" name="teacher" id="teacher" required>
-                                            <option value="">{{ __('select') }}</option>
-                                            @foreach ($teachers as $teacher)
-                                                <option value="{{ $teacher->id }}"
-                                                    @if ($selected_staff == $teacher->id) selected @endif>
-                                                    {{ $teacher->staff_id }} - {{ $teacher->first_name }}
-                                                    {{ $teacher->last_name }}</option>
-                                            @endforeach
-                                        </select>
+                        @isset($teachers)
 
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_staff_id') }}
+                            <div class="card-block">
+                                <form class="needs-validation" novalidate method="get" action="{{ route($route . '.teacher') }}">
+                                    <div class="row gx-2">
+                                        <div class="form-group col-md-3">
+                                            <label for="teacher">{{ __('field_staff_id') }} <span>*</span></label>
+                                            <select class="form-control select2" name="teacher" id="teacher" required>
+                                                <option value="">{{ __('select') }}</option>
+                                                @foreach ($teachers as $teacher)
+                                                    <option value="{{ $teacher->id }}"
+                                                        @if ($selected_staff == $teacher->id) selected @endif>
+                                                        {{ $teacher->staff_id }} - {{ $teacher->first_name }}
+                                                        {{ $teacher->last_name }}</option>
+                                                @endforeach
+                                            </select>
+
+                                            <div class="invalid-feedback">
+                                                {{ __('required_field') }} {{ __('field_staff_id') }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-search"></i>
+                                                {{ __('btn_search') }}</button>
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-search"></i>
-                                            {{ __('btn_search') }}</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                                </form>
+                            </div>
+
+                        @endisset
 
 
                         @if (isset($rows))
@@ -72,17 +76,17 @@
                                                                         {{ date($setting->time_format, strtotime($row->start_time)) }}
                                                                     @else
                                                                         {{ date('h:i A', strtotime($row->start_time)) }}
-                                                                        @endif <br>
-                                                                        @if (isset($setting->time_format))
-                                                                            {{ date($setting->time_format, strtotime($row->end_time)) }}
-                                                                        @else
-                                                                            {{ date('h:i A', strtotime($row->end_time)) }}
-                                                                        @endif
-                                                                        <br>
-                                                                        {{ __('field_room') }}:
-                                                                        {{ $row->room->title ?? '' }}<br>
-                                                                        {{ $row->teacher->staff_id }} -
-                                                                        {{ $row->teacher->first_name ?? '' }}
+                                                                    @endif <br>
+                                                                    @if (isset($setting->time_format))
+                                                                        {{ date($setting->time_format, strtotime($row->end_time)) }}
+                                                                    @else
+                                                                        {{ date('h:i A', strtotime($row->end_time)) }}
+                                                                    @endif
+                                                                    <br>
+                                                                    {{ __('field_room') }}:
+                                                                    {{ $row->room->title ?? '' }}<br>
+                                                                    {{ $row->teacher->staff_id }} -
+                                                                    {{ $row->teacher->first_name ?? '' }}
                                                                 </div>
                                                             </a>
                                                         @endforeach
