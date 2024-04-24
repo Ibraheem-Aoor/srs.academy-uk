@@ -377,10 +377,11 @@
                                     {{ __('required_field') }} {{ __('field_semester') }}
                                 </div>
                             </div>
-                            <div class="form-group col-md-3">
+                            {{-- Section Is Optional --}}
+                            <div class="form-group col-md-3 d-none">
                                 <label for="section">{{ __('field_section') }} <span>*</span></label>
                                 <select class="form-control next_section" name="section" id="section"
-                                    required>
+                                    >
                                     <option value="">{{ __('select') }}</option>
                                     @foreach ($sections as $section)
                                         <option value="{{ $section->id }}"

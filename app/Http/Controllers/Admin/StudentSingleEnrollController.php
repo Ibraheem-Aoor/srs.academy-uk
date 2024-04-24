@@ -103,7 +103,6 @@ class StudentSingleEnrollController extends Controller
             'section' => 'nullable',
             'subjects' => 'required',
         ]);
-
         try{
             DB::beginTransaction();
             // Duplicate Enroll Check
@@ -125,7 +124,7 @@ class StudentSingleEnrollController extends Controller
                 $enroll->program_id = $request->program;
                 $enroll->session_id = $request->session;
                 $enroll->semester_id = $request->semester;
-                $enroll->section_id = $request->section ?? '0';
+                $enroll->section_id = $request->section ?? null;
                 $enroll->created_by = Auth::guard('web')->user()->id;
                 $enroll->save();
 
