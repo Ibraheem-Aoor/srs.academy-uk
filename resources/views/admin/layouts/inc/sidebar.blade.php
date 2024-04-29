@@ -172,7 +172,7 @@
                 @endcanany
 
                 @canany(['subject-create', 'subject-view'])
-                <li class="{{ Request::is('admin/academic/subject*') ? 'active' : '' }}"><a href="{{ route('admin.subject.index') }}" class="">{{ trans_choice('module_subject', 2) }}</a></li>
+                <li class="{{ Request::is('admin/academic/subject*') && !Request::is('admin/academic/subject-type*') ? 'active' : '' }}"><a href="{{ route('admin.subject.index') }}" class="">{{ trans_choice('module_subject', 2) }}</a></li>
                 @endcanany
                 @canany(['subject-create', 'subject-view'])
                 <li class="{{ Request::is('admin/academic/subject-type*') ? 'active' : '' }}"><a href="{{ route('admin.subject-type.index') }}" class="">{{ trans_choice('module_subject_type', 2) }}</a></li>

@@ -34,7 +34,7 @@
 </div>
 <div class="form-group">
     <label for="semester">{{ __('field_session') }} <span>*</span></label>
-    <select class="form-control semester" name="session" id="semester" required>
+    <select class="form-control" name="session"  required>
         <option value="">{{ __('select') }}</option>
         @if (isset($sessions))
             @foreach ($sessions as $session)

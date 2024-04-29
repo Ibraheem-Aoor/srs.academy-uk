@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::table('enroll_subjects', function (Blueprint $table) {
             $table->integer('semester_id')->unsigned()->nullable()->change();
-            $table->unsignedInteger('session_id')->nullable()->after('program_id');
-            $table->foreign('session_id')->references('id')->on('sessions')->cascadeOnDelete();
+            $table->integer('session_id')->unsigned()->nullable()->after('program_id');
+            $table->foreign('session_id')->references('id')->on('sessions')->onDelete('cascade');
         });
     }
 

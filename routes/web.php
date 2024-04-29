@@ -12,6 +12,9 @@
 */
 
 // Web Routes
+
+use App\Http\Controllers\Admin\ProgramController;
+
 Route::middleware(['XSS'])->namespace('Web')->group(function () {
 
     // Home Route
@@ -132,6 +135,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     // Academic Routes
     Route::resource('academic/faculty', 'FacultyController');
     Route::resource('academic/program', 'ProgramController');
+    Route::put('academic/program/{program}/update-plan', 'ProgramController@updatePlan')->name('program.update_plan');
     Route::resource('academic/batch', 'BatchController');
     Route::resource('academic/session', 'SessionController');
     Route::get('academic/session-current/{id}', 'SessionController@current')->name('session.current');

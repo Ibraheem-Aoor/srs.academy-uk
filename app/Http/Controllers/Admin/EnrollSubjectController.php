@@ -75,18 +75,18 @@ class EnrollSubjectController extends Controller
      */
     public function store(Request $request)
     {
+        // dd(Session::find($request->session));
         // Field Validation
         $request->validate([
             'program' => 'required',
-            'session' => 'required',
+            'session' => 'required|exists:sessions,id',
             'section' => 'nullable',
             'subjects' => 'required',
         ]);
-
         // Insert Data
-        $enrollSubject = EnrollSubject::firstOrCreate(
-            ['program_id' => $request->program, 'session_id' => $request->session, 'section_id' => $request->section],
-            ['program_id' => $request->program, 'session_id' => $request->session, 'section_id' => $request->section]
+        $enrollSubject = EnrollSubject::query()->firstOrCreate(
+            ['program_id' => $request->program, 'session_id' => $request->session],
+            ['program_id' => $request->program, 'session_id' => $request->session]
         );
 
         // Attach Update

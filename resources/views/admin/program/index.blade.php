@@ -111,6 +111,9 @@
                                             <button type="button" class="btn btn-icon btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-{{ $row->id }}">
                                                 <i class="far fa-edit"></i>
                                             </button>
+                                            <a href="{{ route($route.'.edit' , $row->id)  }}">
+                                                <i class="far fa-file"></i>
+                                            </a>
                                             <!-- Include Edit modal -->
                                             @include($view.'.edit')
                                             @endcan

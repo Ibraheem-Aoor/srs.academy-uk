@@ -2,19 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\HasStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class EnrollSubject extends Model
 {
+    use HasStatus;
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'program_id', 'session_id', 'section_id', 'status',
+        'program_id',
+        'session_id',
+        'section_id',
+        'status',
     ];
 
+    public $table = "enroll_subjects";
 
     public function program()
     {

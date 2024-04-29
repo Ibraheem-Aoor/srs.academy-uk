@@ -29,7 +29,7 @@ class Subject extends Model
 
     public function programs()
     {
-        return $this->belongsToMany(Program::class, 'program_subject', 'subject_id', 'program_id')->withPivot(['subject_type', 'exam_type_category_id']);
+        return $this->belongsToMany(Program::class, 'program_subject', 'subject_id', 'program_id')->withPivot(['subject_type_id', 'exam_type_category_id']);
     }
 
     public function subjectEnrolls()

@@ -8,13 +8,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProgramSubject extends Model
 {
-    use HasFactory;
+    use HasFactory; 
 
-    protected $fillable = ['subject_id', 'program_id' , 'subject_type' , 'exam_type_category_id'];
+    protected $fillable = [
+        'subject_id',
+        'program_id',
+        'subject_type',
+        'exam_type_category_id',
+        'subject_type_id',
+    ];
 
 
-    public function examTypeCategory() : BelongsTo
+    public function examTypeCategory(): BelongsTo
     {
-        return $this->belongsTo(ExamTypeCategory::class, 'exam_type_category_id');a
+        return $this->belongsTo(ExamTypeCategory::class, 'exam_type_category_id');
+    }
+
+    /**
+     * Each Program Belongs To One Subject With Specific Type
+     */
+    public function subjectType(): BelongsTo
+    {
+        return $this->belongsTo(SubjectType::class , 'subject_type_id');
     }
 }

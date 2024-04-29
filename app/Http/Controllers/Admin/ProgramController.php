@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\EnrollSubject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Program;
 use App\Models\Faculty;
+use App\Models\SubjectType;
 use Toastr;
 
 class ProgramController extends Controller
@@ -26,10 +28,10 @@ class ProgramController extends Controller
         $this->access = 'program';
 
 
-        $this->middleware('permission:'.$this->access.'-view|'.$this->access.'-create|'.$this->access.'-edit|'.$this->access.'-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:'.$this->access.'-create', ['only' => ['create','store']]);
-        $this->middleware('permission:'.$this->access.'-edit', ['only' => ['edit','update']]);
-        $this->middleware('permission:'.$this->access.'-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-create|' . $this->access . '-edit|' . $this->access . '-delete', ['only' => ['index', 'show']]);
+        $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:' . $this->access . '-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:' . $this->access . '-delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -45,12 +47,12 @@ class ProgramController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
         $data['access'] = $this->access;
-        
+
         $data['faculties'] = Faculty::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
+            ->orderBy('title', 'asc')->get();
         $data['rows'] = Program::orderBy('title', 'asc')->get();
 
-        return view($this->view.'.index', $data);
+        return view($this->view . '.index', $data);
     }
 
     /**
@@ -79,10 +81,9 @@ class ProgramController extends Controller
         ]);
 
         // Registration status
-        if($request->registration == null || $request->registration != 1){
+        if ($request->registration == null || $request->registration != 1) {
             $registration = 0;
-        }
-        else {
+        } else {
             $registration = 1;
         }
 
@@ -120,7 +121,13 @@ class ProgramController extends Controller
      */
     public function edit(Program $program)
     {
-        //
+        $data['title'] = $this->title . ' Study Plan';
+        $data['path'] = $this->path;
+        $data['route'] = $this->route;
+        $data['row'] = $program;
+        $data['offered_enrolls'] = EnrollSubject::query()->status(1)->whereProgramId($program->id)->groupBy('session_id')->get();
+        $data['subject_types'] = SubjectType::query()->pluck('title', 'id')->toArray();
+        return view($this->view . '.study_plan', $data);
     }
 
     /**
@@ -135,15 +142,14 @@ class ProgramController extends Controller
         // Field Validation
         $request->validate([
             'faculty' => 'required',
-            'title' => 'required|max:191|unique:programs,title,'.$program->id,
-            'shortcode' => 'required|max:191|unique:programs,shortcode,'.$program->id,
+            'title' => 'required|max:191|unique:programs,title,' . $program->id,
+            'shortcode' => 'required|max:191|unique:programs,shortcode,' . $program->id,
         ]);
 
         // Registration status
-        if($request->registration == null || $request->registration != 1){
+        if ($request->registration == null || $request->registration != 1) {
             $registration = 0;
-        }
-        else {
+        } else {
             $registration = 1;
         }
 
@@ -177,4 +183,30 @@ class ProgramController extends Controller
 
         return redirect()->back();
     }
+
+
+    public function updatePlan(Request $request, Program $program)
+    {
+        $request->validate([
+            'enroll_subjects' => 'required|array',
+            'enroll_subjects.*' => 'required|array',
+        ], [
+            'enroll_subjects.required' => __('all_fields_required'),
+            'enroll_subjects.array' => __('all_fields_required'),
+            'enroll_subjects.*.required' => __('all_fields_required'),
+            'enroll_subjects.*.array' => __('all_fields_required'),
+        ]);
+
+        $enroll_subjects = $request->enroll_subjects;
+        foreach ($enroll_subjects as $enroll_subject_data) {
+            $subject_id = $enroll_subject_data['subject_id'];
+            $subject_type_id = $enroll_subject_data['subject_type_id'];
+            // Update the pivot record
+            $program->subjects()
+                ->updateExistingPivot($subject_id, ['subject_type_id' => $subject_type_id]);
+        }
+        Toastr::success(__('msg_created_successfully'), __('msg_success'));
+        return redirect()->back();
+    }
+
 }
