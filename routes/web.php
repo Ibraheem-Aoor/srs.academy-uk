@@ -139,6 +139,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::resource('academic/section', 'SectionController');
     Route::resource('academic/room', 'ClassRoomController');
     Route::resource('academic/subject', 'SubjectController');
+    Route::resource('academic/subject-type', 'SubjectTypeController');
     Route::get('academic/subject-import', 'SubjectController@import')->name('subject.import');
     Route::post('academic/subject-import-store', 'SubjectController@importStore')->name('subject.import.store');
     Route::resource('academic/enroll-subject', 'EnrollSubjectController');

@@ -174,6 +174,9 @@
                 @canany(['subject-create', 'subject-view'])
                 <li class="{{ Request::is('admin/academic/subject*') ? 'active' : '' }}"><a href="{{ route('admin.subject.index') }}" class="">{{ trans_choice('module_subject', 2) }}</a></li>
                 @endcanany
+                @canany(['subject-create', 'subject-view'])
+                <li class="{{ Request::is('admin/academic/subject-type*') ? 'active' : '' }}"><a href="{{ route('admin.subject-type.index') }}" class="">{{ trans_choice('module_subject_type', 2) }}</a></li>
+                @endcanany
 
                 @canany(['enroll-subject-create', 'enroll-subject-view'])
                 <li class="{{ Request::is('admin/academic/enroll-subject*') ? 'active' : '' }}"><a href="{{ route('admin.enroll-subject.index') }}" class="">{{ trans_choice('module_enroll_subject', 2) }}</a></li>

@@ -152,6 +152,7 @@
     "module_section": "Section|Sections",
     "module_class_room": "Class Room|Class Rooms",
     "module_subject": "Course|Courses",
+    "module_subject_type": "Course Type|Course Types",
     "module_enroll_subject": "Offered Course|Offered Courses",
     "module_class_routine": "Class Schedule|Class Schedules",
     "module_exam_routine": "Exam Schedule|Exam Schedules",
