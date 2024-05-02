@@ -77,7 +77,6 @@
                                                 <thead>
                                                     <tr>
                                                         <th>{{ __('field_program') }}</th>
-                                                        <th>{{ __('field_type') }}</th>
                                                         <th>{{ __('module_exam_type') }}</th>
                                                     </tr>
                                                 </thead>
@@ -87,17 +86,6 @@
                                                             <td>
                                                                 <input required type="text" class="form-control"
                                                                     value="{{ $program->title }}" disabled>
-                                                            </td>
-                                                            <td>
-                                                                <select required class="form-control"
-                                                                    name="programs[{{ $program->id }}][subject_type]"
-                                                                    id="subject_type" required>
-                                                                    <option value="">{{ __('select') }}</option>
-                                                                    @foreach ($subject_types as $key => $name)
-                                                                        <option value="{{ $name }}">
-                                                                            {{ $name }}</option>
-                                                                    @endforeach
-                                                                </select>
                                                             </td>
                                                             <td>
                                                                 <select required class="form-control"

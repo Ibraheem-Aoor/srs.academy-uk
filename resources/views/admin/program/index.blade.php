@@ -111,7 +111,7 @@
                                             <button type="button" class="btn btn-icon btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-{{ $row->id }}">
                                                 <i class="far fa-edit"></i>
                                             </button>
-                                            <a href="{{ route($route.'.edit' , $row->id)  }}">
+                                            <a href="{{ route($route.'.edit' , $row->id)  }}" class="btn bt-icon btn-success btn-sm" title="{{ __('study_plan') }}">
                                                 <i class="far fa-file"></i>
                                             </a>
                                             <!-- Include Edit modal -->

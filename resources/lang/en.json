@@ -807,5 +807,6 @@
     "navbar_prof_login": "Professor Login",
     "navbar_how_to_apply": "How To Apply",
     "program_courses" : ":program Courses",
-    "program_session" : ":program - Session:  :session"
+    "program_session" : ":program - Session:  :session",
+    "study_plan" : "Study Plan"
 }

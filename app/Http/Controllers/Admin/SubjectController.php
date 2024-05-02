@@ -20,7 +20,6 @@ use DB;
 class SubjectController extends Controller
 {
     public $mark_distribution_systems;
-    public $subject_types;
     /**
      * Create a new controller instance.
      *
@@ -38,7 +37,6 @@ class SubjectController extends Controller
             ->status(1)
             ->orderByDesc('created_at')
             ->get(['id', 'title']);
-        $this->subject_types = SubjectTypeEnum::getValues();
 
         $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-create|' . $this->access . '-edit|' . $this->access . '-delete', ['only' => ['index', 'show']]);
         $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
@@ -138,7 +136,6 @@ class SubjectController extends Controller
 
         $data['class_types'] = ClassTypeEnum::getValues();
         $data['mark_distribution_systems'] = $this->mark_distribution_systems;
-        $data['subject_types'] = $this->subject_types;
         return view($this->view . '.create', $data);
     }
 
@@ -149,7 +146,6 @@ class SubjectController extends Controller
     {
         foreach ($request->programs as $program_id => $attributes) {
             $programs_to_sync[$program_id] = [
-                'subject_type' => $attributes['subject_type'],
                 'exam_type_category_id' => $attributes['category']
             ];
         }
@@ -260,7 +256,6 @@ class SubjectController extends Controller
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
         $data['courses'] = Subject::query()->status(1)->where('id', '!=', $subject->id)->orderByDesc('created_at')->get(['id', 'title']);
         $data['mark_distribution_systems'] = $this->mark_distribution_systems;
-        $data['subject_types'] = $this->subject_types;
 
         return view($this->view . '.edit', $data);
     }

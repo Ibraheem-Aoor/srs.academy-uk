@@ -32,7 +32,7 @@
 
                                     @foreach ($offered_enrolls as $offered_enroll)
                                         <div class="col-md-12">
-                                            <label>{{ __('program_session', ['program' => $row->title, 'session' => $offered_enroll->session->title]) }}</label>
+                                            <label>{{ __('program_session', ['program' => $row->title, 'session' => $offered_enroll->session?->title]) }}</label>
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
@@ -52,7 +52,7 @@
                                                                     value="{{ $offered_subject->id }}" hidden>
                                                                 <input required type="text" class="form-control"
                                                                     name="enroll_subjects[{{ $offered_subject->id }}][session_id]"
-                                                                    value="{{ $offered_enroll->session->id }}" hidden>
+                                                                    value="{{ $offered_enroll->session?->id }}" hidden>
                                                                 <input type="hidden" name="">
                                                             </td>
                                                             <td>

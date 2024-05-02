@@ -348,7 +348,7 @@
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="session">{{ __('field_session') }} <span>*</span></label>
-                                <select class="form-control" name="session" id="session" required>
+                                <select class="form-control session" name="session" id="session" required>
                                     <option value="">{{ __('select') }}</option>
                                     @foreach ($sessions as $session)
                                         <option value="{{ $session->id }}"
@@ -380,8 +380,7 @@
                             {{-- Section Is Optional --}}
                             <div class="form-group col-md-3 d-none">
                                 <label for="section">{{ __('field_section') }} <span>*</span></label>
-                                <select class="form-control next_section" name="section" id="section"
-                                    >
+                                <select class="form-control next_section" name="section" id="section">
                                     <option value="">{{ __('select') }}</option>
                                     @foreach ($sections as $section)
                                         <option value="{{ $section->id }}"
@@ -437,40 +436,9 @@
 @if (isset($row))
 <script type="text/javascript">
     "use strict";
-    // Next Section
-    $(".next_semester").on('change', function(e) {
-        e.preventDefault(e);
-        var section = $(".next_section");
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.ajax({
-            type: 'POST',
-            url: "{{ route('filter-section') }}",
-            data: {
-                _token: $('input[name=_token]').val(),
-                semester: $(this).val(),
-                program: '{{ $row->program_id }}'
-            },
-            success: function(response) {
-                // var jsonData=JSON.parse(response);
-                $('option', section).remove();
-                $('.next_section').append('<option value="">{{ __('select') }}</option>');
-                $.each(response, function() {
-                    $('<option/>', {
-                        'value': this.id,
-                        'text': this.title
-                    }).appendTo('.next_section');
-                });
-            }
-
-        });
-    });
 
     // Next Subject
-    $(".next_section").on('change', function(e) {
+    $(".next_semester").on('change', function(e) {
         e.preventDefault(e);
         var subject = $(".next_subject");
         $.ajaxSetup({
@@ -483,17 +451,23 @@
             url: "{{ route('filter-enroll-subject') }}",
             data: {
                 _token: $('input[name=_token]').val(),
-                section: $(this).val(),
-                semester: $('.next_semester option:selected').val(),
-                program: '{{ $row->program_id }}'
+                semester: $(this).val(),
+                session: $('.session option:selected').val(),
+                program: '{{ $row->program_id }}',
             },
             success: function(response) {
                 // var jsonData=JSON.parse(response);
-                $.each(response, function() {
-                    $('.next_subject option[value=' + this.id + ']').attr('selected',
-                        'selected');
-                    $('.next_subject').select2().trigger('change');
-                });
+                if (response.length > 0) {
+                    $.each(response, function() {
+                        $('<option/>', {
+                            'value': this.id,
+                            'text': this.title
+                        }).appendTo('.session');
+                    });
+                }else{
+                    console.log('SS');
+                    $('.session').html("");
+                }
             }
 
         });

@@ -107,12 +107,20 @@ class FilterController extends Controller
     {
         //
         $data = $request->all();
-
         $rows = Subject::where('status', 1);
         $rows->with('subjectEnrolls')->whereHas('subjectEnrolls', function ($query) use ($data) {
-            $query->where('program_id', $data['program']);
-            $query->where('semester_id', $data['semester']);
-            $query->where('section_id', $data['section']);
+            $query->when(@$data['program'], function ($subject) use ($data) {
+                $subject->where('program_id', @$data['program']);
+            });
+            $query->when($data['semester'], function ($subject) use ($data) {
+                $subject->where('semester_id', @$data['semester']);
+            });
+            $query->when($data['session'], function ($subject) use ($data) {
+                $subject->where('session_id', @$data['session']);
+            });
+            $query->when(@$data['section_id'], function ($subject) use ($data) {
+                $subject->where('section_id', @$data['section']);
+            });
         });
         $subjects = $rows->orderBy('code', 'asc')->get();
 

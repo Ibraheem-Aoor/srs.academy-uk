@@ -8,12 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProgramSubject extends Model
 {
-    use HasFactory; 
+    use HasFactory;
 
     protected $fillable = [
         'subject_id',
         'program_id',
-        'subject_type',
         'exam_type_category_id',
         'subject_type_id',
     ];
