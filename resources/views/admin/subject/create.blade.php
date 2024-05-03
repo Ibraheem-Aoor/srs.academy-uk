@@ -97,7 +97,7 @@
                                                             <td>
                                                                 <select class="form-control"
                                                                     name="programs[{{ $program->id }}][category]"
-                                                                    id="category" >
+                                                                    id="category-{{ $program->id }}">
                                                                     <option value="">{{ __('select') }}</option>
                                                                     @foreach ($mark_distribution_systems as $mark_distribution_system)
                                                                         <option @selected(old('programs[$program->id][category]') == $mark_distribution_system->id)
@@ -217,4 +217,15 @@
         });
     </script>
 
+    <script>
+        $(document).on('change', '.checkbox.d-inline', function() {
+            var checkbox = $(this).find('input[type="checkbox"]');
+            var id = checkbox.val();
+            if (checkbox.is(':checked')) {
+                $(`select[id="category-${id}"]`).prop('required', true);
+            } else {
+                $(`select[id="category-${id}"]`).prop('required', false);
+            }
+        });
+    </script>
 @endsection

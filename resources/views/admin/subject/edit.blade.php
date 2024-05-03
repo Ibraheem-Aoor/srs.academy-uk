@@ -103,9 +103,9 @@
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                <select  class="form-control"
+                                                                <select class="form-control"
                                                                     name="programs[{{ $program->id }}][category]"
-                                                                    id="category" >
+                                                                    id="category-{{ $program->id }}">
                                                                     <option value="">{{ __('select') }}</option>
                                                                     @foreach ($mark_distribution_systems as $mark_distribution_system)
                                                                         <option value="{{ $mark_distribution_system->id }}"
@@ -224,6 +224,17 @@
             $(document).on('click', '.removeRow', function() {
                 $(this).closest('tr').remove();
             });
+        });
+    </script>
+    <script>
+        $(document).on('change', '.checkbox.d-inline', function() {
+            var checkbox = $(this).find('input[type="checkbox"]');
+            var id = checkbox.val();
+            if (checkbox.is(':checked')) {
+                $(`select[id="category-${id}"]`).prop('required', true);
+            } else {
+                $(`select[id="category-${id}"]`).prop('required', false);
+            }
         });
     </script>
 
