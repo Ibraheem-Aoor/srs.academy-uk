@@ -144,10 +144,14 @@ class SubjectController extends Controller
      */
     public function attachPrograms(Subject $subject, Request $request)
     {
+        $programs_to_sync = [];
         foreach ($request->programs as $program_id => $attributes) {
-            $programs_to_sync[$program_id] = [
-                'exam_type_category_id' => $attributes['category']
-            ];
+            if(isset($attributes['is_checked']))
+            {
+                $programs_to_sync[$program_id] = [
+                    'exam_type_category_id' => $attributes['category']
+                ];
+            }
         }
         $subject->programs()->sync($programs_to_sync);
     }
@@ -191,9 +195,6 @@ class SubjectController extends Controller
             'programs.array' => __('field_program_invalid'),
             'programs.*.array' => __('field_program_invalid'),
         ]);
-
-
-
         DB::beginTransaction();
         // Insert Data
         $subject = new Subject;

@@ -78,7 +78,7 @@
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>{{ __('field_program') }}</th>
+                                                        <th>{{ __('field_program') }}</th>``
                                                         <th>{{ __('module_exam_type') }}</th>
                                                     </tr>
                                                 </thead>
@@ -92,13 +92,20 @@
                                                         @endphp
                                                         <tr>
                                                             <td>
-                                                                <input required type="text" class="form-control"
-                                                                    value="{{ $program->title }}" disabled>
+                                                                <div class="checkbox d-inline">
+                                                                    <input type="checkbox"
+                                                                        name="programs[{{ $program->id }}][is_checked]"
+                                                                        id="program-{{ $program->id }}"
+                                                                        value="{{ $program->id }}"
+                                                                        @if (isset($program_object)) checked @endif>
+                                                                    <label for="program-{{ $program->id }}"
+                                                                        class="cr">{{ $program->title }}</label>
+                                                                </div>
                                                             </td>
                                                             <td>
-                                                                <select required class="form-control"
+                                                                <select  class="form-control"
                                                                     name="programs[{{ $program->id }}][category]"
-                                                                    id="category" required>
+                                                                    id="category" >
                                                                     <option value="">{{ __('select') }}</option>
                                                                     @foreach ($mark_distribution_systems as $mark_distribution_system)
                                                                         <option value="{{ $mark_distribution_system->id }}"

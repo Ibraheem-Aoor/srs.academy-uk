@@ -60,7 +60,7 @@
                                     <div class="form-group col-md-4">
                                         <label for="status" class="form-label">{{ __('select_status') }}</label>
                                         <select class="form-control" name="status" id="status">
-                                            <option value="1" >
+                                            <option value="1">
                                                 {{ __('status_active') }}</option>
                                             <option value="0">
                                                 {{ __('status_inactive') }}</option>
@@ -84,16 +84,23 @@
                                                     @foreach ($faculty->programs->where('status', 1)->sortBy('title') as $program)
                                                         <tr>
                                                             <td>
-                                                                <input required type="text" class="form-control"
-                                                                    value="{{ $program->title }}" disabled>
+                                                                <div class="checkbox d-inline">
+                                                                    <input type="checkbox"
+                                                                        name="programs[{{ $program->id }}][is_checked]"
+                                                                        id="program-{{ $program->id }}"
+                                                                        value="{{ $program->id }}"
+                                                                        @if (old('programs[]') == $program->id) checked @endif>
+                                                                    <label for="program-{{ $program->id }}"
+                                                                        class="cr">{{ $program->title }}</label>
+                                                                </div>
                                                             </td>
                                                             <td>
-                                                                <select required class="form-control"
+                                                                <select class="form-control"
                                                                     name="programs[{{ $program->id }}][category]"
-                                                                    id="category" required>
+                                                                    id="category" >
                                                                     <option value="">{{ __('select') }}</option>
                                                                     @foreach ($mark_distribution_systems as $mark_distribution_system)
-                                                                        <option
+                                                                        <option @selected(old('programs[$program->id][category]') == $mark_distribution_system->id)
                                                                             value="{{ $mark_distribution_system->id }}">
                                                                             {{ $mark_distribution_system->title }}</option>
                                                                     @endforeach
