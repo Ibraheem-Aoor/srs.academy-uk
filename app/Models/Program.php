@@ -49,7 +49,7 @@ class Program extends Model
 
     public function subjects()
     {
-        return $this->belongsToMany(Subject::class, 'program_subject', 'program_id', 'subject_id');
+        return $this->belongsToMany(Subject::class, 'program_subject', 'program_id', 'subject_id')->withPivot(['subject_type_id', 'exam_type_category_id']);
     }
 
     public function rooms()

@@ -17,6 +17,8 @@ class ProgramSubject extends Model
         'subject_type_id',
     ];
 
+    public $table = 'program_subject';
+
 
     public function examTypeCategory(): BelongsTo
     {

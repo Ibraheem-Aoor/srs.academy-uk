@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Program;
 use App\Models\Faculty;
+use App\Models\ProgramSubject;
 use App\Models\SubjectType;
 use Toastr;
 
@@ -121,11 +122,10 @@ class ProgramController extends Controller
      */
     public function edit(Program $program)
     {
-        $data['title'] = $this->title . ' Study Plan';
+        $data['title'] = $this->title . 'Study Plan';
         $data['path'] = $this->path;
         $data['route'] = $this->route;
-        $data['row'] = $program;
-        $data['offered_enrolls'] = EnrollSubject::query()->status(1)->whereProgramId($program->id)->groupBy('session_id')->get();
+        $data['row'] = $program->load('subjects');
         $data['subject_types'] = SubjectType::query()->pluck('title', 'id')->toArray();
         return view($this->view . '.study_plan', $data);
     }
@@ -196,7 +196,6 @@ class ProgramController extends Controller
             'enroll_subjects.*.required' => __('all_fields_required'),
             'enroll_subjects.*.array' => __('all_fields_required'),
         ]);
-
         $enroll_subjects = $request->enroll_subjects;
         foreach ($enroll_subjects as $enroll_subject_data) {
             $subject_id = $enroll_subject_data['subject_id'];

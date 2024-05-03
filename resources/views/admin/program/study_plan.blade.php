@@ -30,48 +30,48 @@
                                     {{-- Start Subject Programs --}}
                                     {{-- Each Enroll Is In A Session and has multi offered subjects --}}
 
-                                    @foreach ($offered_enrolls as $offered_enroll)
-                                        <div class="col-md-12">
-                                            <label>{{ __('program_session', ['program' => $row->title, 'session' => $offered_enroll->session?->title]) }}</label>
-                                            <table class="table table-bordered">
-                                                <thead>
+                                    <div class="col-md-12">
+                                        <label>{{ __('program_courses', ['program' => $row->title]) }}</label>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>{{ trans_choice('module_subject', 1) }}</th>
+                                                    <th>{{ __('field_type') }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($row->subjects as $program_subject)
+                                                    {{-- @dd($program_subject->programs()->find($row->id)->pivot) --}}
                                                     <tr>
-                                                        <th>{{ trans_choice('module_subject', 1) }}</th>
-                                                        <th>{{ __('field_type') }}</th>
+                                                        <td>{{ $loop->index+1 }}</td>
+                                                        <td>
+                                                            <label for="">{{ $program_subject->title }}</label>
+                                                            <input required type="text" class="form-control"
+                                                                name="enroll_subjects[{{ $program_subject->id }}][subject_id]"
+                                                                value="{{ $program_subject->id }}" hidden>
+                                                            {{-- <input required type="text" class="form-control"
+                                                                name="enroll_subjects[{{ $program_subject->id }}][session_id]"
+                                                                value="{{ $offered_enroll->session?->id }}" hidden> --}}
+                                                            <input type="hidden" name="">
+                                                        </td>
+                                                        <td>
+                                                            <select required class="form-control"
+                                                                name="enroll_subjects[{{ $program_subject->id }}][subject_type_id]"
+                                                                id="subject_type" required>
+                                                                <option value="">{{ __('select') }}</option>
+                                                                @foreach ($subject_types as $key => $name)
+                                                                    <option value="{{ $key }}"
+                                                                        @selected(@$program_subject->pivot['subject_type_id'] == $key)>
+                                                                        {{ $name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach ($offered_enroll->subjects as $offered_subject)
-                                                    {{-- @dd($offered_subject->programs()->find($row->id)->pivot) --}}
-                                                        <tr>
-                                                            <td>
-                                                                <input required type="text" class="form-control"
-                                                                    value="{{ $offered_subject->title }}" disabled>
-                                                                <input required type="text" class="form-control"
-                                                                    name="enroll_subjects[{{ $offered_subject->id }}][subject_id]"
-                                                                    value="{{ $offered_subject->id }}" hidden>
-                                                                <input required type="text" class="form-control"
-                                                                    name="enroll_subjects[{{ $offered_subject->id }}][session_id]"
-                                                                    value="{{ $offered_enroll->session?->id }}" hidden>
-                                                                <input type="hidden" name="">
-                                                            </td>
-                                                            <td>
-                                                                <select required class="form-control"
-                                                                    name="enroll_subjects[{{ $offered_subject->id }}][subject_type_id]"
-                                                                    id="subject_type" required>
-                                                                    <option value="">{{ __('select') }}</option>
-                                                                    @foreach ($subject_types as $key => $name)
-                                                                        <option value="{{ $key }}" @selected($offered_subject->programs()->find($row->id)->pivot['subject_type_id'] == $key)>
-                                                                            {{ $name }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    @endforeach
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
 
                                     {{-- End Subject Programs --}}
                                     <div class="form-group col-md-4"></div>
