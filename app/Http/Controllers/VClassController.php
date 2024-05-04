@@ -22,26 +22,30 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class VClassController extends Controller
 {
 
-    public function createMeetingParamsFromRoutine($routineId){
+    public function createMeetingParamsFromRoutine($routineId)
+    {
         $result = new stdClass();
 
         $result->routine = ClassRoutine::find($routineId);
 
-        if (! $result->routine) return false;
+        if (!$result->routine)
+            return false;
 
-        $result->meetingName = $result->routine->room->title .' - '.$result->routine->teacher->first_name.' '.$result->routine->teacher->last_name.' presenting '.$result->routine->subject->code;
+        $result->meetingName = $result->routine->room->title . ' - ' . $result->routine->teacher->first_name . ' ' . $result->routine->teacher->last_name . ' presenting ' . $result->routine->subject->code;
         // $meetingID = $classRoutine->program->id.'-'.$classRoutine->session->id.'-'.$classRoutine->semester->id.'-'.$classRoutine->section->id.'-'.$classRoutine->teacher->id.'-'.$classRoutine->subject->code.'-'.$classRoutine->room->id;
         // $result->meetingID = $result->routine->session->id.'-'.$result->routine->semester->id.'-'.$result->routine->teacher->id.'-'.$result->routine->subject->code.'-'.$result->routine->room->id.'-'.$result->routine->day.'-'.$result->routine->start_time.'-'.$result->routine->end_time;
-        $result->meetingID = $result->routine->session->id.'-'.$result->routine->semester->id.'-'.$result->routine->teacher->id.'-'.$result->routine->subject->code.'-'.$result->routine->room->id;
+        $result->meetingID = $result->routine->session->id . '-' . $result->routine->semester->id . '-' . $result->routine->teacher->id . '-' . $result->routine->subject->code . '-' . $result->routine->room->id;
 
         return $result;
     }
 
-    public function joinMeeting($routineId){
+    public function joinMeeting($routineId)
+    {
         //  return $this->viewRecordings($routineId);
 
         $meetingParams = $this->createMeetingParamsFromRoutine($routineId);
-        if (!$meetingParams) return "Invalid routine";
+        if (!$meetingParams)
+            return "Invalid routine";
 
         $bbb = new BigBlueButton();
 
@@ -80,15 +84,16 @@ class VClassController extends Controller
         if (Auth::guard('student')->check()) {
             $user = Auth::guard('student')->user();
             $role = Role::VIEWER;
-        }
-        elseif (Auth::guard('web')->check()) {
+        } elseif (Auth::guard('web')->check()) {
             $user = Auth::guard('web')->user();
             $role = Role::MODERATOR;
         }
 
-        $joinMeetingParams = new JoinMeetingParameters($meetingParams->meetingID,
-            $user->first_name.' '.$user->last_name,
-            $role);
+        $joinMeetingParams = new JoinMeetingParameters(
+            $meetingParams->meetingID,
+            $user->first_name . ' ' . $user->last_name,
+            $role
+        );
 
         $joinMeetingParams->setRedirect(true);
         $meetingUrl = $bbb->getJoinMeetingURL($joinMeetingParams);
@@ -96,28 +101,32 @@ class VClassController extends Controller
         return redirect($meetingUrl);
     }
 
-    public function getClassRecordings($routineId){
+    public function getClassRecordings($routineId)
+    {
         $meetingParams = $this->createMeetingParamsFromRoutine($routineId);
-        if (!$meetingParams) abort(404,"Invalid routine") ;
+        if (!$meetingParams)
+            abort(404, "Invalid routine");
 
         return $this->getMeetingRecordings($meetingParams->meetingID);
     }
 
-    public function getMeetingRecordings($meetingId){
+    public function getMeetingRecordings($meetingId)
+    {
 
         $bbb = new BigBlueButton();
 
         $recordingParams = new GetRecordingsParameters();
 
 
-        if ($meetingId){
+        if ($meetingId) {
             $recordingParams->setMeetingId($meetingId);
         }
 
         $response = $bbb->getRecordings($recordingParams);
-        
 
-        if ($response->getReturnCode() != 'SUCCESS') abort(500);
+
+        if ($response->getReturnCode() != 'SUCCESS')
+            abort(500);
 
         // $recording = $response->getRawXml()->recordings->recording;
 
@@ -127,21 +136,22 @@ class VClassController extends Controller
         $recordings = [];
         foreach ($response->getRawXml()->recordings->recording as $recording) {
             $rec = [
-                'id'=>$recording->recordID.'',
-                'meetingId'=>$recording->meetingID.'',
-                'startTime'=>date("Y-m-d H:i", intval($recording->startTime.'')/1000),
-                'endTime'=>date("Y-m-d H:i", intval($recording->endTime.'')/1000),
-                'size'=>AppHelper::humanFileSize(intval($recording->playback->format->size.'')),
-                'url'=>$recording->playback->format->url.'',
+                'id' => $recording->recordID . '',
+                'meetingId' => $recording->meetingID . '',
+                'startTime' => date("Y-m-d H:i", intval($recording->startTime . '') / 1000),
+                'endTime' => date("Y-m-d H:i", intval($recording->endTime . '') / 1000),
+                'size' => AppHelper::humanFileSize(intval($recording->playback->format->size . '')),
+                'url' => $recording->playback->format->url . '',
             ];
 
-            $recordings []= $rec;
+            $recordings[] = $rec;
         }
 
         return response()->json($recordings);
     }
 
-    public function deleteRecording($recordingId){
+    public function deleteRecording($recordingId)
+    {
 
         if (Auth::guard('student')->check()) {
             return response()->json(false);
@@ -153,7 +163,7 @@ class VClassController extends Controller
 
         $bbb = new BigBlueButton();
 
-        $deleteRecordingsParams= new DeleteRecordingsParameters($recordingId);
+        $deleteRecordingsParams = new DeleteRecordingsParameters($recordingId);
         $response = $bbb->deleteRecordings($deleteRecordingsParams);
 
         // if ($response->getReturnCode() == 'SUCCESS') {
@@ -165,7 +175,8 @@ class VClassController extends Controller
         return response()->json($response->getReturnCode() == 'SUCCESS');
     }
 
-    public function downloadRecording($recordingId){
+    public function downloadRecording($recordingId)
+    {
         $downloadUrl = "https://bbb.academy-uk.net/presentation/$recordingId/video/webcams.mp4";
 
         $headers = array(
@@ -175,10 +186,26 @@ class VClassController extends Controller
 
         $callback = function () use ($downloadUrl) {
             $file = fopen('php://output', 'w');
-            fputs($file,file_get_contents($downloadUrl));
+            fputs($file, file_get_contents($downloadUrl));
             fclose($file);
         };
 
         return response()->streamDownload($callback, "presentation.mp4", $headers)->send();
+    }
+
+
+
+    public function index()
+    {
+        $recordingParams = new GetRecordingsParameters();
+        $bbb = new BigBlueButton();
+        $response = $bbb->getRecordings($recordingParams);
+
+        if ($response->getReturnCode() == 'SUCCESS') {
+            dd($response->getRawXml()->recordings->recording);
+            foreach ($response->getRawXml()->recordings->recording as $recording) {
+                // process all recording
+            }
+        }
     }
 }
