@@ -17,6 +17,7 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\GetRecordingsParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use stdClass;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -51,20 +52,12 @@ class BigBlueButtonController extends Controller
             $bbb = new BigBlueButton();
             $bbb->setTimeOut(180);
             $response = $bbb->getRecordings($recordingParams);
-            $data['recordings'] = [];
             $data['title'] = $this->title;
             $data['route'] = $this->route;
             $data['path'] = $this->path;
+            $data['recordings'] = [];
             if ($response->getReturnCode() == 'SUCCESS') {
-                foreach($response->getRawXml()->recordings->recording as $recording)
-                {
-                    $obj = new stdClass;
-                    $obj->name = (string) $recording->name;
-                    $obj->meetingId = isset($recording->metadata->meetingId) ? (string) $recording->metadata->meetingId : null;
-                    $obj->start_time = date('Y-m-d H:i:s', (int) ($recording->startTime / 1000));
-                    $obj->preview_img = isset($recording->playback->format->preview->images->image[0]) ? (string) $recording->playback->format->preview->images->image[0] : asset('public/dashboard/images/placeholder.jpg');
-                    $obj->state = (string) $recording->state;
-                }
+                $data['recordings'] = $this->getRecordings($response);
             }
             return view($this->view . 'recordings.index', $data);
         } catch (Throwable $e) {
@@ -73,5 +66,26 @@ class BigBlueButtonController extends Controller
             Toastr::error(__('general_error'));
             return back();
         }
+    }
+
+    protected function getRecordings($response)
+    {
+        $recordings = [];
+        if (Cache::has('bbb_recordings')) {
+            $recordings = Cache::get('bbb_recordings');
+        } else {
+            foreach ($response->getRawXml()->recordings->recording as $recording) {
+                $obj = new stdClass;
+                $obj->name = (string) $recording->name;
+                $obj->meetingId = isset($recording->metadata->meetingId) ? (string) $recording->metadata->meetingId : null;
+                $obj->start_time = date('Y-m-d H:i:s', (int) ($recording->startTime / 1000));
+                $obj->preview_img = isset($recording->playback->format->preview->images->image[0]) ? (string) $recording->playback->format->preview->images->image[0] : asset('public/dashboard/images/placeholder.jpg');
+                $obj->state = (string) $recording->state;
+                $obj->playback_url = (string)$recording->playback?->format?->url ?? "";
+                $recordings[] = $obj;
+            }
+            $recordings = cacheAndGet('bbb_recordings' , now()->addDay() , $recordings);
+        }
+        return $recordings;
     }
 }

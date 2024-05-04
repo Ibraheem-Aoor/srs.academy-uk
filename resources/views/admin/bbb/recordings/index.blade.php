@@ -32,14 +32,14 @@
                                         @foreach ($rows as  $row)
                                             <tr>
                                                 <td>{{ $loop->index + 1 }}</td>
-                                                <td><a target="_blank" href="{{ $row->playback?->format?->url }}"><img loading="lazy"
-                                                            src="{{ $row->playback?->format?->preview?->images?->image[0] ?? asset('public/dashboard/images/placeholder.jpg') }}" width="200"
+                                                <td><a target="_blank" href="{{ $row->playback_url}}"><img loading="lazy"
+                                                            src="{{ $row->preview_img }}" width="200"
                                                             alt="{{ $row->name }}"></a></td>
                                                 <td><a target="_blank"
-                                                        href="{{ $row->playback?->format?->url }}">{{ $row->metadata?->meetingId }}</a>
+                                                        href="{{ $row->playback_url}}">{{ $row->meetingId }}</a>
                                                 </td>
                                                 <td>{{ $row->name }}</td>
-                                                <td>{{ date('Y-m-d H:i:s',(int)($row->startTime/1000)) }}</td>
+                                                <td>{{ $row->start_time }}</td>
                                                 <td>
                                                     <span
                                                         class="badge badge-pill badge-{{ $row->state == 'published' ? 'success' : 'danger' }}">{{ $row->state }}</span>
