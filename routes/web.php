@@ -13,7 +13,9 @@
 
 // Web Routes
 
+use App\Http\Controllers\Admin\BigBlueButtonController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\VClassController;
 
 Route::middleware(['XSS'])->namespace('Web')->group(function () {
 
@@ -443,6 +445,11 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::post('profile/changepass', 'ProfileController@changePass')->name('profile.changepass');
 
 
+    // BigBlueButton Admin Routes
+    Route::group(['prefix' => 'bbb', 'middleware' => 'auth:web,XSS', 'as' => 'bbb.'], function () {
+        Route::get('recording/index', [BigBlueButtonController::class, 'index'])->name('recordings.index');
+    });
+
 
     // Front Web Routes
     Route::prefix('web')->namespace('Web')->group(function () {
@@ -548,7 +555,5 @@ Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')-
 Route::get('class-routine/meeting/join/{routineId}', 'VClassController@joinMeeting')->middleware(['auth:web,student', 'XSS']);
 Route::get('class-routine/meeting/recording/{routineId}', 'VClassController@getClassRecordings')->middleware(['auth:web,student', 'XSS']);
 Route::get('class-routine/meeting/recording/delete/{recordingId}', 'VClassController@deleteRecording')->middleware(['auth:web,student', 'XSS']);
-// Route::get('class-routine/meeting/recording/download/{recordingId}', 'VClassController@downloadRecording')->middleware(['auth:web,student', 'XSS']);
-Route::get('recording/download/{recordingId}', 'VClassController@downloadRecording');
+Route::get('class-routine/meeting/recording/download/{recordingId}', 'VClassController@downloadRecording')->middleware(['auth:web,student', 'XSS']);
 
-Route::get('recording/index', 'VClassController@index');

@@ -806,7 +806,10 @@
     "navbar_student_login": "Student Login",
     "navbar_prof_login": "Professor Login",
     "navbar_how_to_apply": "How To Apply",
-    "program_courses" : ":program Courses",
-    "program_session" : ":program - Session:  :session",
-    "study_plan" : "Study Plan"
+    "program_courses": ":program Courses",
+    "program_session": ":program - Session:  :session",
+    "study_plan": "Study Plan",
+    "module_bbb": "BigBlueButton",
+    "general_error": "Something Went Wrong",
+    "recordings" : "Recordings"
 }
