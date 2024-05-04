@@ -50,7 +50,7 @@ class BigBlueButtonController extends Controller
             set_time_limit(0);
             $recordingParams = new GetRecordingsParameters();
             $bbb = new BigBlueButton();
-            $bbb->setTimeOut(120);
+            $bbb->setTimeOut(180);
             $response = $bbb->getRecordings($recordingParams);
             $data['recordings'] = [];
             $data['title'] = $this->title;
