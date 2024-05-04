@@ -550,4 +550,5 @@ Route::get('class-routine/meeting/recording/{routineId}', 'VClassController@getC
 Route::get('class-routine/meeting/recording/delete/{recordingId}', 'VClassController@deleteRecording')->middleware(['auth:web,student', 'XSS']);
 // Route::get('class-routine/meeting/recording/download/{recordingId}', 'VClassController@downloadRecording')->middleware(['auth:web,student', 'XSS']);
 Route::get('recording/download/{recordingId}', 'VClassController@downloadRecording');
+
 Route::get('recording/index', 'VClassController@index');
