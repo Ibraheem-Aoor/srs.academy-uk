@@ -33,7 +33,7 @@
                                             <tr>
                                                 <td>{{ $loop->index + 1 }}</td>
                                                 <td><a href="{{ $row->playback?->format?->url }}"><img loading="lazy"
-                                                            src="{{ $row->playback?->format?->preview?->images?->image[0] ?? asset('dashboard/images/placeholder.jpg') }}" width="200"
+                                                            src="{{ $row->playback?->format?->preview?->images?->image[0] ?? asset('public/dashboard/images/placeholder.jpg') }}" width="200"
                                                             alt="{{ $row->name }}"></a></td>
                                                 <td><a
                                                         href="{{ $row->playback?->format?->url }}">{{ $row->metadata?->meetingId }}</a>
