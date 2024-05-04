@@ -56,6 +56,7 @@ class BigBlueButtonController extends Controller
             }
             return view($this->view . 'index', $data);
         } catch (Throwable $e) {
+            dd($e);
             info('Error in ' . __METHOD__ . ' : ' . $e->getMessage());
             Toastr::error(__('general_error'));
             return back();
