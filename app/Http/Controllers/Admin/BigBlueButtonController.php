@@ -47,7 +47,6 @@ class BigBlueButtonController extends Controller
     public function index()
     {
         try {
-            set_time_limit(0);
             $recordingParams = new GetRecordingsParameters();
             $bbb = new BigBlueButton();
             $bbb->setTimeOut(180);
@@ -57,7 +56,16 @@ class BigBlueButtonController extends Controller
             $data['route'] = $this->route;
             $data['path'] = $this->path;
             if ($response->getReturnCode() == 'SUCCESS') {
-                $data['rows'] =  unserialize(cacheAndGet('bbb_recordings', now()->addHours(12) , serialize($response->getRawXml()->recordings->recording)));
+                foreach($response->getRawXml()->recordings->recording as $recording)
+                {
+                        $obj = new stdClass;
+                        $obj->name = $recording->name;
+                        $obj->meetingId = $recording->metadata?->meetingId;
+                        $obj->start_time = date('Y-m-d H:i:s',(int)($recording->startTime/1000));
+                        $obj->preview_img = $recording->playback?->format?->preview?->images?->image[0] ?? asset('public/dashboard/images/placeholder.jpg');
+                        $obj->state = $recording->state;
+                        dd($obj);
+                }
             }
             return view($this->view . 'recordings.index', $data);
         } catch (Throwable $e) {
