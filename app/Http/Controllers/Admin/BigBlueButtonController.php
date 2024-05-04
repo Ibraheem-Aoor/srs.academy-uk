@@ -47,6 +47,7 @@ class BigBlueButtonController extends Controller
     public function index()
     {
         try {
+            set_time_limit(0);
             $recordingParams = new GetRecordingsParameters();
             $bbb = new BigBlueButton();
             $response = $bbb->getRecordings($recordingParams);
