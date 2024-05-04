@@ -51,12 +51,14 @@ class BigBlueButtonController extends Controller
             $bbb = new BigBlueButton();
             $response = $bbb->getRecordings($recordingParams);
             $data['recordings'] = [];
+            $data['title'] = $this->title;
+            $data['route'] = $this->route;
+            $data['path'] = $this->path;
             if ($response->getReturnCode() == 'SUCCESS') {
                 $data['recordings'] =  $response->getRawXml()->recordings;
             }
             return view($this->view . 'recordings.index', $data);
         } catch (Throwable $e) {
-            dd($e);
             info('Error in ' . __METHOD__ . ' : ' . $e->getMessage());
             Toastr::error(__('general_error'));
             return back();
