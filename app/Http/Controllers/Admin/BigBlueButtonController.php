@@ -58,13 +58,12 @@ class BigBlueButtonController extends Controller
             if ($response->getReturnCode() == 'SUCCESS') {
                 foreach($response->getRawXml()->recordings->recording as $recording)
                 {
-                        $obj = new stdClass;
-                        $obj->name = $recording->name;
-                        $obj->meetingId = $recording->metadata?->meetingId;
-                        $obj->start_time = date('Y-m-d H:i:s',(int)($recording->startTime/1000));
-                        $obj->preview_img = $recording->playback?->format?->preview?->images?->image[0] ?? asset('public/dashboard/images/placeholder.jpg');
-                        $obj->state = $recording->state;
-                        dd($obj);
+                    $obj = new stdClass;
+                    $obj->name = (string) $recording->name;
+                    $obj->meetingId = isset($recording->metadata->meetingId) ? (string) $recording->metadata->meetingId : null;
+                    $obj->start_time = date('Y-m-d H:i:s', (int) ($recording->startTime / 1000));
+                    $obj->preview_img = isset($recording->playback->format->preview->images->image[0]) ? (string) $recording->playback->format->preview->images->image[0] : asset('public/dashboard/images/placeholder.jpg');
+                    $obj->state = (string) $recording->state;
                 }
             }
             return view($this->view . 'recordings.index', $data);
