@@ -52,7 +52,7 @@ class BigBlueButtonController extends Controller
             $response = $bbb->getRecordings($recordingParams);
             $data['recordings'] = [];
             if ($response->getReturnCode() == 'SUCCESS') {
-                $data['recordings'] = cacheAndGet('bbb_recordings', now()->addHours(4), $response->getRawXml()->recordings);
+                $data['recordings'] =  $response->getRawXml()->recordings;
             }
             return view($this->view . 'index', $data);
         } catch (Throwable $e) {
