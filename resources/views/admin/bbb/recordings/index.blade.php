@@ -7,7 +7,7 @@
         <div class="page-wrapper">
             <!-- [ Main Content ] start -->
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
                             <h5>{{ $title }} {{ __('list') }}</h5>
@@ -32,8 +32,8 @@
                                         @foreach ($rows as  $row)
                                             <tr>
                                                 <td>{{ $loop->index + 1 }}</td>
-                                                <td><a href="{{ $row->playback?->format?->url }}"><img
-                                                            src="{{ $row->playback?->format?->preview?->images?->image[0] }}" width="200"
+                                                <td><a href="{{ $row->playback?->format?->url }}"><img loading="lazy"
+                                                            src="{{ $row->playback?->format?->preview?->images?->image[0] ?? asset('dashboard/images/placeholder.jpg') }}" width="200"
                                                             alt="{{ $row->name }}"></a></td>
                                                 <td><a
                                                         href="{{ $row->playback?->format?->url }}">{{ $row->metadata?->meetingId }}</a>

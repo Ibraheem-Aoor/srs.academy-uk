@@ -1379,7 +1379,7 @@
         {{-- BigBlueButton Module --}}
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/bbb*') ? 'pcoded-trigger active' : '' }}">
             <a href="#!" class="nav-link">
-                <span class="pcoded-mtext">{{ __('module_bbb') }}</span>
+                <span class="pcoded-micon"><i class="fas fa-desktop"></i> &nbsp;{{ __('module_bbb') }}</span>
             </a>
 
             <ul class="pcoded-submenu">
