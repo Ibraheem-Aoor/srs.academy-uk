@@ -30,7 +30,6 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($rows as  $row)
-                                        @dd($row)
                                             <tr>
                                                 <td>{{ $loop->index + 1 }}</td>
                                                 <td><a href="{{ $row->playback?->format?->url }}"><img
