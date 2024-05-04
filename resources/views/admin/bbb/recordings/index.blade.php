@@ -29,11 +29,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($rows as $key => $row)
+                                        @foreach ($rows as  $row)
+                                        @dd($row)
                                             <tr>
                                                 <td>{{ $loop->index + 1 }}</td>
                                                 <td><a href="{{ $row->playback?->format?->url }}"><img
-                                                            src="{{ @$row->format?->preview?->images?->image[0] }}"
+                                                            src="{{ @$row->format?->preview?->images?->image[0] }}" width="200"
                                                             alt="{{ $row->name }}"></a></td>
                                                 <td><a
                                                         href="{{ $row->playback?->format?->url }}">{{ $row->metadata?->meetingId }}</a>
