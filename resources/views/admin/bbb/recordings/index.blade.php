@@ -31,7 +31,7 @@
                                     <tbody>
                                         @foreach ($rows as $key => $row)
                                             <tr>
-                                                <td>{{ $key + 1 }}</td>
+                                                <td>{{ $loop->index + 1 }}</td>
                                                 <td><a href="{{ $row->playback?->format?->url }}"><img
                                                             src="{{ @$row->format?->preview?->images?->image[0] }}"
                                                             alt="{{ $row->name }}"></a></td>
