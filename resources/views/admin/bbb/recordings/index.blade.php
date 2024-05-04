@@ -39,7 +39,7 @@
                                                         href="{{ $row->playback?->format?->url }}">{{ $row->metadata?->meetingId }}</a>
                                                 </td>
                                                 <td>{{ $row->name }}</td>
-                                                <td>{{ date('Y-m-d H:i:s',(int)($row->startTime/100)) }}</td>
+                                                <td>{{ date('Y-m-d H:i:s',(int)($row->startTime/1000)) }}</td>
                                                 <td>
                                                     <span
                                                         class="badge badge-pill badge-{{ $row->state == 'published' ? 'success' : 'danger' }}">{{ $row->state }}</span>
