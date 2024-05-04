@@ -79,7 +79,7 @@ class BigBlueButtonController extends Controller
                 $obj->name = (string) $recording->name;
                 $obj->meetingId = isset($recording->metadata->meetingId) ? (string) $recording->metadata->meetingId : null;
                 $obj->start_time = date('Y-m-d H:i:s', (int) ($recording->startTime / 1000));
-                $obj->preview_img = isset($recording->playback->format->preview->images->image[0]) ? (string) $recording->playback->format->preview->images->image[0] : asset('public/dashboard/images/placeholder.jpg');
+                $obj->preview_img = isset($recording->playback->format->preview->images->image[0]) ? (string) $recording->playback->format->preview->images->image[0] : public_path('dashboard/images/placeholder.jpg');
                 $obj->state = (string) $recording->state;
                 $obj->playback_url = (string)$recording->playback?->format?->url ?? "";
                 $recordings[] = $obj;

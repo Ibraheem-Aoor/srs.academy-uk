@@ -1377,19 +1377,21 @@
             </li>
         @endcanany
         {{-- BigBlueButton Module --}}
+        @can('setting-view')
+
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/bbb*') ? 'pcoded-trigger active' : '' }}">
             <a href="#!" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-desktop"></i> &nbsp;{{ __('module_bbb') }}</span>
             </a>
 
             <ul class="pcoded-submenu">
-                @can('routine-setting-class')
                     <li class="{{ Request::is('admin/bbb*') ? 'active' : '' }}"><a
                             href="{{ route('admin.bbb.recordings.index') }}" class="">{{ __('recordings') }}</a>
                     </li>
-                @endcan
             </ul>
         </li>
+        @endcan
+
         @canany(['profile-view', 'profile-edit'])
             <li class="nav-item {{ Request::is('admin/profile*') ? 'active' : '' }}">
                 <a href="{{ route('admin.profile.index') }}" class="nav-link">
