@@ -42,7 +42,7 @@
                                                 <td>{{ $row->startTime }}</td>
                                                 <td>
                                                     <span
-                                                        class="badge badge-pill badge-@if ($row->state == 'published') success @else danger @endif  ">{{ $row->state }}</span>
+                                                        class="badge badge-pill badge-{{ $row->state == 'published' ? 'success' : 'danger' }}">{{ $row->state }}</span>
                                                 </td>
                                                 {{-- <td>
                                                     @can($access . '-edit')
