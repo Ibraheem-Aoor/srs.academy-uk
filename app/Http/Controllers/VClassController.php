@@ -202,7 +202,7 @@ class VClassController extends Controller
         $response = $bbb->getRecordings($recordingParams);
 
         if ($response->getReturnCode() == 'SUCCESS') {
-            dd($response->getRawXml()->recordings->recording);
+            dd($response->getRawXml()->recordings->recording , $response->getRawXml()->recordings);
             foreach ($response->getRawXml()->recordings->recording as $recording) {
                 // process all recording
             }
