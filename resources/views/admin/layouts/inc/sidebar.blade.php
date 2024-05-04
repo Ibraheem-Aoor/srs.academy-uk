@@ -1391,6 +1391,21 @@
             </ul>
         </li>
         @endcan
+        {{-- Acadeny Site Module --}}
+        @can('setting-view')
+
+        <li class="nav-item pcoded-hasmenu {{ Request::is('admin/academy-site*') ? 'pcoded-trigger active' : '' }}">
+            <a href="#!" class="nav-link">
+                <span class="pcoded-micon fs-12"><i class="fas fa-globe"></i>{{ __('module_academy_site') }}</span>
+            </a>
+
+            <ul class="pcoded-submenu">
+                    <li class="{{ Request::is('admin/bbb*') ? 'active' : '' }}"><a
+                            href="{{ route('admin.academy_site.contacts.index') }}" class="">{{ __('contacts') }}</a>
+                    </li>
+            </ul>
+        </li>
+        @endcan
 
         @canany(['profile-view', 'profile-edit'])
             <li class="nav-item {{ Request::is('admin/profile*') ? 'active' : '' }}">

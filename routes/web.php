@@ -13,6 +13,7 @@
 
 // Web Routes
 
+use App\Http\Controllers\Admin\AcademySite\ContactController;
 use App\Http\Controllers\Admin\BigBlueButtonController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\VClassController;
@@ -448,6 +449,10 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     // BigBlueButton Admin Routes
     Route::group(['prefix' => 'bbb', 'middleware' => 'auth:web,XSS', 'as' => 'bbb.'], function () {
         Route::get('recording/index', [BigBlueButtonController::class, 'index'])->name('recordings.index');
+    });
+    // AcademySite Admin Routes
+    Route::group(['prefix' => 'academy-site', 'middleware' => 'auth:web,XSS', 'as' => 'academy_site.'], function () {
+        Route::get('contacts/index', [ContactController::class, 'index'])->name('contacts.index');
     });
 
 

@@ -811,5 +811,9 @@
     "study_plan": "Study Plan",
     "module_bbb": "BigBlueButton",
     "general_error": "Something Went Wrong",
-    "recordings" : "Recordings"
+    "recordings" : "Recordings",
+    "field_preview" : "Preview",
+    "module_academy_site": "Academy",
+    "contacts": "Contacts",
+    "field_contact_subject" : "Subject"
 }
