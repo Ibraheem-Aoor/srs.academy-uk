@@ -55,9 +55,9 @@ class BigBlueButtonController extends Controller
             $data['title'] = $this->title;
             $data['route'] = $this->route;
             $data['path'] = $this->path;
-            $data['recordings'] = [];
+            $data['rows'] = [];
             if ($response->getReturnCode() == 'SUCCESS') {
-                $data['recordings'] = $this->getRecordings($response);
+                $data['rows'] = $this->getRecordings($response);
             }
             return view($this->view . 'recordings.index', $data);
         } catch (Throwable $e) {
