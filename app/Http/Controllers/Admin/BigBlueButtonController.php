@@ -54,7 +54,7 @@ class BigBlueButtonController extends Controller
             if ($response->getReturnCode() == 'SUCCESS') {
                 $data['recordings'] =  $response->getRawXml()->recordings;
             }
-            return view($this->view . 'index', $data);
+            return view($this->view . 'recordings.index', $data);
         } catch (Throwable $e) {
             dd($e);
             info('Error in ' . __METHOD__ . ' : ' . $e->getMessage());
