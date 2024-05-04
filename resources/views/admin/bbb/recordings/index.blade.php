@@ -39,7 +39,7 @@
                                                         href="{{ $row->playback?->format?->url }}">{{ $row->metadata?->meetingId }}</a>
                                                 </td>
                                                 <td>{{ $row->name }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($row->startTime)->toDateTimeString() }}</td>
+                                                <td>{{ date($row->startTime) }}</td>
                                                 <td>
                                                     <span
                                                         class="badge badge-pill badge-{{ $row->state == 'published' ? 'success' : 'danger' }}">{{ $row->state }}</span>
