@@ -44,7 +44,7 @@
                                                 @foreach ($row->subjects as $program_subject)
                                                     {{-- @dd($program_subject->programs()->find($row->id)->pivot) --}}
                                                     <tr>
-                                                        <td>{{ $loop->index+1 }}</td>
+                                                        <td>{{ $loop->index + 1 }}</td>
                                                         <td>
                                                             <label for="">{{ $program_subject->title }}</label>
                                                             <input required type="text" class="form-control"
@@ -71,6 +71,15 @@
                                                 @endforeach
                                             </tbody>
                                         </table>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <label>{{ __('program_courses', ['program' => $row->title]) }}</label>
+                                        <textarea name="notes" class="form-control text-left"  cols="30" rows="10">
+                                            @isset($row)
+                                                    {{ $row->notes }}
+                                            @endisset
+                                        </textarea>
                                     </div>
 
                                     {{-- End Subject Programs --}}

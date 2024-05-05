@@ -190,6 +190,7 @@ class ProgramController extends Controller
         $request->validate([
             'enroll_subjects' => 'required|array',
             'enroll_subjects.*' => 'required|array',
+            'notes' => 'nullable',
         ], [
             'enroll_subjects.required' => __('all_fields_required'),
             'enroll_subjects.array' => __('all_fields_required'),
@@ -204,6 +205,9 @@ class ProgramController extends Controller
             $program->subjects()
                 ->updateExistingPivot($subject_id, ['subject_type_id' => $subject_type_id]);
         }
+        $program->update([
+            'notes' => $request->notes
+        ]);
         Toastr::success(__('msg_created_successfully'), __('msg_success'));
         return redirect()->back();
     }
