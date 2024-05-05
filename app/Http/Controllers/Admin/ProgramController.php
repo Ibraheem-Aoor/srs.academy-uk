@@ -212,4 +212,18 @@ class ProgramController extends Controller
         return redirect()->back();
     }
 
+
+
+    /**
+     * Download The Program Study Plan In PDF.
+     * @param Program $program
+     */
+    public function download(Program $program)
+    {
+        $data['program'] = $program;
+        $data['subjects'] = $data['program']->subjects->groupBy('pivot.subject_type_id');
+        // $data['subjects'] = $data['program']->subjects()->with('subjectType')->get()->groupBy('pivot.subject_type_id');
+        // dd($data);
+        return view('admin.program.program_print' , $data);
+    }
 }

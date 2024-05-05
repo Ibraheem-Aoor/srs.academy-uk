@@ -114,6 +114,9 @@
                                             <a href="{{ route($route.'.edit' , $row->id)  }}" class="btn bt-icon btn-success btn-sm" title="{{ __('study_plan') }}">
                                                 <i class="far fa-file"></i>
                                             </a>
+                                            <a href="{{ route($route.'.download' , $row->id)  }}" class="btn bt-icon btn-warning btn-sm" title="{{ __('study_plan_download') }}">
+                                                <i class="fa fa-download"></i>
+                                            </a>
                                             <!-- Include Edit modal -->
                                             @include($view.'.edit')
                                             @endcan
