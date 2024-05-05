@@ -98,7 +98,6 @@ class StudentSingleEnrollController extends Controller
         $request->validate([
             'student' => 'required',
             'program' => 'required',
-            'semester' => 'required',
             'session' => 'required',
             'section' => 'nullable',
             'subjects' => 'required',
@@ -123,7 +122,7 @@ class StudentSingleEnrollController extends Controller
                 $enroll->student_id = $request->student;
                 $enroll->program_id = $request->program;
                 $enroll->session_id = $request->session;
-                $enroll->semester_id = $request->semester;
+                $enroll->semester_id = Session::query()->find($request->session)->semester_id;
                 $enroll->section_id = $request->section ?? null;
                 $enroll->created_by = Auth::guard('web')->user()->id;
                 $enroll->save();

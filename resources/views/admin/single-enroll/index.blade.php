@@ -361,10 +361,10 @@
                                     {{ __('required_field') }} {{ __('field_session') }}
                                 </div>
                             </div>
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-3 d-none">
                                 <label for="semester">{{ __('field_semester') }} <span>*</span></label>
                                 <select class="form-control next_semester" name="semester" id="semester"
-                                    required>
+                                    >
                                     <option value="">{{ __('select') }}</option>
                                     @foreach ($semesters as $semester)
                                         <option value="{{ $semester->id }}"

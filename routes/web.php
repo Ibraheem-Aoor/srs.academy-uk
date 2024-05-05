@@ -139,7 +139,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::resource('academic/faculty', 'FacultyController');
     Route::resource('academic/program', 'ProgramController');
     Route::put('academic/program/{program}/update-plan', 'ProgramController@updatePlan')->name('program.update_plan');
-    Route::get('academic/program/{program}/download', 'ProgramController@download')->name('program.download');
+    Route::get('academic/program/{program}/download', 'ProgramController@download')->name('program.download')->withoutMiddleware('auth:web');
     Route::resource('academic/batch', 'BatchController');
     Route::resource('academic/session', 'SessionController');
     Route::get('academic/session-current/{id}', 'SessionController@current')->name('session.current');
