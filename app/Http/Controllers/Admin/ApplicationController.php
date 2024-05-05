@@ -17,6 +17,8 @@ use App\Models\Document;
 use App\Models\Program;
 use App\Models\Student;
 use App\Models\Batch;
+use App\Models\Session;
+use App\Rules\Admin\ProgramBatchRule;
 use Carbon\Carbon;
 use Toastr;
 use Auth;
@@ -26,7 +28,7 @@ use DB;
 class ApplicationController extends Controller
 {
     use FileUploader;
-    
+
     /**
      * Create a new controller instance.
      *
@@ -154,10 +156,8 @@ class ApplicationController extends Controller
         $request->validate([
             'student_id' => 'required|unique:students,student_id',
             'batch' => 'required',
-            'program' => 'required',
+            'program' => ['required' , new ProgramBatchRule($request->batch)],
             'session' => 'required',
-            'semester' => 'required',
-            'section' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:students,email',
@@ -169,6 +169,7 @@ class ApplicationController extends Controller
             'signature' => 'nullable|image',
         ]);
 
+        // dd($request->toArray());
         // Random Password
         $password = str_random(8);
         $data = Application::where('registration_no', $request->registration_no)->firstOrFail();
@@ -176,7 +177,7 @@ class ApplicationController extends Controller
         // Insert Data
         try{
             DB::beginTransaction();
-            
+
             $application = new Student;
             $application->student_id = $request->student_id;
             $application->registration_no = $request->registration_no;
@@ -295,22 +296,22 @@ class ApplicationController extends Controller
 
                 }
             }}
-            
+
 
             // Student Enroll
             $enroll = new StudentEnroll();
             $enroll->student_id = $application->id;
             $enroll->program_id = $request->program;
             $enroll->session_id = $request->session;
-            $enroll->semester_id = $request->semester;
-            $enroll->section_id = $request->section;
+            $enroll->semester_id = Session::query()->findOrFail($request->session)->semester_id;
+            // $enroll->section_id = $request->section;
             $enroll->created_by = Auth::guard('web')->user()->id;
             $enroll->save();
 
 
             // Assign Subjects
             $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('semester_id', $request->semester)->where('section_id', $request->section)->first();
-            
+
             if(isset($enrollSubject)){
                 foreach($enrollSubject->subjects as $subject){
                     // Attach Subject
@@ -333,6 +334,7 @@ class ApplicationController extends Controller
         }
         catch(\Exception $e){
 
+            dd($e);
             Toastr::error(__('msg_created_error'), __('msg_error'));
 
             return redirect()->back();
@@ -372,7 +374,7 @@ class ApplicationController extends Controller
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['path'] = $this->path;
-        
+
 
         $data['provinces'] = Province::where('status', '1')
                             ->orderBy('title', 'asc')->get();
@@ -409,7 +411,7 @@ class ApplicationController extends Controller
         $application->updated_by = Auth::guard('web')->user()->id;
         $application->save();
 
-        
+
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
         return redirect()->back();
@@ -427,7 +429,7 @@ class ApplicationController extends Controller
         // Delete
         $this->deleteMultiMedia($this->path, $application, 'photo');
         $this->deleteMultiMedia($this->path, $application, 'signature');
-        
+
         $application->delete();
         DB::commit();
 

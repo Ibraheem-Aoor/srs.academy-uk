@@ -42,7 +42,6 @@ class FilterController extends Controller
     {
         //
         $data = $request->all();
-
         $rows = Session::where('status', 1);
         $rows->with('programs')->whereHas('programs', function ($query) use ($data) {
             if (is_array($data['program'])) {
@@ -52,7 +51,6 @@ class FilterController extends Controller
             }
         });
         $sessions = $rows->orderBy('id', 'desc')->get();
-
         return response()->json($sessions);
     }
 

@@ -444,9 +444,9 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-6 d-none">
                                 <label for="semester">{{ __('field_semester') }} <span>*</span></label>
-                                <select class="form-control semester" name="semester" id="semester" required>
+                                <select class="form-control semester" name="semester" id="semester" >
                                   <option value="">{{ __('select') }}</option>
                                 </select>
 
@@ -455,9 +455,9 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-6 d-none">
                                 <label for="section">{{ __('field_section') }} <span>*</span></label>
-                                <select class="form-control section" name="section" id="section" required>
+                                <select class="form-control section" name="section" id="section" >
                                   <option value="">{{ __('select') }}</option>
                                 </select>
 
@@ -479,7 +479,7 @@
                                 </div>
                             </div>
                             </fieldset>
-                            
+
                             @if(field('student_relatives')->status == 1)
                             <fieldset class="row scheduler-border">
                             <legend>{{ __('field_guardians_information') }}</legend>
@@ -626,7 +626,7 @@
             headerTag: "h3",
             bodyTag: "content",
             transitionEffect: "slideLeft",
-            labels: 
+            labels:
             {
                 finish: "{{ __('btn_finish') }}",
                 next: "{{ __('btn_next') }}",
@@ -651,7 +651,7 @@
             },
             onStepChanged: function (event, currentIndex, priorIndex)
             {
-                
+
             },
             onFinishing: function (event, currentIndex)
             {
