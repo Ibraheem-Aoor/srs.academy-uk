@@ -52,17 +52,17 @@ class ReportController extends Controller
         $this->view = 'admin.report';
         $this->access = 'report';
 
-        
-        $this->middleware('permission:'.$this->access.'-student', ['only' => ['student']]);
-        $this->middleware('permission:'.$this->access.'-subject', ['only' => ['subject']]);
-        $this->middleware('permission:'.$this->access.'-fees', ['only' => ['fees']]);
-        $this->middleware('permission:'.$this->access.'-payroll', ['only' => ['payroll']]);
-        $this->middleware('permission:'.$this->access.'-leave', ['only' => ['leave']]);
-        $this->middleware('permission:'.$this->access.'-income', ['only' => ['income']]);
-        $this->middleware('permission:'.$this->access.'-expense', ['only' => ['expense']]);
-        $this->middleware('permission:'.$this->access.'-library', ['only' => ['library']]);
-        $this->middleware('permission:'.$this->access.'-hostel', ['only' => ['hostel']]);
-        $this->middleware('permission:'.$this->access.'-transport', ['only' => ['transport']]);
+
+        $this->middleware('permission:' . $this->access . '-student', ['only' => ['student']]);
+        $this->middleware('permission:' . $this->access . '-subject', ['only' => ['subject']]);
+        $this->middleware('permission:' . $this->access . '-fees', ['only' => ['fees']]);
+        $this->middleware('permission:' . $this->access . '-payroll', ['only' => ['payroll']]);
+        $this->middleware('permission:' . $this->access . '-leave', ['only' => ['leave']]);
+        $this->middleware('permission:' . $this->access . '-income', ['only' => ['income']]);
+        $this->middleware('permission:' . $this->access . '-expense', ['only' => ['expense']]);
+        $this->middleware('permission:' . $this->access . '-library', ['only' => ['library']]);
+        $this->middleware('permission:' . $this->access . '-hostel', ['only' => ['hostel']]);
+        $this->middleware('permission:' . $this->access . '-transport', ['only' => ['transport']]);
     }
 
     /**
@@ -73,54 +73,48 @@ class ReportController extends Controller
     public function student(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_student_progress', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_student_progress', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->faculty) || $request->faculty != null){
+        if (!empty($request->faculty) || $request->faculty != null) {
             $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
+        } else {
             $data['selected_faculty'] = $faculty = '0';
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = $program = '0';
         }
 
-        if(!empty($request->session) || $request->session != null){
+        if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
-        }
-        else{
+        } else {
             $data['selected_session'] = $session = '0';
         }
 
-        if(!empty($request->semester) || $request->semester != null){
+        if (!empty($request->semester) || $request->semester != null) {
             $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
+        } else {
             $data['selected_semester'] = $semester = '0';
         }
 
-        if(!empty($request->section) || $request->section != null){
+        if (!empty($request->section) || $request->section != null) {
             $data['selected_section'] = $section = $request->section;
-        }
-        else{
+        } else {
             $data['selected_section'] = $section = '0';
         }
 
-        if(!empty($request->status) || $request->status != null){
+        if (!empty($request->status) || $request->status != null) {
             $data['selected_status'] = $status = $request->status;
-        }
-        else{
+        } else {
             $data['selected_status'] = '0';
         }
-        
+
 
         // Search Filter
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
@@ -128,69 +122,73 @@ class ReportController extends Controller
         $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
 
 
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
+        if (!empty($request->faculty) && $request->faculty != '0') {
+            $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $sessions = Session::where('status', 1);
-        $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $sessions = Session::where('status', 1);
+            $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $semesters = Semester::where('status', 1);
-        $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $semesters = Semester::where('status', 1);
+            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
-        $sections = Section::where('status', 1);
-        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
-            $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
-        });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0') {
+            $sections = Section::where('status', 1);
+            $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester) {
+                $query->where('program_id', $program);
+                $query->where('semester_id', $semester);
+            });
+            $data['sections'] = $sections->orderBy('title', 'asc')->get();
+        }
 
 
         // Student Filter
         $students = Student::where('status', '1');
-        if($faculty != 0){
-            $students->with('program')->whereHas('program', function ($query) use ($faculty){
+        if ($faculty != 0) {
+            $students->with('program')->whereHas('program', function ($query) use ($faculty) {
                 $query->where('faculty_id', $faculty);
             });
         }
-        $students->with('currentEnroll')->whereHas('currentEnroll', function ($query) use ($program, $session, $semester, $section){
-            if($program != 0){
-            $query->where('program_id', $program);
+        $students->with('currentEnroll')->whereHas('currentEnroll', function ($query) use ($program, $session, $semester, $section) {
+            if ($program != 0) {
+                $query->where('program_id', $program);
             }
-            if($session != 0){
-            $query->where('session_id', $session);
+            if ($session != 0) {
+                $query->where('session_id', $session);
             }
-            if($semester != 0){
-            $query->where('semester_id', $semester);
+            if ($semester != 0) {
+                $query->where('semester_id', $semester);
             }
-            if($section != 0){
-            $query->where('section_id', $section);
+            if ($section != 0) {
+                $query->where('section_id', $section);
             }
         });
-        if(!empty($request->status)){
-            $students->with('statuses')->whereHas('statuses', function ($query) use ($status){
+        if (!empty($request->status)) {
+            $students->with('statuses')->whereHas('statuses', function ($query) use ($status) {
                 $query->where('status_type_id', $status);
             });
         }
         $rows = $students->orderBy('student_id', 'desc')->get();
 
         // Array Sorting
-        $data['rows'] = $rows->sortByDesc(function($query){
+        $data['rows'] = $rows->sortByDesc(function ($query) {
 
-           return $query->student_id;
+            return $query->student_id;
 
         })->all();
 
 
-        return view($this->view.'.student', $data);
+        return view($this->view . '.student', $data);
     }
 
     /**
@@ -201,51 +199,45 @@ class ReportController extends Controller
     public function subject(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_course_students', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_course_students', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->faculty) || $request->faculty != null){
+        if (!empty($request->faculty) || $request->faculty != null) {
             $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
+        } else {
             $data['selected_faculty'] = '0';
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = '0';
         }
 
-        if(!empty($request->session) || $request->session != null){
+        if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
-        }
-        else{
+        } else {
             $data['selected_session'] = '0';
         }
 
-        if(!empty($request->semester) || $request->semester != null){
+        if (!empty($request->semester) || $request->semester != null) {
             $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
+        } else {
             $data['selected_semester'] = '0';
         }
 
-        if(!empty($request->section) || $request->section != null){
+        if (!empty($request->section) || $request->section != null) {
             $data['selected_section'] = $section = $request->section;
-        }
-        else{
+        } else {
             $data['selected_section'] = '0';
         }
 
-        if(!empty($request->subject) || $request->subject != null){
+        if (!empty($request->subject) || $request->subject != null) {
             $data['selected_subject'] = $subject = $request->subject;
-        }
-        else{
+        } else {
             $data['selected_subject'] = '0';
         }
 
@@ -253,40 +245,44 @@ class ReportController extends Controller
         // Search Filter
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
 
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
+        if (!empty($request->faculty) && $request->faculty != '0') {
+            $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $sessions = Session::where('status', 1);
-        $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $sessions = Session::where('status', 1);
+            $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $semesters = Semester::where('status', 1);
-        $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $semesters = Semester::where('status', 1);
+            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
-        $sections = Section::where('status', 1);
-        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
-            $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
-        });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0') {
+            $sections = Section::where('status', 1);
+            $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester) {
+                $query->where('program_id', $program);
+                $query->where('semester_id', $semester);
+            });
+            $data['sections'] = $sections->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->session) && $request->session != '0'){
+        if (!empty($request->program) && $request->program != '0' && !empty($request->session) && $request->session != '0') {
             // Filter Subject
             $subjects = Subject::where('status', '1');
-            $subjects->with('classes')->whereHas('classes', function ($query) use ($session){
-                if(isset($session)){
+            $subjects->with('classes')->whereHas('classes', function ($query) use ($session) {
+                if (isset ($session)) {
                     $query->where('session_id', $session);
                 }
             });
-            $subjects->with('programs')->whereHas('programs', function ($query) use ($program){
+            $subjects->with('programs')->whereHas('programs', function ($query) use ($program) {
                 $query->where('program_id', $program);
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
@@ -294,26 +290,26 @@ class ReportController extends Controller
 
 
         // Student List
-        if(!empty($request->program) && !empty($request->session) && !empty($request->subject)){
+        if (!empty($request->program) && !empty($request->session) && !empty($request->subject)) {
 
             // Enrolls
             $enrolls = StudentEnroll::where('status', '1');
-            if(!empty($request->program) && $request->program != '0'){
+            if (!empty($request->program) && $request->program != '0') {
                 $enrolls->where('program_id', $program);
             }
-            if(!empty($request->session) && $request->session != '0'){
+            if (!empty($request->session) && $request->session != '0') {
                 $enrolls->where('session_id', $session);
             }
-            if(!empty($request->semester) && $request->semester != '0'){
+            if (!empty($request->semester) && $request->semester != '0') {
                 $enrolls->where('semester_id', $semester);
             }
-            if(!empty($request->section) && $request->section != '0'){
+            if (!empty($request->section) && $request->section != '0') {
                 $enrolls->where('section_id', $section);
             }
-            $enrolls->with('subjects')->whereHas('subjects', function ($query) use ($subject){
+            $enrolls->with('subjects')->whereHas('subjects', function ($query) use ($subject) {
                 $query->where('subject_id', $subject);
             });
-            $enrolls->with('student')->whereHas('student', function ($query){
+            $enrolls->with('student')->whereHas('student', function ($query) {
                 $query->where('status', '1');
                 $query->orderBy('student_id', 'asc');
             });
@@ -321,15 +317,15 @@ class ReportController extends Controller
             $rows = $enrolls->get();
 
             // Array Sorting
-            $data['rows'] = $rows->sortBy(function($query){
+            $data['rows'] = $rows->sortBy(function ($query) {
 
-               return $query->student->student_id;
+                return $query->student->student_id;
 
             })->all();
         }
 
-        
-        return view($this->view.'.subject', $data);
+
+        return view($this->view . '.subject', $data);
     }
 
     /**
@@ -340,138 +336,132 @@ class ReportController extends Controller
     public function fees(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_collected_fees', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_collected_fees', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->faculty) || $request->faculty != null){
+        if (!empty($request->faculty) || $request->faculty != null) {
             $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
+        } else {
             $data['selected_faculty'] = $faculty = '0';
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = $program = '0';
         }
 
-        if(!empty($request->session) || $request->session != null){
+        if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
-        }
-        else{
+        } else {
             $data['selected_session'] = $session = '0';
         }
 
-        if(!empty($request->semester) || $request->semester != null){
+        if (!empty($request->semester) || $request->semester != null) {
             $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
+        } else {
             $data['selected_semester'] = $semester = '0';
         }
 
-        if(!empty($request->section) || $request->section != null){
+        if (!empty($request->section) || $request->section != null) {
             $data['selected_section'] = $section = $request->section;
-        }
-        else{
+        } else {
             $data['selected_section'] = $section = '0';
         }
 
-        if(!empty($request->category) || $request->category != null){
+        if (!empty($request->category) || $request->category != null) {
             $data['selected_category'] = $category = $request->category;
-        }
-        else{
+        } else {
             $data['selected_category'] = $category = '0';
         }
 
-        if(!empty($request->start_date) || $request->start_date != null){
+        if (!empty($request->start_date) || $request->start_date != null) {
             $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
+        } else {
             $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subMonth()));
         }
 
-        if(!empty($request->end_date) || $request->end_date != null){
+        if (!empty($request->end_date) || $request->end_date != null) {
             $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
+        } else {
             $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
         }
 
-        
+
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
         $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
 
 
         // Filter Search
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
+        if (!empty($request->faculty) && $request->faculty != '0') {
+            $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $sessions = Session::where('status', 1);
-        $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $sessions = Session::where('status', 1);
+            $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $semesters = Semester::where('status', 1);
-        $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $semesters = Semester::where('status', 1);
+            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
-        $sections = Section::where('status', 1);
-        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
-            $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
-        });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
-        
+        if (!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0') {
+            $sections = Section::where('status', 1);
+            $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester) {
+                $query->where('program_id', $program);
+                $query->where('semester_id', $semester);
+            });
+            $data['sections'] = $sections->orderBy('title', 'asc')->get();
+        }
+
 
         // Filter Fees
         $fees = Fee::whereDate('pay_date', '>=', $start_date)
-                    ->whereDate('pay_date', '<=', $end_date);
+            ->whereDate('pay_date', '<=', $end_date);
 
-        if(!empty($request->faculty) || !empty($request->program) || !empty($request->session) || !empty($request->semester) || !empty($request->section)){
-            $fees->whereHas('studentEnroll.program', function ($query) use ($faculty){
-                if($faculty != 0){
-                $query->where('faculty_id', $faculty);
+        if (!empty($request->faculty) || !empty($request->program) || !empty($request->session) || !empty($request->semester) || !empty($request->section)) {
+            $fees->whereHas('studentEnroll.program', function ($query) use ($faculty) {
+                if ($faculty != 0) {
+                    $query->where('faculty_id', $faculty);
                 }
             });
 
-            $fees->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section){
-                if($program != 0){
-                $query->where('program_id', $program);
+            $fees->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section) {
+                if ($program != 0) {
+                    $query->where('program_id', $program);
                 }
-                if($session != 0){
-                $query->where('session_id', $session);
+                if ($session != 0) {
+                    $query->where('session_id', $session)->where('semester_id', Session::find($session)->semester_id);
                 }
-                if($semester != 0){
-                $query->where('semester_id', $semester);
-                }
-                if($section != 0){
-                $query->where('section_id', $section);
+
+                if ($section != 0) {
+                    $query->where('section_id', $section);
                 }
             });
         }
-        if($category != 0){
+        if ($category != 0) {
             $fees->where('category_id', $category);
         }
-        
-        $fees->whereHas('studentEnroll.student', function ($query){
+
+        $fees->whereHas('studentEnroll.student', function ($query) {
             $query->orderBy('student_id', 'asc');
         });
-        
+
         $data['rows'] = $fees->where('status', '1')->orderBy('updated_at', 'desc')->get();
 
 
-        return view($this->view.'.fees', $data);
+        return view($this->view . '.fees', $data);
     }
 
     /**
@@ -482,58 +472,51 @@ class ReportController extends Controller
     public function payroll(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_salary_paid', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_salary_paid', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->salary_type) || $request->salary_type != null){
+        if (!empty($request->salary_type) || $request->salary_type != null) {
             $data['selected_salary_type'] = $salary_type = $request->salary_type;
-        }
-        else{
+        } else {
             $data['selected_salary_type'] = '0';
         }
 
-        if(!empty($request->department) || $request->department != null){
+        if (!empty($request->department) || $request->department != null) {
             $data['selected_department'] = $department = $request->department;
-        }
-        else{
+        } else {
             $data['selected_department'] = '0';
         }
 
-        if(!empty($request->designation) || $request->designation != null){
+        if (!empty($request->designation) || $request->designation != null) {
             $data['selected_designation'] = $designation = $request->designation;
-        }
-        else{
+        } else {
             $data['selected_designation'] = '0';
         }
 
-        if(!empty($request->shift) || $request->shift != null){
+        if (!empty($request->shift) || $request->shift != null) {
             $data['selected_shift'] = $shift = $request->shift;
-        }
-        else{
+        } else {
             $data['selected_shift'] = '0';
         }
 
-        if(!empty($request->contract_type) || $request->contract_type != null){
+        if (!empty($request->contract_type) || $request->contract_type != null) {
             $data['selected_contract'] = $contract_type = $request->contract_type;
-        }
-        else{
+        } else {
             $data['selected_contract'] = '0';
         }
 
-        if(!empty($request->month) || $request->month != null){
+        if (!empty($request->month) || $request->month != null) {
             $data['selected_month'] = $month = $request->month;
-        }
-        else{
+        } else {
             $data['selected_month'] = date("m", strtotime(Carbon::today()));
         }
 
-        if(!empty($request->year) || $request->year != null){
+        if (!empty($request->year) || $request->year != null) {
             $data['selected_year'] = $year = $request->year;
-        }
-        else{
+        } else {
             $data['selected_year'] = date("Y", strtotime(Carbon::today()));
         }
 
@@ -544,39 +527,39 @@ class ReportController extends Controller
 
 
         // Filter Payrolls
-        if(!empty($request->month) && !empty($request->year)){
+        if (!empty($request->month) && !empty($request->year)) {
 
             $payrolls = Payroll::whereYear('salary_month', $year)->whereMonth('salary_month', $month);
 
-            if(!empty($request->salary_type)){
+            if (!empty($request->salary_type)) {
                 $payrolls->where('salary_type', $salary_type);
             }
-            if(!empty($request->department)){
-                $payrolls->with('user')->whereHas('user', function ($query) use ($department){
+            if (!empty($request->department)) {
+                $payrolls->with('user')->whereHas('user', function ($query) use ($department) {
                     $query->where('department_id', $department);
                 });
             }
-            if(!empty($request->designation)){
-                $payrolls->with('user')->whereHas('user', function ($query) use ($designation){
+            if (!empty($request->designation)) {
+                $payrolls->with('user')->whereHas('user', function ($query) use ($designation) {
                     $query->where('designation_id', $designation);
                 });
             }
-            if(!empty($request->shift)){
-                $payrolls->with('user')->whereHas('user', function ($query) use ($shift){
+            if (!empty($request->shift)) {
+                $payrolls->with('user')->whereHas('user', function ($query) use ($shift) {
                     $query->where('work_shift', $shift);
                 });
             }
-            if(!empty($request->contract_type)){
-                $payrolls->with('user')->whereHas('user', function ($query) use ($contract_type){
+            if (!empty($request->contract_type)) {
+                $payrolls->with('user')->whereHas('user', function ($query) use ($contract_type) {
                     $query->where('contract_type', $contract_type);
                 });
             }
 
             $data['rows'] = $payrolls->where('status', '1')->orderBy('id', 'asc')->get();
-        }                
+        }
 
-        
-        return view($this->view.'.payroll', $data);
+
+        return view($this->view . '.payroll', $data);
     }
 
     /**
@@ -587,68 +570,63 @@ class ReportController extends Controller
     public function leave(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_staff_leaves', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_staff_leaves', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->user) || $request->user != null){
+        if (!empty($request->user) || $request->user != null) {
             $data['selected_user'] = $user = $request->user;
-        }
-        else{
+        } else {
             $data['selected_user'] = $user = '0';
         }
 
-        if(!empty($request->pay_type) || $request->pay_type != null){
+        if (!empty($request->pay_type) || $request->pay_type != null) {
             $data['selected_pay_type'] = $pay_type = $request->pay_type;
-        }
-        else{
+        } else {
             $data['selected_pay_type'] = $pay_type = '0';
         }
 
-        if(!empty($request->type) || $request->type != null){
+        if (!empty($request->type) || $request->type != null) {
             $data['selected_type'] = $type = $request->type;
-        }
-        else{
+        } else {
             $data['selected_type'] = $type = '0';
         }
 
-        if(!empty($request->start_date) || $request->start_date != null){
+        if (!empty($request->start_date) || $request->start_date != null) {
             $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
+        } else {
             $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subYear()));
         }
 
-        if(!empty($request->end_date) || $request->end_date != null){
+        if (!empty($request->end_date) || $request->end_date != null) {
             $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
+        } else {
             $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
         }
 
 
         // Search Filter
         $data['users'] = User::where('status', '1')
-                            ->orderBy('staff_id', 'asc')->get();
+            ->orderBy('staff_id', 'asc')->get();
         $data['types'] = LeaveType::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
+            ->orderBy('title', 'asc')->get();
 
         $rows = Leave::whereDate('apply_date', '>=', $start_date)
-                    ->whereDate('apply_date', '<=', $end_date);
-                    if(!empty($request->user) || $request->user != null){
-                        $rows->where('user_id', $user);
-                    }
-                    if(!empty($request->pay_type) || $request->pay_type != null){
-                        $rows->where('pay_type', $pay_type);
-                    }
-                    if(!empty($request->type) || $request->type != null){
-                        $rows->where('type_id', $type);
-                    }
+            ->whereDate('apply_date', '<=', $end_date);
+        if (!empty($request->user) || $request->user != null) {
+            $rows->where('user_id', $user);
+        }
+        if (!empty($request->pay_type) || $request->pay_type != null) {
+            $rows->where('pay_type', $pay_type);
+        }
+        if (!empty($request->type) || $request->type != null) {
+            $rows->where('type_id', $type);
+        }
         $data['rows'] = $rows->where('status', '1')->orderBy('apply_date', 'desc')->get();
 
-        return view($this->view.'.leave', $data);
+        return view($this->view . '.leave', $data);
     }
 
     /**
@@ -659,46 +637,43 @@ class ReportController extends Controller
     public function income(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_total_income', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_total_income', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->category) || $request->category != null){
+        if (!empty($request->category) || $request->category != null) {
             $data['selected_category'] = $category = $request->category;
-        }
-        else{
+        } else {
             $data['selected_category'] = $category = '0';
         }
 
-        if(!empty($request->start_date) || $request->start_date != null){
+        if (!empty($request->start_date) || $request->start_date != null) {
             $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
+        } else {
             $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subMonth()));
         }
 
-        if(!empty($request->end_date) || $request->end_date != null){
+        if (!empty($request->end_date) || $request->end_date != null) {
             $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
+        } else {
             $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
         }
 
 
         // Search Filter
         $data['categories'] = IncomeCategory::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
+            ->orderBy('title', 'asc')->get();
 
         $rows = Income::whereDate('date', '>=', $start_date)
-                    ->whereDate('date', '<=', $end_date);
-                    if(!empty($request->category) || $request->category != null){
-                        $rows->where('category_id', $category);
-                    }
+            ->whereDate('date', '<=', $end_date);
+        if (!empty($request->category) || $request->category != null) {
+            $rows->where('category_id', $category);
+        }
         $data['rows'] = $rows->orderBy('date', 'asc')->get();
 
-        return view($this->view.'.income', $data);
+        return view($this->view . '.income', $data);
     }
 
     /**
@@ -709,46 +684,43 @@ class ReportController extends Controller
     public function expense(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_total_expense', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_total_expense', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->category) || $request->category != null){
+        if (!empty($request->category) || $request->category != null) {
             $data['selected_category'] = $category = $request->category;
-        }
-        else{
+        } else {
             $data['selected_category'] = $category = '0';
         }
 
-        if(!empty($request->start_date) || $request->start_date != null){
+        if (!empty($request->start_date) || $request->start_date != null) {
             $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
+        } else {
             $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subMonth()));
         }
 
-        if(!empty($request->end_date) || $request->end_date != null){
+        if (!empty($request->end_date) || $request->end_date != null) {
             $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
+        } else {
             $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
         }
 
 
         // Search Filter
         $data['categories'] = ExpenseCategory::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
+            ->orderBy('title', 'asc')->get();
 
         $rows = Expense::whereDate('date', '>=', $start_date)
-                    ->whereDate('date', '<=', $end_date);
-                    if(!empty($request->category) || $request->category != null){
-                        $rows->where('category_id', $category);
-                    }
+            ->whereDate('date', '<=', $end_date);
+        if (!empty($request->category) || $request->category != null) {
+            $rows->where('category_id', $category);
+        }
         $data['rows'] = $rows->orderBy('date', 'asc')->get();
 
-        return view($this->view.'.expense', $data);
+        return view($this->view . '.expense', $data);
     }
 
     /**
@@ -759,59 +731,55 @@ class ReportController extends Controller
     public function library(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_library_history', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_library_history', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->member) || $request->member != null){
+        if (!empty($request->member) || $request->member != null) {
             $data['selected_member'] = $member = $request->member;
-        }
-        else{
+        } else {
             $data['selected_member'] = $member = '0';
         }
 
-        if(!empty($request->book) || $request->book != null){
+        if (!empty($request->book) || $request->book != null) {
             $data['selected_book'] = $book = $request->book;
-        }
-        else{
+        } else {
             $data['selected_book'] = $book = '0';
         }
 
-        if(!empty($request->start_date) || $request->start_date != null){
+        if (!empty($request->start_date) || $request->start_date != null) {
             $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
+        } else {
             $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subYear()));
         }
 
-        if(!empty($request->end_date) || $request->end_date != null){
+        if (!empty($request->end_date) || $request->end_date != null) {
             $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
+        } else {
             $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
         }
 
 
         // Search Filter
         $data['books'] = Book::where('status', '1')
-                        ->orderBy('isbn', 'asc')->get();
+            ->orderBy('isbn', 'asc')->get();
 
         $data['members'] = LibraryMember::where('status', '1')
-                        ->orderBy('library_id', 'asc')->get();
+            ->orderBy('library_id', 'asc')->get();
 
         $rows = IssueReturn::whereDate('issue_date', '>=', $start_date)
-                    ->whereDate('issue_date', '<=', $end_date);
-                    if(!empty($request->member) || $request->member != null){
-                        $rows->where('member_id', $member);
-                    }
-                    if(!empty($request->book) || $request->book != null){
-                        $rows->where('book_id', $book);
-                    }
+            ->whereDate('issue_date', '<=', $end_date);
+        if (!empty($request->member) || $request->member != null) {
+            $rows->where('member_id', $member);
+        }
+        if (!empty($request->book) || $request->book != null) {
+            $rows->where('book_id', $book);
+        }
         $data['rows'] = $rows->orderBy('id', 'desc')->get();
 
-        return view($this->view.'.library', $data);
+        return view($this->view . '.library', $data);
     }
 
     /**
@@ -822,47 +790,44 @@ class ReportController extends Controller
     public function hostel(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_hostel_members', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_hostel_members', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->hostel) || $request->hostel != null){
+        if (!empty($request->hostel) || $request->hostel != null) {
             $data['selected_hostel'] = $hostel = $request->hostel;
-        }
-        else{
+        } else {
             $data['selected_hostel'] = $hostel = '0';
         }
 
-        if(!empty($request->member) || $request->member != null){
+        if (!empty($request->member) || $request->member != null) {
             $data['selected_member'] = $member = $request->member;
-        }
-        else{
+        } else {
             $data['selected_member'] = $member = '0';
         }
 
 
         // Search Filter
         $data['hostels'] = Hostel::where('status', '1')
-                        ->orderBy('name', 'asc')->get();
+            ->orderBy('name', 'asc')->get();
 
 
         $rows = HostelMember::where('status', '1');
-                    if(!empty($request->hostel) || $request->hostel != null){
-                        $rows->with('room')->whereHas('room', function ($query) use ($hostel){
-                            $query->where('hostel_id', $hostel);
-                        });
-                    }
-                    if($request->member == 1){
-                        $rows->where('hostelable_type', 'App\Models\Student');
-                    }
-                    elseif($request->member == 2){
-                        $rows->where('hostelable_type', 'App\User');
-                    }
+        if (!empty($request->hostel) || $request->hostel != null) {
+            $rows->with('room')->whereHas('room', function ($query) use ($hostel) {
+                $query->where('hostel_id', $hostel);
+            });
+        }
+        if ($request->member == 1) {
+            $rows->where('hostelable_type', 'App\Models\Student');
+        } elseif ($request->member == 2) {
+            $rows->where('hostelable_type', 'App\User');
+        }
         $data['rows'] = $rows->orderBy('hostel_room_id', 'asc')->get();
 
-        return view($this->view.'.hostel', $data);
+        return view($this->view . '.hostel', $data);
     }
 
     /**
@@ -873,56 +838,52 @@ class ReportController extends Controller
     public function transport(Request $request)
     {
         //
-        $data['title'] = trans_choice('module_transport_members', 1).' '.trans_choice('module_report', 1);
+        $data['title'] = trans_choice('module_transport_members', 1) . ' ' . trans_choice('module_report', 1);
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
 
 
-        if(!empty($request->route) || $request->route != null){
+        if (!empty($request->route) || $request->route != null) {
             $data['selected_route'] = $route = $request->route;
-        }
-        else{
+        } else {
             $data['selected_route'] = $route = '0';
         }
 
-        if(!empty($request->vehicle) || $request->vehicle != null){
+        if (!empty($request->vehicle) || $request->vehicle != null) {
             $data['selected_vehicle'] = $vehicle = $request->vehicle;
-        }
-        else{
+        } else {
             $data['selected_vehicle'] = $vehicle = '0';
         }
 
-        if(!empty($request->member) || $request->member != null){
+        if (!empty($request->member) || $request->member != null) {
             $data['selected_member'] = $member = $request->member;
-        }
-        else{
+        } else {
             $data['selected_member'] = $member = '0';
         }
 
 
         // Search Filter
         $data['transportRoutes'] = TransportRoute::where('status', '1')
-                        ->orderBy('title', 'asc')->get();
+            ->orderBy('title', 'asc')->get();
         $data['transportVehicles'] = TransportVehicle::where('status', '1')
-                        ->orderBy('number', 'asc')->get();
+            ->orderBy('number', 'asc')->get();
 
 
         $rows = TransportMember::where('status', '1');
-                    if(!empty($request->route) || $request->route != null){
-                        $rows->where('transport_route_id', $route);
-                    }
-                    if(!empty($request->vehicle) || $request->vehicle != null){
-                        $rows->where('transport_vehicle_id', $vehicle);
-                    }
-                    if($request->member == 1){
-                        $rows->where('transportable_type', 'App\Models\Student');
-                    }
-                    elseif($request->member == 2){
-                        $rows->where('transportable_type', 'App\User');
-                    }
+        if (!empty($request->route) || $request->route != null) {
+            $rows->where('transport_route_id', $route);
+        }
+        if (!empty($request->vehicle) || $request->vehicle != null) {
+            $rows->where('transport_vehicle_id', $vehicle);
+        }
+        if ($request->member == 1) {
+            $rows->where('transportable_type', 'App\Models\Student');
+        } elseif ($request->member == 2) {
+            $rows->where('transportable_type', 'App\User');
+        }
         $data['rows'] = $rows->orderBy('transport_route_id', 'asc')->get();
 
-        return view($this->view.'.transport', $data);
+        return view($this->view . '.transport', $data);
     }
 }

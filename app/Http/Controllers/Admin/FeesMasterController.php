@@ -34,8 +34,8 @@ class FeesMasterController extends Controller
         $this->access = 'fees-master';
 
 
-        $this->middleware('permission:'.$this->access.'-view', ['only' => ['index','show']]);
-        $this->middleware('permission:'.$this->access.'-create', ['only' => ['create','store']]);
+        $this->middleware('permission:' . $this->access . '-view', ['only' => ['index', 'show']]);
+        $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
     }
 
     /**
@@ -53,45 +53,30 @@ class FeesMasterController extends Controller
         $data['access'] = $this->access;
 
 
-        if(!empty($request->faculty) || $request->faculty != null){
+        if (!empty($request->faculty) || $request->faculty != null) {
             $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
+        } else {
             $data['selected_faculty'] = '0';
         }
 
-        if(!empty($request->session) || $request->session != null){
+        if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
-        }
-        else{
+        } else {
             $data['selected_session'] = '0';
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = '0';
         }
 
-        if(!empty($request->semester) || $request->semester != null){
-            $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
-            $data['selected_semester'] = '0';
-        }
 
-        if(!empty($request->section) || $request->section != null){
-            $data['selected_section'] = $section = $request->section;
-        }
-        else{
-            $data['selected_section'] = '0';
-        }
 
-        if(!empty($request->category) || $request->category != null){
+
+        if (!empty($request->category) || $request->category != null) {
             $data['selected_category'] = $category = $request->category;
-        }
-        else{
+        } else {
             $data['selected_category'] = '0';
         }
 
@@ -101,57 +86,49 @@ class FeesMasterController extends Controller
         $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
 
 
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
+        if (!empty($request->faculty) && $request->faculty != '0') {
+            $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $sessions = Session::where('status', 1);
-        $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $sessions = Session::where('status', 1);
+            $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $semesters = Semester::where('status', 1);
-        $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $semesters = Semester::where('status', 1);
+            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
-        $sections = Section::where('status', 1);
-        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
-            $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
-        });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
+
 
 
         // Filter Fees
         $masters = FeesMaster::where('id', '!=', 0);
-        if(!empty($request->faculty) && $request->faculty != '0'){
+        if (!empty($request->faculty) && $request->faculty != '0') {
             $masters->where('faculty_id', $faculty);
         }
-        if(!empty($request->program) && $request->program != '0'){
+        if (!empty($request->program) && $request->program != '0') {
             $masters->where('program_id', $program);
         }
-        if(!empty($request->session) && $request->session != '0'){
-            $masters->where('session_id', $session);
+        if (!empty($request->session) && $request->session != '0') {
+            $masters->where('session_id', $session)
+                ->where('semester_id', Session::find($session)->semester_id);
         }
-        if(!empty($request->semester) && $request->semester != '0'){
-            $masters->where('semester_id', $semester);
-        }
-        if(!empty($request->section) && $request->section != '0'){
-            $masters->where('section_id', $section);
-        }
-        if(!empty($request->category) && $request->category != '0'){
+        if (!empty($request->category) && $request->category != '0') {
             $masters->where('category_id', $category);
         }
         $data['rows'] = $masters->orderBy('id', 'desc')
-                                ->get();
+            ->get();
 
 
-        return view($this->view.'.index', $data);
+        return view($this->view . '.index', $data);
     }
 
     /**
@@ -168,41 +145,26 @@ class FeesMasterController extends Controller
         $data['path'] = $this->path;
         $data['access'] = $this->access;
 
-        
-        if(!empty($request->faculty) || $request->faculty != null){
+
+        if (!empty($request->faculty) || $request->faculty != null) {
             $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
+        } else {
             $data['selected_faculty'] = '0';
         }
 
-        if(!empty($request->session) || $request->session != null){
+        if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
-        }
-        else{
+        } else {
             $data['selected_session'] = '0';
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = '0';
         }
 
-        if(!empty($request->semester) || $request->semester != null){
-            $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
-            $data['selected_semester'] = '0';
-        }
 
-        if(!empty($request->section) || $request->section != null){
-            $data['selected_section'] = $section = $request->section;
-        }
-        else{
-            $data['selected_section'] = '0';
-        }
 
 
         // Filter Search
@@ -210,55 +172,52 @@ class FeesMasterController extends Controller
         $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
 
 
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
+        if (!empty($request->faculty) && $request->faculty != '0') {
+            $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $sessions = Session::where('status', 1);
-        $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $sessions = Session::where('status', 1);
+            $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $semesters = Semester::where('status', 1);
-        $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $semesters = Semester::where('status', 1);
+            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+        }
+        $data['selected_semester'] = 0;
+        $data['selected_section'] = 0;
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
-        $sections = Section::where('status', 1);
-        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
-            $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
-        });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
+
 
 
         // Filter Student
-        if(isset($request->faculty) || isset($request->program)){
+        if (isset($request->faculty) || isset($request->program)) {
             $enrolls = StudentEnroll::where('status', '1');
 
-            if(!empty($request->faculty) && $request->faculty != '0'){
-                $enrolls->with('program')->whereHas('program', function ($query) use ($faculty){
+            if (!empty($request->faculty) && $request->faculty != '0') {
+                $enrolls->with('program')->whereHas('program', function ($query) use ($faculty) {
                     $query->where('faculty_id', $faculty);
                 });
             }
-            if(!empty($request->program) && $request->program != '0'){
+            if (!empty($request->program) && $request->program != '0') {
                 $enrolls->where('program_id', $program);
             }
-            if(!empty($request->session) && $request->session != '0'){
-                $enrolls->where('session_id', $session);
-            }
-            if(!empty($request->semester) && $request->semester != '0'){
-                $enrolls->where('semester_id', $semester);
-            }
-            if(!empty($request->section) && $request->section != '0'){
-                $enrolls->where('section_id', $section);
+            if (!empty($request->session) && $request->session != '0') {
+                $data['selected_semester'] = Session::find($session)->semester_id;
+                $enrolls->where('session_id', $session)
+                    ->where('semester_id', $data['selected_semester']);
             }
 
-            $enrolls->with('student')->whereHas('student', function ($query){
+
+
+            $enrolls->with('student')->whereHas('student', function ($query) {
                 $query->where('status', '1');
                 $query->orderBy('student_id', 'asc');
             });
@@ -266,15 +225,15 @@ class FeesMasterController extends Controller
             $rows = $enrolls->get();
 
             // Array Sorting
-            $data['rows'] = $rows->sortBy(function($query){
+            $data['rows'] = $rows->sortBy(function ($query) {
 
-               return $query->student->student_id;
+                return $query->student->student_id;
 
             })->all();
         }
 
 
-        return view($this->view.'.create', $data);
+        return view($this->view . '.create', $data);
     }
 
     /**
@@ -300,15 +259,14 @@ class FeesMasterController extends Controller
             'students' => 'required',
         ]);
 
-        try{
+        try {
             DB::beginTransaction();
 
             $feesMaster = new FeesMaster;
             $feesMaster->faculty_id = $request->faculty;
             $feesMaster->program_id = $request->program;
             $feesMaster->session_id = $request->session;
-            $feesMaster->semester_id = $request->semester;
-            $feesMaster->section_id = $request->section;
+            $feesMaster->semester_id = Session::query()->find($request->session)->semester_id;
             $feesMaster->category_id = $request->category;
             $feesMaster->assign_date = $request->assign_date;
             $feesMaster->due_date = $request->due_date;
@@ -319,15 +277,14 @@ class FeesMasterController extends Controller
 
 
             // Assign Fees
-            foreach($request->students as $student){
+            foreach ($request->students as $student) {
                 $total_credits = 0;
 
-                if($request->type == 1){
+                if ($request->type == 1) {
                     $fee_amount = $request->amount;
-                }
-                else {
+                } else {
                     $enroll = StudentEnroll::find($student);
-                    foreach($enroll->subjects as $subject){
+                    foreach ($enroll->subjects as $subject) {
                         $total_credits = $total_credits + $subject->credit_hour;
                     }
 
@@ -352,9 +309,8 @@ class FeesMasterController extends Controller
 
             Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-            return redirect()->route($this->view.'.index');
-        }
-        catch(\Exception $e){
+            return redirect()->route($this->view . '.index');
+        } catch (\Exception $e) {
 
             Toastr::error(__('msg_created_error'), __('msg_error'));
 

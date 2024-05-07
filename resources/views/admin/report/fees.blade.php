@@ -93,34 +93,34 @@
                                         <td>{{ $row->category->title ?? '' }}</td>
                                         <td>
                                             @if(isset($setting->decimal_place))
-                                            {{ number_format((float)$row->fee_amount, $setting->decimal_place, '.', '') }} 
+                                            {{ number_format((float)$row->fee_amount, $setting->decimal_place, '.', '') }}
                                             @else
-                                            {{ number_format((float)$row->fee_amount, 2, '.', '') }} 
-                                            @endif 
+                                            {{ number_format((float)$row->fee_amount, 2, '.', '') }}
+                                            @endif
                                             {!! $setting->currency_symbol !!}
                                         </td>
                                         <td>
                                             @if(isset($setting->decimal_place))
-                                            {{ number_format((float)$row->discount_amount, $setting->decimal_place, '.', '') }} 
+                                            {{ number_format((float)$row->discount_amount, $setting->decimal_place, '.', '') }}
                                             @else
-                                            {{ number_format((float)$row->discount_amount, 2, '.', '') }} 
-                                            @endif 
+                                            {{ number_format((float)$row->discount_amount, 2, '.', '') }}
+                                            @endif
                                             {!! $setting->currency_symbol !!}
                                         </td>
                                         <td>
                                             @if(isset($setting->decimal_place))
-                                            {{ number_format((float)$row->fine_amount, $setting->decimal_place, '.', '') }} 
+                                            {{ number_format((float)$row->fine_amount, $setting->decimal_place, '.', '') }}
                                             @else
-                                            {{ number_format((float)$row->fine_amount, 2, '.', '') }} 
-                                            @endif 
+                                            {{ number_format((float)$row->fine_amount, 2, '.', '') }}
+                                            @endif
                                             {!! $setting->currency_symbol !!}
                                         </td>
                                         <td>
                                             @if(isset($setting->decimal_place))
-                                            {{ number_format((float)$row->paid_amount, $setting->decimal_place, '.', '') }} 
+                                            {{ number_format((float)$row->paid_amount, $setting->decimal_place, '.', '') }}
                                             @else
-                                            {{ number_format((float)$row->paid_amount, 2, '.', '') }} 
-                                            @endif 
+                                            {{ number_format((float)$row->paid_amount, 2, '.', '') }}
+                                            @endif
                                             {!! $setting->currency_symbol !!}
                                         </td>
                                         <td>
@@ -177,7 +177,7 @@
                         <!-- [ Data table ] end -->
                     </div>
                     @endif
-                    
+
                 </div>
             </div>
         </div>

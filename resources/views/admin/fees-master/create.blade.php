@@ -57,6 +57,7 @@
                                                 <label for="checkbox" class="cr" style="margin-bottom: 0px;"></label>
                                             </div>
                                         </th>
+                                        <th>{{ __('field_name') }}</th>
                                         <th>{{ __('field_student_id') }}</th>
                                         <th>{{ __('field_credit_hour_short') }}</th>
                                         <th>{{ __('field_program') }}</th>
@@ -73,6 +74,9 @@
                                                 <input type="checkbox" name="students[]" id="checkbox-{{ $row->id }}" value="{{ $row->id }}" checked>
                                                 <label for="checkbox-{{ $row->id }}" class="cr"></label>
                                             </div>
+                                        </td>
+                                        <td>
+                                            {{ $row->student->first_name }} {{  $row->student_last_name }}
                                         </td>
                                         <td>
                                             <a href="{{ route('admin.student.show', $row->student->id) }}">

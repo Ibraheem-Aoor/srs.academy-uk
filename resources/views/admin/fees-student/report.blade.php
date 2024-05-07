@@ -89,34 +89,34 @@
                                         <td>{{ $row->category->title ?? '' }}</td>
                                         <td>
                                             @if(isset($setting->decimal_place))
-                                            {{ number_format((float)$row->fee_amount, $setting->decimal_place, '.', '') }} 
+                                            {{ number_format((float)$row->fee_amount, $setting->decimal_place, '.', '') }}
                                             @else
-                                            {{ number_format((float)$row->fee_amount, 2, '.', '') }} 
-                                            @endif 
+                                            {{ number_format((float)$row->fee_amount, 2, '.', '') }}
+                                            @endif
                                             {!! $setting->currency_symbol !!}
                                         </td>
                                         <td>
                                             @if(isset($setting->decimal_place))
-                                            {{ number_format((float)$row->discount_amount, $setting->decimal_place, '.', '') }} 
+                                            {{ number_format((float)$row->discount_amount, $setting->decimal_place, '.', '') }}
                                             @else
-                                            {{ number_format((float)$row->discount_amount, 2, '.', '') }} 
-                                            @endif 
+                                            {{ number_format((float)$row->discount_amount, 2, '.', '') }}
+                                            @endif
                                             {!! $setting->currency_symbol !!}
                                         </td>
                                         <td>
                                             @if(isset($setting->decimal_place))
-                                            {{ number_format((float)$row->fine_amount, $setting->decimal_place, '.', '') }} 
+                                            {{ number_format((float)$row->fine_amount, $setting->decimal_place, '.', '') }}
                                             @else
-                                            {{ number_format((float)$row->fine_amount, 2, '.', '') }} 
-                                            @endif 
+                                            {{ number_format((float)$row->fine_amount, 2, '.', '') }}
+                                            @endif
                                             {!! $setting->currency_symbol !!}
                                         </td>
                                         <td>
                                             @if(isset($setting->decimal_place))
-                                            {{ number_format((float)$row->paid_amount, $setting->decimal_place, '.', '') }} 
+                                            {{ number_format((float)$row->paid_amount, $setting->decimal_place, '.', '') }}
                                             @else
-                                            {{ number_format((float)$row->paid_amount, 2, '.', '') }} 
-                                            @endif 
+                                            {{ number_format((float)$row->paid_amount, 2, '.', '') }}
+                                            @endif
                                             {!! $setting->currency_symbol !!}
                                         </td>
                                         <td>
@@ -167,7 +167,7 @@
                                             </a>
                                             @endif
                                             @endcan
-                                            
+
                                             @can($access.'-action')
                                             <button type="button" class="btn btn-icon btn-danger btn-sm" title="{{ __('status_unpaid') }}" data-bs-toggle="modal" data-bs-target="#unpayModal-{{ $row->id }}">
                                                 <i class="fas fa-undo"></i>
@@ -185,7 +185,7 @@
                         <!-- [ Data table ] end -->
                     </div>
                     @endif
-                    
+
                 </div>
             </div>
         </div>
