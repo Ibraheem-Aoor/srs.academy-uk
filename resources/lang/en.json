@@ -817,5 +817,7 @@
     "contacts": "Contacts",
     "field_contact_subject": "Subject",
     "study_plan_download": "Download Study Plan",
-    "program_not_available_for_batch" : "Selected Program Not Available For Selected Cohort"
+    "program_not_available_for_batch" : "Selected Program Not Available For Selected Cohort",
+    "upload_payment_receipt" : "Upload Payment Receipt",
+    "fee_prove_uploaded": "Fee Prove Uploaded"
 }

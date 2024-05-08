@@ -11,7 +11,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h5>{{ $title }}</h5>
-                        </div>  
+                        </div>
                         <div class="card-block">
                             <form class="needs-validation" novalidate method="get" action="{{ route($route . '.index') }}">
                                 <div class="row gx-2">
@@ -239,6 +239,12 @@
                                                                 <!-- Include Unpay modal -->
                                                                 @include($view . '.cancel')
                                                             @endcan
+                                                            @isset($row->prove_file_path)
+                                                                <a href="{{ $row->getProveFilePreviewLink() }}"
+                                                                    target="_blank" class="btn btn-icon btn-success btn-sm">
+                                                                    <i class="fa fa-eye"></i>
+                                                                </a>
+                                                            @endisset
                                                         @elseif($row->status == 1)
                                                             @can($access . '-print')
                                                                 @if (isset($print))
@@ -246,9 +252,8 @@
                                                                         target="_blank" class="btn btn-icon btn-dark btn-sm">
                                                                         <i class="fas fa-print"></i>
                                                                     </a>
-                                                                @endif
+                                                                @endif&nbsp;
                                                             @endcan
-
                                                             @can($access . '-action')
                                                                 <button type="button" class="btn btn-icon btn-danger btn-sm"
                                                                     title="{{ __('status_unpaid') }}" data-bs-toggle="modal"

@@ -165,6 +165,11 @@ class FeesStudentController extends Controller
         $fees->whereHas('studentEnroll.student', function ($query) {
             $query->orderBy('student_id', 'asc');
         });
+        // Searched Id's might be sent in notifications
+        if($searched_id = $request->query('searched_id'))
+        {
+            $fees = Fee::where('status',  '0')->where('id' , $searched_id);
+        }
 
         $data['rows'] = $fees->orderBy('id', 'desc')->get();
 
@@ -424,7 +429,7 @@ class FeesStudentController extends Controller
                 }
             });
 
-            $fees->whereHas('studentEnroll', function ($query) use ($program, $session) {
+            $fees->whereHas('studentEnroll', function ($query) use ($program, $session , &$data) {
                 if ($program != 0) {
                     $query->where('program_id', $program);
                 }
@@ -448,6 +453,7 @@ class FeesStudentController extends Controller
         $fees->whereHas('studentEnroll.student', function ($query) {
             $query->orderBy('student_id', 'asc');
         });
+
 
         $data['rows'] = $fees->orderBy('updated_at', 'desc')->get();
 

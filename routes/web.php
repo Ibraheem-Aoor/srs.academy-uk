@@ -202,6 +202,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::get('fees-student-report', 'FeesStudentController@report')->name('fees-student.report');
     Route::get('fees-student-print/{id}', 'FeesStudentController@print')->name('fees-student.print');
 
+
     // Quick Collection Student
     Route::get('fees-student-quick-received', 'FeesStudentController@quickReceived')->name('fees-student.quick.received');
     Route::post('fees-student-quick-received', 'FeesStudentController@quickReceivedStore')->name('fees-student.quick.received.store');
@@ -530,6 +531,7 @@ Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')-
 
     // Fees Routes
     Route::get('fees', 'FeesController@index')->name('fees.index');
+    Route::post('fees', 'FeesController@store')->name('fees.store');
 
     // Library Routes
     Route::get('library', 'LibraryController@index')->name('library.index');

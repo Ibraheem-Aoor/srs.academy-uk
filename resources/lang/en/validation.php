@@ -147,6 +147,7 @@ return [
 
     'attributes' => [
         'semester_id' => __('field_semester'),
+        'fee_id'    =>  'Fee',
     ],
 
 ];

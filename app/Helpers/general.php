@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Yoeunes\Toastr\Facades\Toastr;
 
 if (!function_exists('getSystemCurrency')) {
     function getSystemCurrency()
@@ -155,6 +156,24 @@ if (!function_exists('isAdmin')) {
     function isAdmin($guard)
     {
         return getAuthUser($guard)?->hasRole('super admin');
+    }
+}
+
+
+if (!function_exists('returnError')) {
+    function returnError()
+    {
+        Toastr::error(__('msg_created_error'),  __('msg_error'));
+
+        return redirect()->back();
+    }
+}
+if (!function_exists('returnSuccess')) {
+    function returnSuccess( $route)
+    {
+        Toastr::success(__('msg_created_successfully'),  __('msg_success'));
+
+        return redirect()->route($route);
     }
 }
 

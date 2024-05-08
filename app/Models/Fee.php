@@ -23,6 +23,7 @@ class Fee extends Model
         'pay_date',
         'payment_method',
         'note',
+        'prove_file_path',
         'status',
         'created_by',
         'updated_by',
@@ -36,5 +37,15 @@ class Fee extends Model
     public function category()
     {
         return $this->belongsTo(FeesCategory::class, 'category_id');
+    }
+
+
+    /**
+     * Simple Binded function to get the prove_file_path preview link
+     */
+    public function getProveFilePreviewLink()
+    {
+        $path = 'uploads/student_receipts/'.$this->studentEnroll->student_id.'/'.$this->prove_file_path;
+        return asset($path);
     }
 }
