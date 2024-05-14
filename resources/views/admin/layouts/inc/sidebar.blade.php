@@ -325,7 +325,7 @@
                     @endcan
 
                     @can('subject-marking')
-                        <li class="{{ Request::is('admin/exam/subject-marking*') ? 'active' : '' }}"><a
+                        <li class="{{ Request::is('admin/exam/subject-marking*') ? 'active' : '' }} d-none"><a
                                 href="{{ route('admin.subject-marking.index') }}"
                                 class="">{{ trans_choice('module_subject_marking', 2) }}</a></li>
                     @endcan

@@ -74,11 +74,11 @@ class MarksheetController extends Controller
         $data['programs'] = Program::where('status', '1')
                         ->orderBy('title', 'asc')->get();
         $data['print'] = MarksheetSetting::where('status', '1')->first();
-        
-        
+
+
         // Student List
         if(isset($request->batch) || isset($request->program) || !empty($request->student_id)){
-        
+
             $students = Student::where('id', '!=', '0');
 
             if(!empty($request->batch) && $request->batch != '0'){
@@ -109,7 +109,7 @@ class MarksheetController extends Controller
         $data['route']     = $this->route;
         $data['path']      = $this->path;
         $data['access']    = $this->access;
-        
+
         $data['row'] = Student::findOrFail($id);
         $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
 
@@ -153,7 +153,7 @@ class MarksheetController extends Controller
         // View
         $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
         $data['marksheet'] = MarksheetSetting::where('status', '1')->firstOrFail();
-        $data['row'] = Student::findOrFail($id);
+        $data['row'] = Student::with('studentEnrolls')->findOrFail($id);
 
         return view($this->view.'.download', $data);
     }
@@ -206,13 +206,13 @@ class MarksheetController extends Controller
             $query->where('program_id', $program);
         });
         $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
-        
-        
+
+
         // Student List
         if(isset($request->program) || isset($request->session) || !empty($request->student_id)){
-        
+
             $students = Student::where('id', '!=', '0');
-            
+
             if(!empty($request->program) && $request->program != '0'){
                 $students->with('studentEnrolls')->whereHas('studentEnrolls', function ($query) use ($program){
                     $query->where('program_id', $program);

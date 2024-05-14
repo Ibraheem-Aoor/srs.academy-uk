@@ -164,7 +164,7 @@
     "module_subject_marking": "Course Mark Ledger|Course Mark Ledger",
     "module_subject_result": "Course Result|Course Results",
     "module_exam_type": "Mark Distribution System",
-    "module_exam_type_category": "Mark Distribution Category",
+    "module_exam_type_category": "Mark Distribution Template",
     "module_grade": "Grading System|Grading Systems",
     "module_admit_card": "Admit Card|Admit Cards",
     "module_admit_setting": "Admit Setting|Admit Settings",
@@ -819,5 +819,6 @@
     "study_plan_download": "Download Study Plan",
     "program_not_available_for_batch" : "Selected Program Not Available For Selected Cohort",
     "upload_payment_receipt" : "Upload Payment Receipt",
-    "fee_prove_uploaded": "Fee Prove Uploaded"
+    "fee_prove_uploaded": "Fee Prove Uploaded",
+    "btn_download_fom" : "Download Form To Fill"
 }

@@ -48,7 +48,7 @@
         {{ __('required_field') }} {{ __('field_session') }}
     </div>
 </div>
-<div class="form-group col-md-3">
+<div class="form-group col-md-3 d-none">
     <label for="semester">{{ __('field_semester') }} @if(!isset($is_optional_search))<span>*</span>@endif</label>
     <select class="form-control semester" name="semester" id="semester"
         @if (!isset($is_optional_search)) required @endif>
@@ -67,10 +67,10 @@
 </div>
 @if(!isset($is_optional_search))
 {{-- section search --}}
-<div class="form-group col-md-3">
+<div class="form-group col-md-3 d-none">
     <label for="section">{{ __('field_section') }} @if(!isset($is_optional_search))<span>*</span>@endif</label>
     <select class="form-control section" name="section" id="section"
-        @if (!isset($is_optional_search)) required @endif>
+        >
         <option value="0">{{ __('all') }}</option>
         @if (isset($sections))
             @foreach ($sections->sortBy('title') as $section)
@@ -252,4 +252,5 @@
 
         });
     });
+    
 </script>

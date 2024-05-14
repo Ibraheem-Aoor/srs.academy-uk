@@ -38,4 +38,9 @@ class ExamType extends Model
     {
         return $this->belongsTo(ExamTypeCategory::class  , 'exam_type_category_id');
     }
+
+    public function sibilings()
+    {
+        return $this->category->examsTypes;
+    }
 }

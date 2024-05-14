@@ -88,16 +88,16 @@
                                         <td>{{ $row->batch->title ?? '' }}</td>
                                         <td>{{ $row->program->shortcode ?? '' }}</td>
                                         <td>
-                                            <a href="{{ route($route.'.show', $row->id) }}" class="btn btn-icon btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                                            {{-- <a href="{{ route($route.'.show', $row->id) }}" class="btn btn-icon btn-success btn-sm"><i class="fas fa-eye"></i></a> --}}
 
                                             @can($access.'-print')
                                             @if(isset($print))
-                                            <a href="#" class="btn btn-icon btn-dark btn-sm" onclick="PopupWin('{{ route($route.'.print', ['id' => $row->id]) }}', '{{ $title }}', 1000, 600);">
+                                            {{-- <a href="#" class="btn btn-icon btn-dark btn-sm" onclick="PopupWin('{{ route($route.'.print', ['id' => $row->id]) }}', '{{ $title }}', 1000, 600);">
                                                 <i class="fas fa-print"></i>
-                                            </a>
+                                            </a> --}}
                                             @endif
                                             @endcan
-                                            
+
                                             @can($access.'-download')
                                             @if(isset($print))
                                             <a href="{{ route($route.'.download', ['id' => $row->id]) }}" target="_blank" class="btn btn-icon btn-dark btn-sm">

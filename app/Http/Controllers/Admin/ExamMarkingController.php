@@ -13,6 +13,7 @@ use App\Models\Section;
 use App\Models\Subject;
 use App\Models\Grade;
 use App\Models\Exam;
+use App\Models\ExamTypeCategory;
 use App\User;
 use Toastr;
 use Auth;
@@ -33,8 +34,8 @@ class ExamMarkingController extends Controller
         $this->path = 'exam';
         $this->access = 'exam';
 
-        $this->middleware('permission:'.$this->access.'-marking', ['only' => ['index','store']]);
-        $this->middleware('permission:'.$this->access.'-result', ['only' => ['result']]);
+        $this->middleware('permission:' . $this->access . '-marking', ['only' => ['index', 'store']]);
+        $this->middleware('permission:' . $this->access . '-result', ['only' => ['result']]);
     }
 
     /**
@@ -52,105 +53,101 @@ class ExamMarkingController extends Controller
         $data['access'] = $this->access;
 
 
-        if(!empty($request->faculty) || $request->faculty != null){
+        if (!empty($request->faculty) || $request->faculty != null) {
             $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
+        } else {
             $data['selected_faculty'] = null;
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = null;
         }
 
-        if(!empty($request->session) || $request->session != null){
+        if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
-        }
-        else{
+        } else {
             $data['selected_session'] = null;
         }
 
-        if(!empty($request->semester) || $request->semester != null){
+        if (!empty($request->semester) || $request->semester != null) {
             $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
+        } else {
             $data['selected_semester'] = null;
         }
 
-        if(!empty($request->section) || $request->section != null){
+        if (!empty($request->section) || $request->section != null) {
             $data['selected_section'] = $section = $request->section;
-        }
-        else{
+        } else {
             $data['selected_section'] = null;
         }
 
-        if(!empty($request->subject) || $request->subject != null){
+        if (!empty($request->subject) || $request->subject != null) {
             $data['selected_subject'] = $subject = $request->subject;
-        }
-        else{
+        } else {
             $data['selected_subject'] = null;
         }
 
-        if(!empty($request->type) || $request->type != null){
+        if (!empty($request->type) || $request->type != null) {
             $data['selected_type'] = $type = $request->type;
-        }
-        else{
+            $data['types'] = ExamType::query()->find($type)->sibilings();
+        } else {
             $data['selected_type'] = null;
         }
 
-
         // Filter Search
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
-        $data['types'] = ExamType::where('status', '1')->orderBy('title', 'asc')->get();
 
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
+        if (!empty($request->faculty) && $request->faculty != '0') {
+            $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $sessions = Session::where('status', 1);
-        $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $sessions = Session::where('status', 1);
+            $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $semesters = Semester::where('status', 1);
-        $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $semesters = Semester::where('status', 1);
+            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
-        $sections = Section::where('status', 1);
-        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
-            $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
-        });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0') {
+            $sections = Section::where('status', 1);
+            $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester) {
+                $query->where('program_id', $program);
+                $query->where('semester_id', $semester);
+            });
+            $data['sections'] = $sections->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->session) && $request->session != '0'){
+        if (!empty($request->program) && $request->program != '0' && !empty($request->session) && $request->session != '0') {
             // Access Data
             $teacher_id = Auth::guard('web')->user()->id;
             $user = User::where('id', $teacher_id)->where('status', '1');
-            $user->with('roles')->whereHas('roles', function ($query){
+            $user->with('roles')->whereHas('roles', function ($query) {
                 $query->where('slug', 'super-admin');
             });
             $superAdmin = $user->first();
 
             // Filter Subject
             $subjects = Subject::where('status', '1');
-            $subjects->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin){
-                if(isset($session)){
+            $subjects->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
+                if (isset ($session)) {
                     $query->where('session_id', $session);
                 }
-                if(!isset($superAdmin)){
+                if (!isset ($superAdmin)) {
                     $query->where('teacher_id', $teacher_id);
                 }
             });
-            $subjects->with('programs')->whereHas('programs', function ($query) use ($program){
+            $subjects->with('programs')->whereHas('programs', function ($query) use ($program) {
                 $query->where('program_id', $program);
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
@@ -158,15 +155,15 @@ class ExamMarkingController extends Controller
 
 
         // Exam Marking
-        if(!empty($request->program) && !empty($request->session) && !empty($request->subject) && !empty($request->type)){
+        if (!empty($request->program) && !empty($request->session) && !empty($request->subject) && !empty($request->type)) {
 
             // Check Subject Access
             $subject_check = Subject::where('id', $subject);
-            $subject_check->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin){
-                if(isset($session)){
+            $subject_check->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
+                if (isset ($session)) {
                     $query->where('session_id', $session);
                 }
-                if(!isset($superAdmin)){
+                if (!isset ($superAdmin)) {
                     $query->where('teacher_id', $teacher_id);
                 }
             })->firstOrFail();
@@ -175,44 +172,45 @@ class ExamMarkingController extends Controller
             // Exams
             $exams = Exam::where('attendance', '1');
 
-            if(!empty($request->program) && !empty($request->session)){
-                $exams->with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section){
-                    if($program != '0'){
+            if (!empty($request->program) && !empty($request->session)) {
+                $exams->with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section) {
+                    if ($program != '0') {
                         $query->where('program_id', $program);
                     }
-                    if($session != '0'){
+                    if ($session != '0') {
                         $query->where('session_id', $session);
                     }
-                    if($semester != '0'){
+                    if ($semester != '0') {
                         $query->where('semester_id', $semester);
                     }
-                    if($section != '0'){
+                    if ($section != '0') {
                         $query->where('section_id', $section);
                     }
                 });
             }
-            if(!empty($request->subject) && $request->subject != '0'){
+            if (!empty($request->subject) && $request->subject != '0') {
                 $exams->where('subject_id', $subject);
             }
-            if(!empty($request->type) && $request->type != '0'){
+            if (!empty($request->type) && $request->type != '0') {
                 $exams->where('exam_type_id', $type);
             }
-            $exams->with('studentEnroll.student')->whereHas('studentEnroll.student', function ($query){
+            $exams->with('studentEnroll.student')->whereHas('studentEnroll.student', function ($query) {
                 $query->orderBy('student_id', 'asc');
             });
 
             $rows = $exams->get();
 
             // Array Sorting
-            $data['rows'] = $rows->sortBy(function($query){
+            $data['rows'] = $rows->sortBy(function ($query) {
 
-               return $query->studentEnroll->student->student_id;
+                return $query->studentEnroll->student->student_id;
 
             })->all();
         }
 
 
-        return view($this->view.'.marking', $data);
+
+        return view($this->view . '.marking', $data);
     }
 
     /**
@@ -227,18 +225,18 @@ class ExamMarkingController extends Controller
         $request->validate([
             'exams' => 'required',
             'marks' => 'required',
+            'marks.*' => 'numeric|lte:' . Exam::find($request->exams[0])?->type?->marks,
         ]);
 
         // Update Data
-        foreach($request->exams as $key => $exam_id){
+        foreach ($request->exams as $key => $exam_id) {
 
-            if($request->marks[$key] == null || $request->marks[$key] == ''){
+            if ($request->marks[$key] == null || $request->marks[$key] == '') {
                 $exam_mark = null;
+            } else {
+                $exam_mark = $request->marks[$key];
             }
-            else{
-                $exam_mark =  $request->marks[$key];
-            }
-            
+
             $exam = Exam::find($exam_id);
             $exam->achieve_marks = $exam_mark;
             $exam->note = $request->notes[$key];
@@ -266,54 +264,42 @@ class ExamMarkingController extends Controller
         $data['path'] = $this->path;
 
 
-        if(!empty($request->faculty) || $request->faculty != null){
+        if (!empty($request->faculty) || $request->faculty != null) {
             $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
+        } else {
             $data['selected_faculty'] = '0';
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = '0';
         }
 
-        if(!empty($request->session) || $request->session != null){
+        if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
-        }
-        else{
+        } else {
             $data['selected_session'] = '0';
         }
+        $data['selected_semester'] = 0;
 
-        if(!empty($request->semester) || $request->semester != null){
-            $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
-            $data['selected_semester'] = '0';
-        }
 
-        if(!empty($request->section) || $request->section != null){
-            $data['selected_section'] = $section = $request->section;
-        }
-        else{
-            $data['selected_section'] = '0';
-        }
+        $data['selected_section'] = '0';
 
-        if(!empty($request->subject) || $request->subject != null){
+        if (!empty($request->subject) || $request->subject != null) {
             $data['selected_subject'] = $subject = $request->subject;
-        }
-        else{
+        } else {
             $data['selected_subject'] = '0';
         }
 
-        if(!empty($request->type) || $request->type != null){
+
+        if (!empty($request->type) || $request->type != null) {
             $data['selected_type'] = $type = $request->type;
+            $data['types'] = ExamType::query()->find($type)->sibilings();
+        } else {
+            $data['selected_type'] = null;
         }
-        else{
-            $data['selected_type'] = '0';
-        }
+
 
 
         // Filter Search
@@ -321,51 +307,55 @@ class ExamMarkingController extends Controller
         $data['types'] = ExamType::where('status', '1')->orderBy('title', 'asc')->get();
         $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
 
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
+        if (!empty($request->faculty) && $request->faculty != '0') {
+            $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $sessions = Session::where('status', 1);
-        $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $sessions = Session::where('status', 1);
+            $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0'){
-        $semesters = Semester::where('status', 1);
-        $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
-            $query->where('program_id', $program);
-        });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        if (!empty($request->program) && $request->program != '0') {
+            $semesters = Semester::where('status', 1);
+            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
+                $query->where('program_id', $program);
+            });
+            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+        }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
-        $sections = Section::where('status', 1);
-        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
-            $query->where('program_id', $program);
-            $query->where('semester_id', $semester);
-        });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
+        // if (!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0') {
+        //     $sections = Section::where('status', 1);
+        //     $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester) {
+        //         $query->where('program_id', $program);
+        //         $query->where('semester_id', $semester);
+        //     });
+        //     $data['sections'] = $sections->orderBy('title', 'asc')->get();
+        // }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->session) && $request->session != '0'){
+        if (!empty($request->program) && $request->program != '0' && !empty($request->session) && $request->session != '0') {
             // Access Data
             $teacher_id = Auth::guard('web')->user()->id;
             $user = User::where('id', $teacher_id)->where('status', '1');
-            $user->with('roles')->whereHas('roles', function ($query){
+            $user->with('roles')->whereHas('roles', function ($query) {
                 $query->where('slug', 'super-admin');
             });
             $superAdmin = $user->first();
 
             // Filter Subject
             $subjects = Subject::where('status', '1');
-            $subjects->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin){
-                if(isset($session)){
+            $subjects->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
+                if (isset ($session)) {
                     $query->where('session_id', $session);
                 }
-                if(!isset($superAdmin)){
+                if (!isset ($superAdmin)) {
                     $query->where('teacher_id', $teacher_id);
                 }
             });
-            $subjects->with('programs')->whereHas('programs', function ($query) use ($program){
+            $subjects->with('programs')->whereHas('programs', function ($query) use ($program) {
                 $query->where('program_id', $program);
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
@@ -373,15 +363,15 @@ class ExamMarkingController extends Controller
 
 
         // Exam Result
-        if(!empty($request->program) && !empty($request->session) && !empty($request->subject) && !empty($request->type)){
+        if (!empty($request->program) && !empty($request->session) && !empty($request->subject) && !empty($request->type)) {
 
             // Check Subject Access
             $subject_check = Subject::where('id', $subject);
-            $subject_check->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin){
-                if(isset($session)){
+            $subject_check->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
+                if (isset ($session)) {
                     $query->where('session_id', $session);
                 }
-                if(!isset($superAdmin)){
+                if (!isset ($superAdmin)) {
                     $query->where('teacher_id', $teacher_id);
                 }
             })->firstOrFail();
@@ -390,44 +380,37 @@ class ExamMarkingController extends Controller
             // Exams
             $exams = Exam::where('id', '!=', null);
 
-            if(!empty($request->program) && !empty($request->session)){
+            if (!empty($request->program) && !empty($request->session)) {
 
-                $exams->with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section){
-                    if($program != '0'){
+                $exams->with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($program, $session) {
+                    if ($program != '0') {
                         $query->where('program_id', $program);
                     }
-                    if($session != '0'){
-                        $query->where('session_id', $session);
-                    }
-                    if($semester != '0'){
-                        $query->where('semester_id', $semester);
-                    }
-                    if($section != '0'){
-                        $query->where('section_id', $section);
+                    if ($session != '0') {
+                        $query->where('session_id', $session)->where('semester_id', Session::query()->find($session)->semester_id);
                     }
                 });
             }
-            if(!empty($request->subject) && $request->subject != '0'){
+            if (!empty($request->subject) && $request->subject != '0') {
                 $exams->where('subject_id', $subject);
             }
-            if(!empty($request->type) && $request->type != '0'){
+            if (!empty($request->type) && $request->type != '0') {
                 $exams->where('exam_type_id', $type);
             }
-            $exams->with('studentEnroll.student')->whereHas('studentEnroll.student', function ($query){
+            $exams->with('studentEnroll.student')->whereHas('studentEnroll.student', function ($query) {
                 $query->orderBy('student_id', 'asc');
             });
 
             $rows = $exams->get();
 
             // Array Sorting
-            $data['rows'] = $rows->sortBy(function($query){
+            $data['rows'] = $rows->sortBy(function ($query) {
 
-               return $query->studentEnroll->student->student_id;
+                return $query->studentEnroll->student->student_id;
 
             })->all();
         }
-        
 
-        return view($this->view.'.result', $data);
+        return view($this->view . '.result', $data);
     }
 }

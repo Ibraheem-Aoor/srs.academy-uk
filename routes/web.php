@@ -65,6 +65,9 @@ Route::middleware(['XSS'])->group(function () {
     Route::post('filter-department', 'InventoryController@filterDepartment')->name('filter-department');
     Route::post('filter-room', 'HostelController@filterRoom')->name('filter-room');
     Route::post('filter-vehicle', 'TransportController@filterVehicle')->name('filter-vehicle');
+    // New Custom Filters
+    Route::post('filter-mark-types', 'FilterController@filterMarkDistribitionCategoryTypes')->name('filter-mark-types');
+    Route::post('filter-mark-types-by-subject-and-program', 'FilterController@filterMarkDistribitionCategoryTypesBySubjectAndProgram')->name('filter-mark-types-by-subject-and-program');
 });
 
 
@@ -168,6 +171,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::resource('exam/exam-attendance', 'ExamAttendanceController');
     Route::get('exam/exam-attendance-import', 'ExamAttendanceController@import')->name('exam-attendance.import');
     Route::post('exam/exam-attendance-import-store', 'ExamAttendanceController@importStore')->name('exam-attendance.import.store');
+    Route::get('exam/exam-attendance-import-form-download', 'ExamAttendanceController@downloadFormToFill')->name('exam-attendance.import.download_form');
     Route::resource('exam/exam-marking', 'ExamMarkingController');
     Route::get('exam/exam-result', 'ExamMarkingController@result')->name('exam-result');
     Route::resource('exam/subject-marking', 'SubjectMarkingController');
@@ -451,6 +455,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     // BigBlueButton Admin Routes
     Route::group(['prefix' => 'bbb', 'middleware' => 'auth:web,XSS', 'as' => 'bbb.'], function () {
         Route::get('recording/index', [BigBlueButtonController::class, 'index'])->name('recordings.index');
+        Route::get('recording/download', [BigBlueButtonController::class, 'downloadMergedVideo'])->name('recordings.download');
     });
     // AcademySite Admin Routes
     Route::group(['prefix' => 'academy-site', 'middleware' => 'auth:web,XSS', 'as' => 'academy_site.'], function () {

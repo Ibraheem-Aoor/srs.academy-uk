@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExamTypeCategory;
 use Illuminate\Http\Request;
 use App\Models\Semester;
 use App\Models\Session;
 use App\Models\Program;
+use App\Models\ProgramSubject;
 use App\Models\Subject;
 use App\Models\Section;
 use Carbon\Carbon;
 use App\User;
 use Auth;
 use DB;
+use Throwable;
 
 class FilterController extends Controller
 {
@@ -169,5 +172,52 @@ class FilterController extends Controller
         $subjects = $rows->orderBy('code', 'asc')->get();
 
         return response()->json($subjects);
+    }
+
+
+    /**
+     * Filter the Mark Distribution Category Types.
+     *
+     * @param Request $request The request data
+     * @throws Throwable description of exception
+     * @return JsonResponse
+     */
+    public function filterMarkDistribitionCategoryTypes(Request $request)
+    {
+        try {
+            $mark_category = ExamTypeCategory::query()->findOrFail($request->mark_category_id);
+            return response()->json($mark_category->examsTypes);
+        } catch (Throwable $e) {
+            info('ERROR IN ' . __METHOD__);
+            info($e);
+            return response()->json([]);
+        }
+    }
+    /**
+     * Filter the Mark Distribution Category Types.
+     *
+     * @param Request $request The request data
+     * @throws Throwable description of exception
+     * @return JsonResponse
+     */
+    public function filterMarkDistribitionCategoryTypesBySubjectAndProgram(Request $request)
+    {
+        try {
+            $progam_subject = ProgramSubject::query()
+                ->whereSubjectId($request->input('subject_id'))
+                ->whereProgramId($request->input('program_id'))
+                ->with([
+                    'examTypeCategory:id',
+                    'examTypeCategory.examsTypes' => function ($examsTypes) {
+                        $examsTypes->status(1);
+                    }
+                ])
+                ->first();
+            return response()->json($progam_subject->examTypeCategory?->examsTypes ?? []);
+        } catch (Throwable $e) {
+            info('ERROR IN ' . __METHOD__);
+            info($e);
+            return response()->json([]);
+        }
     }
 }

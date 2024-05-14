@@ -52,6 +52,9 @@ class StudentEnroll extends Model
         return $this->hasMany(StudentAttendance::class, 'student_enroll_id', 'id');
     }
 
+    /**
+     * Calc of exams per subject to get the final grade and point of that subject.
+     */
     public function exams()
     {
         return $this->hasMany(Exam::class, 'student_enroll_id', 'id');

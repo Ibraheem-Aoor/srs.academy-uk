@@ -176,6 +176,12 @@ if (!function_exists('returnSuccess')) {
         return redirect()->route($route);
     }
 }
+if (!function_exists('logError')) {
+    function logError(Throwable $e , $method , $class)
+    {
+        info('ERROR IN ' . $class . ' ' . $method . ' ' . $e->getMessage());
+    }
+}
 
 
 

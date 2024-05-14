@@ -12,7 +12,7 @@
                     <div class="card-header">
                         <h5>{{ $title }}</h5>
                     </div>
-                    
+
                     @php
                         $contribution = 0;
                         $exam_contribution = 0;
@@ -74,7 +74,7 @@
                         @endif
                     </div>
                     @endif
-                    
+
                     <form class="needs-validation" novalidate action="{{ route($route.'.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
 
@@ -90,13 +90,13 @@
                         }
                         @endphp
                     @endforeach
-                    
+
                     <div class="card-block">
                         <div class="row">
                             <div class="form-group col-sm-6 col-md-3">
                                 <label for="publish_date">{{ __('field_publish_date') }} <span>*</span></label>
                                 <input type="date" class="form-control date" name="publish_date" id="publish_date" value="{{ $check_data->publish_date ?? '' }}" required>
-                                    
+
                                 <div class="invalid-feedback">
                                     {{ __('required_field') }} {{ __('field_publish_date') }}
                                 </div>
@@ -105,7 +105,7 @@
                             <div class="form-group col-sm-6 col-md-3">
                                 <label for="publish_time">{{ __('field_publish_time') }} <span>*</span></label>
                                 <input type="time" class="form-control time" name="publish_time" id="publish_time" value="{{ $check_data->publish_time ?? '' }}" required>
-                                    
+
                                 <div class="invalid-feedback">
                                     {{ __('required_field') }} {{ __('field_publish_time') }}
                                 </div>
@@ -165,7 +165,7 @@
                                             $contributeOfMarks = $contributeOfMarks + (($percentOfMarks / 100) * $exam->contribution);
                                             $exam_marks = $contributeOfMarks;
                                         @endphp
-                                            
+
                                         @endif
                                         @endforeach
 
@@ -186,7 +186,7 @@
                                         }
                                         }
                                         @endphp
-                                        <input type="text" class="form-control exam_marks autonumber" name="exam_marks[]" id="exam_marks" value="{{ round($exam_marks ?? $mark) }}" 
+                                        <input type="text" class="form-control exam_marks autonumber" name="exam_marks[]" id="exam_marks" value="{{ round($exam_marks ?? $mark) }}"
                                         style="width: 80px;" data-v-max="{{ $max_marks }}" data-v-min="0" data_id="total-{{ $row->id }}" onkeyup="marksCalculator('total', {{ $row->id }})" readonly required>
                                         </td>
                                         @php

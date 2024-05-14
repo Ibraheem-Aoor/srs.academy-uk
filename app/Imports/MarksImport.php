@@ -48,7 +48,7 @@ class MarksImport implements ToCollection, WithHeadingRow
 
 
             // Enrolls
-            $enroll = StudentEnroll::where('session_id', $this->data['session']);
+            $enroll = StudentEnroll::where('program_id' , $this->data['program'])->where('session_id', $this->data['session']);
             $enroll->with('student')->whereHas('student', function ($query) use ($student_id){
                 $query->where('student_id', $student_id);
             });
@@ -60,7 +60,6 @@ class MarksImport implements ToCollection, WithHeadingRow
 
             // Exam Type
             $examType = ExamType::where('id', $this->data['type'])->first();
-
 
             if(isset($student) && isset($examType)){
             // Attendance Update
