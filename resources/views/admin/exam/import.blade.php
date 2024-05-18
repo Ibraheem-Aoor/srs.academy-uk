@@ -88,8 +88,8 @@
                                             {{ __('btn_upload') }}</button>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <a onclick="downloadImportTemplate();" class="btn btn-info btn-filter"><i
-                                                class="fas fa-upload"></i>
+                                        <a onclick="downloadImportTemplate();" class="btn btn-primary btn-filter"><i
+                                                class="fas fa-download"></i>
                                             {{ __('btn_download_fom') }}</a>
                                     </div>
                                 </div>
