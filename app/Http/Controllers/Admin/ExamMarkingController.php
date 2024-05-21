@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\FilterController;
+use App\Traits\ExamModuleTrait;
 use Illuminate\Http\Request;
 use App\Models\ExamType;
 use App\Models\Semester;
@@ -14,12 +16,15 @@ use App\Models\Subject;
 use App\Models\Grade;
 use App\Models\Exam;
 use App\Models\ExamTypeCategory;
+use App\Models\StudentEnroll;
 use App\User;
 use Toastr;
 use Auth;
+use Throwable;
 
 class ExamMarkingController extends Controller
 {
+    use ExamModuleTrait;
     /**
      * Create a new controller instance.
      *
@@ -152,65 +157,79 @@ class ExamMarkingController extends Controller
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
         }
+        try {
+            // Exam Marking
+            if (!empty($request->program) && !empty($request->session) && !empty($request->subject)) {
 
-
-        // Exam Marking
-        if (!empty($request->program) && !empty($request->session) && !empty($request->subject) && !empty($request->type)) {
-
-            // Check Subject Access
-            $subject_check = Subject::where('id', $subject);
-            $subject_check->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
-                if (isset ($session)) {
-                    $query->where('session_id', $session);
-                }
-                if (!isset ($superAdmin)) {
-                    $query->where('teacher_id', $teacher_id);
-                }
-            })->firstOrFail();
-
-
-            // Exams
-            $exams = Exam::where('attendance', '1');
-
-            if (!empty($request->program) && !empty($request->session)) {
-                $exams->with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section) {
-                    if ($program != '0') {
-                        $query->where('program_id', $program);
-                    }
-                    if ($session != '0') {
+                // Check Subject Access
+                $subject_check = Subject::where('id', $subject);
+                $subject_check->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
+                    if (isset ($session)) {
                         $query->where('session_id', $session);
                     }
-                    if ($semester != '0') {
-                        $query->where('semester_id', $semester);
+                    if (!isset ($superAdmin)) {
+                        $query->where('teacher_id', $teacher_id);
                     }
-                    if ($section != '0') {
-                        $query->where('section_id', $section);
-                    }
-                });
+                })->firstOrFail();
+
+                // User Enrollments For Easy Data Retrieval
+                $exam_types = $this->getExamTypes($request, new FilterController())->pluck('title', 'id')->toArray();
+                // Enrollments
+                $enrollments = StudentEnroll::query()
+                    ->where('program_id', $request->program)
+                    ->where('session_id', $request->session)
+                    ->whereHas('subjects', function ($subjects) use ($request) {
+                        $subjects->where('id', $request->subject);
+                    })->whereHas('exams', function ($exams) use ($request, $exam_types) {
+                        if (!empty ($request->type) && $request->type != '0') {
+                            $exams->whereIn('exam_type_id', array_keys($exam_types));
+                        }
+                    });
+                $rows = $enrollments->get();
+                if ($rows->isEmpty()) {
+                    return $this->createEmptyExamsForStudents($request, $exam_types);
+                }
+                // Array Sorting
+                $data['rows'] = $rows;
             }
-            if (!empty($request->subject) && $request->subject != '0') {
-                $exams->where('subject_id', $subject);
-            }
-            if (!empty($request->type) && $request->type != '0') {
-                $exams->where('exam_type_id', $type);
-            }
-            $exams->with('studentEnroll.student')->whereHas('studentEnroll.student', function ($query) {
-                $query->orderBy('student_id', 'asc');
-            });
-
-            $rows = $exams->get();
-
-            // Array Sorting
-            $data['rows'] = $rows->sortBy(function ($query) {
-
-                return $query->studentEnroll->student->student_id;
-
-            })->all();
+            return view($this->view . '.marking', $data);
+        } catch (Throwable $e) {
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+            return back();
         }
 
+    }
 
 
-        return view($this->view . '.marking', $data);
+    /**
+     * Create Exams TO Enable GUI Marking Input.
+     */
+
+    protected function createEmptyExamsForStudents(Request $request, $exam_types)
+    {
+        $exam_types = ExamType::query()->whereIn('id', array_keys($exam_types))->get();
+        $enrollments = StudentEnroll::query()->where('program_id', $request->program)
+            ->where('session_id', $request->session)
+            ->whereHas('subjects', function ($subjects) use ($request) {
+                $subjects->where('id', $request->subject);
+            })->get();
+        foreach ($enrollments as $enrollment) {
+            foreach ($exam_types as $exam_type) {
+                $s = Exam::create([
+                    'student_enroll_id' => $enrollment->id,
+                    'subject_id' => $request->subject,
+                    'exam_type_id' => $exam_type->id,
+                    'date' => now()->toDateString(),
+                    'marks' => $exam_type->marks,
+                    'contribution' => $exam_type->contribution,
+                    'attendance' => 1,
+                    'achieve_marks' => null, // we made this because of the data format after validation.
+                    // 'note' => $row['note'],
+                    'created_by' => Auth::guard('web')->user()->id,
+                ]);
+            }
+        }
+        return $this->index($request);
     }
 
     /**
@@ -221,25 +240,27 @@ class ExamMarkingController extends Controller
      */
     public function store(Request $request)
     {
-        // Field Validation
-        $request->validate([
-            'exams' => 'required',
+        $validation_rules = [
             'marks' => 'required',
-            'marks.*' => 'numeric|lte:' . Exam::find($request->exams[0])?->type?->marks,
-        ]);
+        ];
+        foreach ($request->marks as $key => $value) {
+            $validation_rules['marks.' . $key] = 'numeric|lte:' . Exam::query()?->find($key)?->type?->marks;
+        }
+        // Field Validation
+        $request->validate($validation_rules);
 
         // Update Data
-        foreach ($request->exams as $key => $exam_id) {
+        foreach ($request->marks as $exam_id => $marks) {
 
-            if ($request->marks[$key] == null || $request->marks[$key] == '') {
+            if ($marks == null || $marks == '') {
                 $exam_mark = null;
             } else {
-                $exam_mark = $request->marks[$key];
+                $exam_mark = $marks;
             }
 
             $exam = Exam::find($exam_id);
             $exam->achieve_marks = $exam_mark;
-            $exam->note = $request->notes[$key];
+            // $exam->note = $request->notes[$key];
             $exam->updated_by = Auth::guard('web')->user()->id;
             $exam->save();
         }

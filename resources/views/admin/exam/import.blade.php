@@ -23,8 +23,8 @@
                         <div class="card-block">
                             <p>1. Your Excel data should be in the format of the download file. The first line of your Excel
                                 file should be the column headers as in the table example. Also make sure that your file is
-                                UTF-8 to avoid unnecessary encoding problems. <a
-                                    href="{{ asset('dashboard/sample/exam.xlsx') }}" class="text-primary" download>Download
+                                UTF-8 to avoid unnecessary encoding problems. <a onclick="downloadImportTemplate();"
+                                    class="text-primary" download>Download
                                     Sample File</a></p>
                             <hr />
                             <p>2. For "Attendance" use ( P=Present, A=Absent ).</p>
@@ -45,9 +45,13 @@
 
 
 
-                                    <div class="form-group col-md-3">
+                                    {{--
+                                        --Exam Type Hidden For New Update
+                                        -- Allow User To Enter All The Types at Once.
+                                        --}}
+                                    <div class="form-group col-md-3 d-none">
                                         <label for="type">{{ __('field_type') }} <span>*</span></label>
-                                        <select class="form-control" name="type" id="type" required>
+                                        <select class="form-control" name="type" id="type">
                                             <option value="">{{ __('select') }}</option>
                                             @isset($types)
                                                 @foreach ($types as $type)
@@ -86,11 +90,6 @@
                                     <div class="form-group col-md-3">
                                         <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-upload"></i>
                                             {{ __('btn_upload') }}</button>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <a onclick="downloadImportTemplate();" class="btn btn-primary btn-filter"><i
-                                                class="fas fa-download"></i>
-                                            {{ __('btn_download_fom') }}</a>
                                     </div>
                                 </div>
                             </form>
@@ -139,48 +138,20 @@
         });
 
 
-        $("#subject").on('change', function(e) {
-            e.preventDefault(e);
-            var type = $("#type");
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('filter-mark-types-by-subject-and-program') }}",
-                data: {
-                    _token: $('input[name=_token]').val(),
-                    subject_id: $(this).val(),
-                    program_id: $('#program').val()
-                },
-                success: function(response) {
-                    // var jsonData=JSON.parse(response);
-                    $('option', type).remove();
-                    $('#type').append('<option value="">{{ __('select') }}</option>');
-                    $.each(response, function() {
-                        $('<option/>', {
-                            'value': this.id,
-                            'text': this.title + ` (${this.marks})`
-                        }).appendTo('#type');
-                    });
-                }
-
-            });
-        });
 
         function downloadImportTemplate() {
+            event.preventDefault();
             // Collect form inputs
             var session = document.getElementById('session').value;
             var subject = document.getElementById('subject').value;
             var program = document.getElementById('program').value;
-            var type = document.getElementById('type').value;
-
+            if (!session || !subject || !program) {
+                toastr.error("{{ __('select_session_and_program') }}");
+                return "";
+            }
             // Construct URL with query parameters
             var url = "{{ route('admin.exam-attendance.import.download_form') }}";
-            url += "?session=" + session + "&subject=" + subject + "&type=" +
-                type + "&program=" + program;
+            url += "?session=" + session + "&subject=" + subject + "&program=" + program;
             // Redirect user to the download route with query parameters
             window.location.href = url;
         }

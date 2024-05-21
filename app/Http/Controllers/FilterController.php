@@ -204,8 +204,8 @@ class FilterController extends Controller
     {
         try {
             $progam_subject = ProgramSubject::query()
-                ->whereSubjectId($request->input('subject_id'))
-                ->whereProgramId($request->input('program_id'))
+                ->whereSubjectId($request->subject_id)
+                ->whereProgramId($request->program_id)
                 ->with([
                     'examTypeCategory:id',
                     'examTypeCategory.examsTypes' => function ($examsTypes) {
@@ -213,7 +213,8 @@ class FilterController extends Controller
                     }
                 ])
                 ->first();
-            return response()->json($progam_subject->examTypeCategory?->examsTypes ?? []);
+            $data = $progam_subject->examTypeCategory?->examsTypes ?? [];
+            return $request->wantsJson() ?  response()->json($data) : $data;
         } catch (Throwable $e) {
             info('ERROR IN ' . __METHOD__);
             info($e);

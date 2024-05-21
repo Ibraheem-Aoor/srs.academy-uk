@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\StudentsExamMarkFormExport;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\FilterController;
+use App\Traits\ExamModuleTrait;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\StudentEnroll;
 use Illuminate\Http\Request;
@@ -25,6 +27,7 @@ use Throwable;
 
 class ExamAttendanceController extends Controller
 {
+    use ExamModuleTrait;
     /**
      * Create a new controller instance.
      *
@@ -210,7 +213,7 @@ class ExamAttendanceController extends Controller
 
 
         // Exam attendances
-        if (!empty($request->program) && !empty($request->session) && !empty($request->subject) && !empty($request->type)) {
+        if (!empty($request->program) && !empty($request->session) && !empty($request->subject)) {
 
             $attendances = Exam::where('id', '!=', null);
 
@@ -342,12 +345,6 @@ class ExamAttendanceController extends Controller
             $data['selected_subject'] = null;
         }
 
-        if (!empty($request->type) || $request->type != null) {
-            $data['selected_type'] = $type = $request->type;
-            $data['types'] = ExamType::query()->find($type)->sibilings();
-        } else {
-            $data['selected_type'] = null;
-        }
 
         // Search Filter
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
@@ -393,14 +390,13 @@ class ExamAttendanceController extends Controller
     /**
      * @return \Illuminate\Support\Collection
      */
-    public function importStore(Request $request)
+    public function importStore(Request $request , FilterController $filterController)
     {
         // Field Validation
         $request->validate([
             'program' => 'required',
             'session' => 'required',
             'subject' => 'required',
-            'type' => 'required',
             'date' => 'required|date|before_or_equal:today',
             'import' => 'required|file|mimes:xlsx',
         ]);
@@ -411,8 +407,9 @@ class ExamAttendanceController extends Controller
         $data['subject'] = $request->subject;
         $data['type'] = $request->type;
         $data['date'] = $request->date;
+        $exam_types  = $this->getExamTypes($request , $filterController);
 
-        Excel::import(new MarksImport($data), $request->file('import'));
+        Excel::import(new MarksImport($data , $exam_types), $request->file('import'));
 
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
@@ -420,10 +417,14 @@ class ExamAttendanceController extends Controller
         return redirect()->back();
     }
 
-    public function downloadFormToFill(Request $request)
+    public function downloadFormToFill(Request $request , FilterController $filterController)
     {
         try {
-            $exam_type = ExamType::query()->select(['id', 'marks'])->findOrFail($request->query('type'));
+            if(is_null($request->session) || is_null($request->program) || is_null($request->subject))
+            {
+                Toastr::error(__('select_session_and_program'));
+            }
+            $exam_types = $this->getExamTypes($request , $filterController);
             $students_enrolls = StudentEnroll::query()
             ->where('program_id' , $request->query('program'))
             ->where('session_id', $request->query('session'))
@@ -435,10 +436,13 @@ class ExamAttendanceController extends Controller
                 $obj['attendance'] = 'P';
                 return $obj;
             });
-            return Excel::download(new StudentsExamMarkFormExport($students, $exam_type->marks), 'students_exam_mark_form.xlsx');
+            return Excel::download(new StudentsExamMarkFormExport($students, $exam_types), 'students_exam_mark_form.xlsx');
         } catch (Throwable $e) {
+            dd($e);
             logError($e, __METHOD__, get_class($this));
             return returnError();
         }
     }
+
+
 }

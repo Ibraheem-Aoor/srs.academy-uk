@@ -823,5 +823,6 @@
     "btn_download_fom" : "Download Form To Fill",
     "field_copy_title": "New Copy Title",
     "program_note" : ":program Program Note",
-    "Required" : "Required"
+    "Required" : "Required",
+    "select_session_and_program":"Select Session, Course and Program"
 }

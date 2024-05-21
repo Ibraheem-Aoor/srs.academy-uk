@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class StudentsExamMarkFormExport implements FromCollection, WithHeadings, ShouldAutoSize
 {
-    public function __construct(protected $students , protected $marks)
+    public function __construct(protected $students , protected $exam_types)
     {
 
     }
@@ -25,6 +25,12 @@ class StudentsExamMarkFormExport implements FromCollection, WithHeadings, Should
 
     public function headings(): array
     {
-        return ['student_id', 'first_name', 'last_name' , 'attendance' , 'achieve_marks' , 'note'];
+        $headings = ['student_id', 'first_name', 'last_name' , 'attendance'];
+        foreach($this->exam_types as $exam_type)
+        {
+            $headings[] = $exam_type->title.'('.$exam_type->marks.')';
+        }
+        // $headings[] = 'note';
+        return $headings;
     }
 }

@@ -23,7 +23,7 @@
                                 <div class="row gx-2">
                                     @include('common.inc.subject_search_filter')
                                     {{-- Mark Distribution Type "From Category" --}}
-                                    <div class="form-group col-md-3">
+                                    <div class="form-group col-md-3 d-none">
                                         <label for="type">{{ __('field_type') }} <span>*</span></label>
                                         <select class="form-control" name="type" id="type" required>
                                             <option value="">{{ __('select') }}</option>
@@ -257,35 +257,5 @@
         });
 
 
-        $("#subject").on('change', function(e) {
-            e.preventDefault(e);
-            var type = $("#type");
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('filter-mark-types-by-subject-and-program') }}",
-                data: {
-                    _token: $('input[name=_token]').val(),
-                    subject_id: $(this).val(),
-                    program_id: $('#program').val()
-                },
-                success: function(response) {
-                    // var jsonData=JSON.parse(response);
-                    $('option', type).remove();
-                    $('#type').append('<option value="">{{ __('select') }}</option>');
-                    $.each(response, function() {
-                        $('<option/>', {
-                            'value': this.id,
-                            'text': this.title + ` (${this.marks})`
-                        }).appendTo('#type');
-                    });
-                }
-
-            });
-        });
     </script>
 @endsection
