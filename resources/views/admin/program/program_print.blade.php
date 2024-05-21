@@ -75,7 +75,7 @@
                         @foreach ($subjects as $subject)
                             <tr class="table-row">
                                 <td class="p-2 text-left">
-                                    {{ $subject->title }} ({{ $subject->code }})
+                                    ({{ $subject->code }}) {{ $subject->title }}
                                 </td>
                                 <td class="text-center">
                                     {{ $subject->credit_hour }}

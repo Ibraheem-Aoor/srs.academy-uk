@@ -65,13 +65,13 @@
 
         @if (count($features) > 0)
             <!-- service-area -->
-            <section class="service-details-two p-relative">
+            <section class="service-details-two p-relative mt-5 mb-5">
                 <div class="container">
                     <div class="row">
 
                         @foreach ($features as $key => $feature)
                             <div class="col-lg-4 col-md-12 col-sm-12">
-                                <div class="services-box07 @if ($key == 1) active @endif">
+                                <div class="services-box07 @if ($key == 1) active @endif h-260">
                                     <div class="sr-contner">
                                         <div class="icon">
                                             <img src="{{ asset('web/img/icon/sve-icon4.png') }}" alt="icon">

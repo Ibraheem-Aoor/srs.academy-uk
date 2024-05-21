@@ -43,9 +43,9 @@
     <link rel="stylesheet" href="{{ asset('web/css/meanmenu.css') }}">
     <link rel="stylesheet" href="{{ asset('web/css/default.css') }}">
     <link rel="stylesheet" href="{{ asset('web/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('web/css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('web/css/responsive.css') }}?v=0.01">
 
-
+    
     @php
         $version = App\Models\Language::version();
     @endphp
@@ -65,6 +65,13 @@
             .second-menu .main-menu ul li {
                 margin-left: 20px;
             }
+        }
+        .h-260
+        {
+            height: 260px !important;
+        }
+        .main-menu {
+            margin-right: 0px !important;
         }
     </style>
 </head>
@@ -153,7 +160,7 @@
             <div class="container">
                 <div class="second-menu">
                     <div class="row align-items-center">
-                        <div class="col-xl-3 col-lg-3">
+                        <div class="col-xl-1 col-lg-1">
                             @if (isset($setting))
                                 <div class="logo">
                                     <a href="{{ route('home') }}"><img
@@ -163,7 +170,7 @@
                             @endif
                         </div>
 
-                        <div class="col-xl-6 col-lg-6">
+                        <div class="col-xl-9 col-lg-9">
                             <div class="main-menu text-right text-xl-right">
                                 <nav id="mobile-menu">
                                     <ul>
@@ -192,7 +199,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xl-3 col-lg-3 text-right d-none d-lg-block text-right text-xl-right">
+                        <div class="col-xl-2 col-lg-2 text-right d-none d-lg-block text-right text-xl-right ml-1">
                             @php
                                 $application = App\Models\ApplicationSetting::status();
                             @endphp
