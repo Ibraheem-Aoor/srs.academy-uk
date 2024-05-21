@@ -498,6 +498,7 @@ class FeesStudentController extends Controller
 
 
         $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
+        $data['sessions'] = Session::query()->status(1)->get(['id' , 'title']);
 
         // Filter Student
         $students = StudentEnroll::where('status', '1');
@@ -526,8 +527,9 @@ class FeesStudentController extends Controller
             'category' => 'required',
             'amount' => 'required|numeric',
             'type' => 'required|numeric',
-            'assign_date' => 'required|date|after_or_equal:today',
-            'due_date' => 'required|date|after_or_equal:assign_date',
+            'session' => 'required|exists:sessions,id',
+            // 'assign_date' => 'required|date|after_or_equal:today',
+            // 'due_date' => 'required|date|after_or_equal:assign_date',
         ]);
 
 
@@ -543,14 +545,14 @@ class FeesStudentController extends Controller
 
             $fee_amount = $total_credits * $request->amount;
         }
-
+        $session = Session::query()->find($request->session);
         // Assign Fees
         $fees = new Fee;
         $fees->student_enroll_id = $request->student;
         $fees->category_id = $request->category;
         $fees->fee_amount = $fee_amount;
-        $fees->assign_date = $request->assign_date;
-        $fees->due_date = $request->due_date;
+        $fees->assign_date = $session->start_date;
+        $fees->due_date = $session->end_date;
         $fees->created_by = Auth::guard('web')->user()->id;
         $fees->save();
 

@@ -45,8 +45,21 @@
                               {{ __('required_field') }} {{ __('field_fees_type') }}
                             </div>
                         </div>
-
                         <div class="form-group col-md-6">
+                            <label for="session">{{ __('field_session') }} <span>*</span></label>
+                            <select class="form-control" name="session" id="session" required>
+                                <option value="">{{ __('select') }}</option>
+                                @foreach( $sessions as $session )
+                                <option value="{{ $session->id }}" @if(old('session') == $session->id) selected @endif>{{ $session->title }}</option>
+                                @endforeach
+                            </select>
+
+                            <div class="invalid-feedback">
+                              {{ __('required_field') }} {{ __('field_fees_type') }}
+                            </div>
+                        </div>
+
+                        {{-- <div class="form-group col-md-6">
                             <label for="assign_date" class="form-label">{{ __('field_assign') }} {{ __('field_date') }} <span>*</span></label>
                             <input type="date" class="form-control" name="assign_date" id="assign_date" value="{{ date('Y-m-d') }}" readonly required>
 
@@ -62,7 +75,7 @@
                             <div class="invalid-feedback">
                               {{ __('required_field') }} {{ __('field_due_date') }}
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="form-group col-md-6">
                             <label for="amount" class="form-label">{{ __('field_amount') }} ({!! $setting->currency_symbol !!}) <span>*</span></label>

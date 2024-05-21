@@ -47,7 +47,6 @@ class FeesController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
 
-
         $data['user'] = $user = Student::where('id', Auth::guard('student')->user()->id)->firstOrFail();
 
         $data['sessions'] = StudentEnroll::where('student_id', $user->id)->groupBy('session_id')->get();
@@ -57,6 +56,7 @@ class FeesController extends Controller
 
         if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
+            $session = Session::query()->find($session);
         } else {
             $data['selected_session'] = $session = '0';
         }
@@ -73,11 +73,13 @@ class FeesController extends Controller
         // Filter Assignment
         $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user, $session, &$data) {
             $query->where('student_id', $user->id);
-            if ($session != 0) {
-                $data['selected_semester'] = Session::query()->find($session)->semester_id;
+            if ($session) {
+                $data['selected_semester'] = $session->semester_id;
                 $query->where('session_id', $session)->where('semester_id', $data['selected_semester']);
             }
-        });
+        })->orWhereDate('assign_date', $session->start_date)
+            ->orWhereDate('due_date', $session->end_date)
+            ->orWhereBetween('pay_date', [$session->start_date, $session->end_date]);
         if (!empty($request->category)) {
             $fees->where('category_id', $category);
         }
