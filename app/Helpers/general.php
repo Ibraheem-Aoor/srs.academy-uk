@@ -180,6 +180,8 @@ if (!function_exists('logError')) {
     function logError(Throwable $e , $method , $class)
     {
         info('ERROR IN ' . $class . ' ' . $method . ' ' . $e->getMessage());
+        Toastr::error(__('msg_created_error'),  __('msg_error'));
+
     }
 }
 

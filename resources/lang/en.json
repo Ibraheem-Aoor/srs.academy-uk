@@ -820,5 +820,6 @@
     "program_not_available_for_batch" : "Selected Program Not Available For Selected Cohort",
     "upload_payment_receipt" : "Upload Payment Receipt",
     "fee_prove_uploaded": "Fee Prove Uploaded",
-    "btn_download_fom" : "Download Form To Fill"
+    "btn_download_fom" : "Download Form To Fill",
+    "field_copy_title": "New Copy Title"
 }

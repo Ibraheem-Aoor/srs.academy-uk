@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ExamType;
 use App\Models\ExamTypeCategory;
+use Throwable;
 use Toastr;
 
 class ExamTypeCategoryController extends Controller
@@ -147,5 +148,29 @@ class ExamTypeCategoryController extends Controller
         Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
 
         return redirect()->back();
+    }
+
+
+    public function copy(Request $request, ExamTypeCategory $exam_type_category)
+    {
+        $request->validate([
+            'title' => 'required|max:191|unique:exam_type_categories,title',
+        ]);
+        try {
+            $created_exam_type_category = ExamTypeCategory::create([
+                'title' => $request->input('title'),
+                'class_type' => $exam_type_category->class_type,
+            ]);
+            foreach ($exam_type_category->examsTypes as $exam_type) {
+                $exam_type_copy = $exam_type->toArray();
+                $exam_type_copy['exam_type_category_id'] = $created_exam_type_category->id;
+                ExamType::create($exam_type_copy);
+            }
+            return returnSuccess($this->route.'.index');
+        } catch (Throwable $e) {
+            dd($e);
+            logError($e, __METHOD__, get_class($this));
+            return back();
+        }
     }
 }

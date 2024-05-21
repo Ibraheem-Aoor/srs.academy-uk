@@ -178,6 +178,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::get('exam/subject-result', 'SubjectMarkingController@result')->name('subject-result');
     Route::resource('exam/exam-type', 'ExamTypeController');
     Route::resource('exam/exam-type-category', 'ExamTypeCategoryController');
+    Route::post('exam/exam-type-category/{exam_type_category}', 'ExamTypeCategoryController@copy')->name('exam-type-category.copy');
     Route::resource('exam/grade', 'GradeController');
     Route::resource('exam/result-contribution', 'ResultContributionController');
     Route::resource('exam/admit-card', 'AdmitCardController');

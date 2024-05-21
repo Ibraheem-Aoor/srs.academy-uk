@@ -18,13 +18,13 @@
                                 </div>
                                 <div class="card-block">
                                     <!-- Form Start -->
-                                    {{-- Mark Distribution Category --}}
                                     <div class="form-group">
-                                        <label for="title" class="form-label">{{ __('module_exam_type_category') }} <span>*</span></label>
+                                        <label for="category" class="form-label">{{ __('module_exam_type_category') }} <span>*</span></label>
                                         <select name="category" id="category" class="form-control" required>
                                             <option value="">{{ __('select') }}</option>
                                             @foreach ($mark_distribution_categories as $category)
-                                                <option value="{{ $category->id  }}" @selected(old('category') == $category->id)>{{ $category->title }}</option>
+                                                <option value="{{ $category->id }}" @selected(old('category') == $category->id)>
+                                                    {{ $category->title }}</option>
                                             @endforeach
                                         </select>
                                         <div class="invalid-feedback">
@@ -35,7 +35,6 @@
                                         <label for="title" class="form-label">{{ __('field_title') }} <span>*</span></label>
                                         <input type="text" class="form-control" name="title" id="title"
                                             value="{{ old('title') }}" required>
-
                                         <div class="invalid-feedback">
                                             {{ __('required_field') }} {{ __('field_title') }}
                                         </div>
@@ -45,20 +44,10 @@
                                         <label for="marks" class="form-label">{{ __('field_marks') }} <span>*</span></label>
                                         <input type="text" class="form-control autonumber" name="marks" id="marks"
                                             value="{{ old('marks') }}" required>
-
                                         <div class="invalid-feedback">
                                             {{ __('required_field') }} {{ __('field_marks') }}
                                         </div>
                                     </div>
-
-                                    {{-- <div class="form-group">
-                                <label for="contribution" class="form-label">{{ __('field_result_contribution') }} (%) <span>*</span></label>
-                                <input type="text" class="form-control autonumber" name="contribution" id="contribution" value="{{ old('contribution') ?? 0 }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_result_contribution') }}
-                                </div>
-                            </div> --}}
                                     <!-- Form End -->
                                 </div>
                                 <div class="card-footer">
@@ -91,64 +80,67 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @php
-                                            $total_marks = 0;
-                                            $total_contribution = 0;
-                                        @endphp
-                                        @foreach ($rows as $key => $row)
+                                        @foreach ($rows as $category_id => $exam_types_categories)
                                             @php
-                                                $total_marks = $total_marks + $row->marks;
-                                                $total_contribution = $total_contribution + $row->contribution;
+                                                $total_marks = 0;
+                                                $total_contribution = 0;
                                             @endphp
-                                            <tr>
-                                                <td>{{ $key + 1 }}</td>
-                                                <td>{{ $row->title }}</td>
-                                                <td>{{ $row->category?->title }}</td>
-                                                <td>{{ round($row->marks, 2) }}</td>
-                                                <td>{{ round($row->contribution, 2) }} %</td>
-                                                <td>
-                                                    @if ($row->status == 1)
-                                                        <span
-                                                            class="badge badge-pill badge-success">{{ __('status_active') }}</span>
-                                                    @else
-                                                        <span
-                                                            class="badge badge-pill badge-danger">{{ __('status_inactive') }}</span>
-                                                    @endif
+                                            <tr class="group-header">
+                                                <td colspan="7" class="bg-success text-white text-center">
+                                                    <b>{{ $exam_types_categories->first()->category->title }}</b>
                                                 </td>
-                                                <td>
-                                                    @can($access . '-edit')
-                                                        <button type="button" class="btn btn-icon btn-primary btn-sm"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#editModal-{{ $row->id }}">
-                                                            <i class="far fa-edit"></i>
-                                                        </button>
-                                                        <!-- Include Edit modal -->
-                                                        @include($view . '.edit')
-                                                    @endcan
+                                            </tr>
+                                            @foreach ($exam_types_categories as $key => $row)
+                                                @php
+                                                    $total_marks += $row->marks;
+                                                    $current_contribution = ($row->marks / $exam_types_categories->sum('marks')) * 100;
+                                                    $total_contribution += $current_contribution;
+                                                @endphp
+                                                <tr>
+                                                    <td>{{ $loop->parent->iteration }}.{{ $key + 1 }}</td>
+                                                    <td>{{ $row->title }}</td>
+                                                    <td>{{ $row->category->title }}</td>
+                                                    <td>{{ round($row->marks, 2) }}</td>
+                                                    <td>{{ round($current_contribution, 2) }} %</td>
+                                                    <td>
+                                                        @if ($row->status == 1)
+                                                            <span class="badge badge-pill badge-success">{{ __('status_active') }}</span>
+                                                        @else
+                                                            <span class="badge badge-pill badge-danger">{{ __('status_inactive') }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @can($access . '-edit')
+                                                            <button type="button" class="btn btn-icon btn-primary btn-sm"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editModal-{{ $row->id }}">
+                                                                <i class="far fa-edit"></i>
+                                                            </button>
+                                                            @include($view . '.edit')
+                                                        @endcan
 
-                                                    @can($access . '-delete')
-                                                        <button type="button" class="btn btn-icon btn-danger btn-sm"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#deleteModal-{{ $row->id }}">
-                                                            <i class="fas fa-trash-alt"></i>
-                                                        </button>
-                                                        <!-- Include Delete modal -->
-                                                        @include('admin.layouts.inc.delete')
-                                                    @endcan
-                                                </td>
+                                                        @can($access . '-delete')
+                                                            <button type="button" class="btn btn-icon btn-danger btn-sm"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal-{{ $row->id }}">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                            @include('admin.layouts.inc.delete')
+                                                        @endcan
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            <tr class="bg-info text-white">
+                                                <th></th>
+                                                <th>{{ __('field_grand_total') }}</th>
+                                                <th></th>
+                                                <th>{{ round($total_marks, 2) }}</th>
+                                                <th>{{ round($total_contribution, 2) }} %</th>
+                                                <th></th>
+                                                <th></th>
                                             </tr>
                                         @endforeach
                                     </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th></th>
-                                            <th>{{ __('field_grand_total') }}</th>
-                                            <th>{{ round($total_marks, 2) }}</th>
-                                            <th>{{ round($total_contribution, 2) }} %</th>
-                                            <th></th>
-                                            <th></th>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                             <!-- [ Data table ] end -->
@@ -161,4 +153,23 @@
     </div>
     <!-- End Content-->
 
+@endsection
+
+@section('page_js')
+    <script>
+        $(document).ready(function() {
+            // Remove custom rows before DataTables initialization
+            $('#basic-table tbody .group-header').each(function() {
+                $(this).remove();
+            });
+
+            // Initialize DataTables
+            var table = $('#basic-table').DataTable({
+                "order": []
+            });
+
+            // Add the custom rows back
+            $('#basic-table tbody').prepend($('.group-header'));
+        });
+    </script>
 @endsection

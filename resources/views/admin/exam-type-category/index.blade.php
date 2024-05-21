@@ -96,8 +96,14 @@
                                                             data-bs-target="#editModal-{{ $row->id }}">
                                                             <i class="far fa-edit"></i>
                                                         </button>
+                                                        <buaatton type="button" class="btn btn-icon btn-primary btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#copyModal-{{ $row->id }}">
+                                                            <i class="far fa-copy"></i>
+                                                        </buaatton>
                                                         <!-- Include Edit modal -->
                                                         @include($view . '.edit')
+                                                        @include($view . '.copy')
                                                     @endcan
 
                                                     @can($access . '-delete')

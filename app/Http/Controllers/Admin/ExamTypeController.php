@@ -46,9 +46,9 @@ class ExamTypeController extends Controller
         $data['path'] = $this->path;
         $data['access'] = $this->access;
 
-        $data['rows'] = ExamType::orderBy('contribution', 'desc')->get();
-
+        $data['rows'] = ExamType::query()->categoryStatus(1)->latest()->get()->groupBy('exam_type_category_id');
         $data['mark_distribution_categories'] = ExamTypeCategory::query()->status(1)->get(['id', 'title']);
+
         return view($this->view . '.index', $data);
     }
 

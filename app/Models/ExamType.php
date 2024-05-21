@@ -43,4 +43,11 @@ class ExamType extends Model
     {
         return $this->category->examsTypes;
     }
+
+    public function scopeCategoryStatus($query , $status)
+    {
+        return $query->whereHas('category' , function($category)use($status){
+            $category->status($status);
+        });
+    }
 }
