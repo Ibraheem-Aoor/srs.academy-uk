@@ -21,6 +21,11 @@ class Program extends Model
         'registration',
         'status',
         'notes',
+        'required_courses',
+    ];
+
+    protected $casts = [
+        'required_courses' => 'array'
     ];
 
     public function faculty()

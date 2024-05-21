@@ -191,12 +191,15 @@ class ProgramController extends Controller
             'enroll_subjects' => 'required|array',
             'enroll_subjects.*' => 'required|array',
             'notes' => 'nullable',
+            'required_courses'  => 'required|array',
+            'required_courses.*' => 'required',
         ], [
             'enroll_subjects.required' => __('all_fields_required'),
             'enroll_subjects.array' => __('all_fields_required'),
             'enroll_subjects.*.required' => __('all_fields_required'),
             'enroll_subjects.*.array' => __('all_fields_required'),
         ]);
+
         $enroll_subjects = $request->enroll_subjects;
         foreach ($enroll_subjects as $enroll_subject_data) {
             $subject_id = $enroll_subject_data['subject_id'];
@@ -206,7 +209,8 @@ class ProgramController extends Controller
                 ->updateExistingPivot($subject_id, ['subject_type_id' => $subject_type_id]);
         }
         $program->update([
-            'notes' => $request->notes
+            'notes' => $request->notes,
+            'required_courses' => $request->required_courses,
         ]);
         Toastr::success(__('msg_created_successfully'), __('msg_success'));
         return redirect()->back();

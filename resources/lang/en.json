@@ -821,5 +821,7 @@
     "upload_payment_receipt" : "Upload Payment Receipt",
     "fee_prove_uploaded": "Fee Prove Uploaded",
     "btn_download_fom" : "Download Form To Fill",
-    "field_copy_title": "New Copy Title"
+    "field_copy_title": "New Copy Title",
+    "program_note" : ":program Program Note",
+    "Required" : "Required"
 }

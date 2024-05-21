@@ -57,8 +57,8 @@
         @foreach ($subjects as $subject_type_id => $subjects)
             <div class="mb-4">
                 <h3 class="font-bold mb-2">
-                    {{ \App\Models\SubjectType::find($subject_type_id)?->title }} COMPONENT | {{ count($subjects) }}
-                    Courses / {{ $subjects->sum('credit_hour') }} Semester Hours
+                    {{ \App\Models\SubjectType::find($subject_type_id)?->title }} COMPONENT | {{ count($subjects) }} Courses  @if($program->required_courses && @$program->required_courses[$subject_type_id] != 0) ({{ @$program->required_courses[$subject_type_id]  . ' ' . __('Required')}})  @endif
+                    / {{ $subjects->sum('credit_hour') }} Semester Hours
                 </h3>
                 <table class="w-full text-sm">
                     <thead class="table-header">
