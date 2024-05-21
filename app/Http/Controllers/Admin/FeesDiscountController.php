@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FeesCategory;
 use App\Models\FeesDiscount;
+use App\Models\Session;
 use App\Models\StatusType;
+use Illuminate\Validation\Rule;
 use Toastr;
 
 class FeesDiscountController extends Controller
@@ -26,10 +28,10 @@ class FeesDiscountController extends Controller
         $this->access = 'fees-discount';
 
 
-        $this->middleware('permission:'.$this->access.'-view|'.$this->access.'-create|'.$this->access.'-edit|'.$this->access.'-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:'.$this->access.'-create', ['only' => ['create','store']]);
-        $this->middleware('permission:'.$this->access.'-edit', ['only' => ['edit','update']]);
-        $this->middleware('permission:'.$this->access.'-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-create|' . $this->access . '-edit|' . $this->access . '-delete', ['only' => ['index', 'show']]);
+        $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:' . $this->access . '-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:' . $this->access . '-delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -45,12 +47,12 @@ class FeesDiscountController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
         $data['access'] = $this->access;
-        
+
         $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
         $data['statusTypes'] = StatusType::where('status', '1')->orderBy('title', 'asc')->get();
         $data['rows'] = FeesDiscount::orderBy('start_date', 'desc')->get();
-
-        return view($this->view.'.index', $data);
+        $data['sessions'] = Session::query()->status(1)->get(['id', 'title']);
+        return view($this->view . '.index', $data);
     }
 
     /**
@@ -78,10 +80,10 @@ class FeesDiscountController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'amount' => 'required|numeric',
             'type' => 'required|integer',
+            'actual_type' => ['required', Rule::in(['discount', 'grant'])],
             'categories' => 'required',
             'statuses' => 'required',
         ]);
-
 
         // Insert Data
         $feesDiscount = new FeesDiscount;
@@ -90,6 +92,7 @@ class FeesDiscountController extends Controller
         $feesDiscount->end_date = $request->end_date;
         $feesDiscount->amount = $request->amount;
         $feesDiscount->type = $request->type;
+        $feesDiscount->discount_type = $request->actual_type;
         $feesDiscount->save();
 
         // Create Attach
@@ -127,13 +130,13 @@ class FeesDiscountController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
         $data['access'] = $this->access;
-        
+
         $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
         $data['statusTypes'] = StatusType::where('status', '1')->orderBy('title', 'asc')->get();
         $data['rows'] = FeesDiscount::orderBy('start_date', 'desc')->get();
         $data['row'] = $feesDiscount;
 
-        return view($this->view.'.edit', $data);
+        return view($this->view . '.edit', $data);
     }
 
     /**
@@ -170,7 +173,7 @@ class FeesDiscountController extends Controller
         // Update Attach
         $feesDiscount->feesCategories()->sync($request->categories);
         $feesDiscount->statusTypes()->sync($request->statuses);
-        
+
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 

@@ -253,14 +253,13 @@ class FeesMasterController extends Controller
             'section' => 'required',
             'amount' => 'required|numeric',
             'type' => 'required|numeric',
-            'assign_date' => 'required|date|after_or_equal:today',
-            'due_date' => 'required|date|after_or_equal:assign_date',
             'category' => 'required',
             'students' => 'required',
         ]);
-
         try {
             DB::beginTransaction();
+
+            $session = Session::query()->find($request->session);
 
             $feesMaster = new FeesMaster;
             $feesMaster->faculty_id = $request->faculty;
@@ -268,8 +267,8 @@ class FeesMasterController extends Controller
             $feesMaster->session_id = $request->session;
             $feesMaster->semester_id = Session::query()->find($request->session)->semester_id;
             $feesMaster->category_id = $request->category;
-            $feesMaster->assign_date = $request->assign_date;
-            $feesMaster->due_date = $request->due_date;
+            $feesMaster->assign_date = $session->start_date;
+            $feesMaster->due_date = $session->end_date;
             $feesMaster->amount = $request->amount;
             $feesMaster->type = $request->type;
             $feesMaster->created_by = Auth::guard('web')->user()->id;
@@ -290,13 +289,12 @@ class FeesMasterController extends Controller
 
                     $fee_amount = $total_credits * $request->amount;
                 }
-
                 $fees = new Fee;
                 $fees->student_enroll_id = $student;
                 $fees->category_id = $request->category;
                 $fees->fee_amount = $fee_amount;
-                $fees->assign_date = $request->assign_date;
-                $fees->due_date = $request->due_date;
+                $fees->assign_date = $session->start_date;
+                $fees->due_date = $session->end_date;
                 $fees->created_by = Auth::guard('web')->user()->id;
                 $fees->save();
             }

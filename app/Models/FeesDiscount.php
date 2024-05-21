@@ -13,7 +13,7 @@ class FeesDiscount extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'start_date', 'end_date', 'amount', 'type', 'status',
+        'title', 'start_date', 'end_date', 'amount', 'type', 'status','discount_type',
     ];
 
     public function feesCategories()

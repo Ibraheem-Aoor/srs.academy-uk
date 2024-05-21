@@ -426,7 +426,7 @@ class StudentController extends Controller
                 ->orderBy('id', 'desc')->get();
 
         $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
-
+                // dd($student);
         return view($this->view.'.show', $data);
     }
 

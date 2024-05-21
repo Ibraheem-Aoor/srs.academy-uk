@@ -428,6 +428,7 @@
     "field_final_exam": "Final Exam",
     "field_midterm_exam": "Midterm Exam",
     "field_discount": "Discount",
+    "field_discount_grant": "Grant",
     "field_discount_type": "Discount Type",
     "field_net_amount": "Net Amount",
     "field_paid_amount": "Paid Amount",
