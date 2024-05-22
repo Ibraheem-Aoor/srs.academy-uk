@@ -146,9 +146,16 @@
             @foreach ($rows as $session_start_date => $fees)
                 @php
                     $session = \App\Models\Session::whereStartDate($session_start_date)->first();
+                    if (!$session) {
+                        $session = \App\Models\Session::whereDate('start_date', '<=', $session_start_date)
+                            ->orWhere('end_date', '>=', $session_start_date)
+                            ->orderBy('start_date')
+                            ->first();
+                    }
                     $sessionTotal = 0;
                 @endphp
-                <h2 class="text-center">{{ __('field_session') }}: {{ $session?->title }} ({{ $session->start_date }}
+                <h2 class="text-center">{{ __('field_session') }}:
+                    {{ $session?->title }} ({{ $session->start_date }}
                     / {{ $session?->end_date }})</h2>
                 <table class="table-no-border receipt">
                     <thead>
