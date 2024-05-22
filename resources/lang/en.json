@@ -825,5 +825,7 @@
     "field_copy_title": "New Copy Title",
     "program_note" : ":program Program Note",
     "Required" : "Required",
-    "select_session_and_program":"Select Session, Course and Program"
+    "select_session_and_program":"Select Session, Course and Program",
+    "financial_agreement":"Financial Agreement",
+    "field_session_total":"Session Total Fees"
 }

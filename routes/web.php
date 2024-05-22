@@ -102,6 +102,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     // Student Routes
     Route::resource('admission/application', 'ApplicationController');
     Route::resource('admission/student', 'StudentController');
+    Route::get('admission/student/{student}/financial-agreement', 'StudentController@printFinancialAgreement')->name('student.print-financial-agreement');
     Route::get('admission/student-card/{id}', 'StudentController@card')->name('student.card');
     // Route::get('admission/student-status/{id}', 'StudentController@status')->name('student.status');
     Route::post('admission/student-send-password/{id}', 'StudentController@sendPassword')->name('student.send-password');

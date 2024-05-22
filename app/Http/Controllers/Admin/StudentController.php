@@ -27,6 +27,7 @@ use App\Models\Faculty;
 use App\Models\Batch;
 use App\Models\Grade;
 use App\Models\Fee;
+use App\Models\PrintSetting;
 use Carbon\Carbon;
 use Toastr;
 use Auth;
@@ -826,5 +827,22 @@ class StudentController extends Controller
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
         return redirect()->back();
+    }
+
+
+    public function printFinancialAgreement(Student $student)
+    {
+        $data['title'] = trans_choice('module_fees_report', 1);
+        $data['route'] = $this->route;
+        $data['view'] = $this->view;
+        $data['path'] = 'print-setting';
+        // Getting all student fees regaring the enrollement "because enrollments changed according to sessions and we don't konow when the admin adding the fees".
+        $student_enrollments = $student->studentEnrolls()->pluck('id')->toArray();
+        // View
+        $data['print'] = PrintSetting::where('slug', 'fees-receipt')->firstOrFail();
+        $data['rows'] = Fee::query()->whereIn('student_enroll_id' , array_values($student_enrollments))->get()->groupBy('assign_date');
+        $data['student'] = $student;
+        return view($this->view . '.financial_agreement', $data);
+
     }
 }
