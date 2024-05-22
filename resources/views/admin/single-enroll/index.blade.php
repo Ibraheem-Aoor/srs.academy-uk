@@ -236,10 +236,10 @@
                 {{-- Current Session  --}}
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('status_current') }} {{ __('field_session') }}:
+                        <h5 class="text-success">{{ __('status_current') }} {{ __('field_session') }}:
                             {{ $row->currentEnroll->session->title ?? '' }} |
                             {{ $row->currentEnroll->semester->title ?? '' }} |
-                            {{ $row->currentEnroll->section->title ?? '' }}</h5>
+                            </h5>
                     </div>
                     <div class="card-block">
                         <!-- [ Data table ] start -->

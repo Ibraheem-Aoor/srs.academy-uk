@@ -1,4 +1,4 @@
-<!DOCTYPE html >
+<!DOCTYPE html>
 <html lang="en-US" id="boxes">
 
 <head>
@@ -104,7 +104,8 @@
                         <td class="temp-logo last">
                             <div class="inner">
                                 @if (is_file('uploads/' . $path . '/' . $print->logo_right))
-                                    <img src="{{ asset('uploads/' . $path . '/' . $print->logo_right) }}" alt="Logo">
+                                    <img src="{{ asset('uploads/' . $path . '/' . $print->logo_right) }}"
+                                        alt="Logo">
                                 @endif
                             </div>
                         </td>
@@ -123,11 +124,13 @@
                         <td class="meta-data">{{ __('field_student_id') }}:</td>
                         <td class="meta-data value width2"> {{ $student->student_id ?? '' }}</td>
                         <td class="meta-data">{{ __('field_name') }}:</td>
-                        <td class="meta-data value"> {{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</td>
+                        <td class="meta-data value"> {{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}
+                        </td>
                     </tr>
                     <tr>
                         <td class="meta-data">{{ __('field_program') }}:</td>
-                        <td class="meta-data value width2"> {{ $student->program->shortcode ?? '' }}</td>
+                        <td class="meta-data value width2">
+                            {{ $student->program->title . '(' . $student->program->shortcode . ')' ?? '' }}</td>
                         <td class="meta-data">{{ __('field_batch') }}:</td>
                         <td class="meta-data value"> {{ $student->batch->title ?? '' }}</td>
                     </tr>
@@ -136,12 +139,17 @@
             <!-- Student Info Section -->
 
             <!-- Fees Section -->
+            @php
+                $program_total_fees = 0;
+
+            @endphp
             @foreach ($rows as $session_start_date => $fees)
                 @php
                     $session = \App\Models\Session::whereStartDate($session_start_date)->first();
                     $sessionTotal = 0;
                 @endphp
-                <h2 class="text-center">{{ __('field_session') }}: {{ $session?->title }} ({{ $session->start_date }} / {{ $session?->end_date }})</h2>
+                <h2 class="text-center">{{ __('field_session') }}: {{ $session?->title }} ({{ $session->start_date }}
+                    / {{ $session?->end_date }})</h2>
                 <table class="table-no-border receipt">
                     <thead>
                         <tr>
@@ -154,7 +162,6 @@
                     </thead>
                     <tbody>
                         @foreach ($fees->groupBy('category_id') as $fees_category => $rows)
-
                             @php
                                 $categoryTitle = $rows->first()->category->title ?? '';
                                 $totalFee = $rows->sum('fee_amount');
@@ -162,6 +169,8 @@
                                 $totalFine = $rows->sum('fine_amount');
                                 $totalPaid = $totalFee - $totalDiscount + $totalFine;
                                 $sessionTotal += $totalPaid;
+                                $program_total_fees += $totalPaid;
+
                             @endphp
                             <tr class="border-bottom fs-10">
                                 <td>{{ $categoryTitle }}</td>
@@ -185,7 +194,7 @@
                         @endforeach
                     </tbody>
                     <tfoot>
-                        <tr >
+                        <tr>
                             <th>{{ __('field_session_total') }}:</th>
                             <th>&nbsp;</th>
                             <th>&nbsp;</th>
@@ -198,6 +207,32 @@
                 </table>
             @endforeach
             <!-- Fees Section -->
+
+            {{-- START Program Total Fees --}}
+            <table class="table-no-border receipt">
+                <thead>
+                    <tr>
+                        <th style="width:20% !important;">&nbsp;</th>
+                        <th style="width:15% !important;">&nbsp;</th>
+                        <th style="width:15% !important;">&nbsp;</th>
+                        {{-- <th style="width:15% !important;">{{ __('field_fine_amount') }}</th> --}}
+                        <th colspan="6">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tfoot class="text-success">
+                    <tr class="text-success">
+                        <th class="text-success">{{ __('field_program_total') }}:</th>
+                        <th class="text-success">&nbsp;</th>
+                        <th class="text-success">&nbsp;</th>
+                        <th class="text-success" colspan="6" class="text-right">
+                            {{ number_format((float) $program_total_fees, $setting->decimal_place ?? 2, '.', '') }}
+                            {!! $setting->currency_symbol !!}
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+            {{-- END Program Total Fees --}}
+
 
             <!-- Footer Section -->
             <table class="table-no-border">
@@ -226,8 +261,11 @@
     </div>
 
     <!-- JS -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+        integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
         function closeScript() {
@@ -258,4 +296,5 @@
         });
     </script>
 </body>
+
 </html>

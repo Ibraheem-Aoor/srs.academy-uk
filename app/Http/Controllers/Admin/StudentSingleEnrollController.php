@@ -105,11 +105,10 @@ class StudentSingleEnrollController extends Controller
         try{
             DB::beginTransaction();
             // Duplicate Enroll Check
-            $duplicate_check = StudentEnroll::where('student_id', $request->student)->where('session_id', $request->session)->where('semester_id', $request->semester)->first();
-            $session_check = StudentEnroll::where('student_id', $request->student)->where('session_id', $request->session)->first();
+            $duplicate_check = StudentEnroll::where('student_id', $request->student)->where('session_id', $request->session)->first();
             // $semester_check = StudentEnroll::where('student_id', $request->student)->where('semester_id', $request->semester)->first();
 
-            if(!isset($duplicate_check) && !isset($session_check)){
+            if(!isset($duplicate_check)){
                 // Pre Enroll Update
                 $pre_enroll = StudentEnroll::where('student_id', $request->student)->where('status', '1')->first();
                 if(isset($pre_enroll)){
@@ -125,13 +124,21 @@ class StudentSingleEnrollController extends Controller
                 $enroll->semester_id = Session::query()->find($request->session)->semester_id;
                 $enroll->section_id = $request->section ?? null;
                 $enroll->created_by = Auth::guard('web')->user()->id;
+                $enroll->status = 1;
                 $enroll->save();
 
                 // Attach Subject
                 $enroll->subjects()->attach($request->subjects);
+                // get the student
+                $student = Student::find($request->student);
+
+                //!! Disable All Enrolls And Make The Current Enroll Where The Current Session !!
+                $student->studentEnrolls()->update(['status' => 0]);
+                // Get The CURRENT SESSION
+                $current_running_session = Session::query()->where('current' , 1)->first();
+                $student->studentEnrolls()->where('session_id' , $current_running_session->id)->update(['status' => 1]);
 
                 // Program Update
-                $student = Student::find($request->student);
                 $student->program_id = $request->program;
                 $student->save();
 
@@ -146,7 +153,7 @@ class StudentSingleEnrollController extends Controller
             return redirect()->back();
         }
         catch(\Exception $e){
-
+            dd($e);
             Toastr::error(__('msg_created_error'), __('msg_error'));
 
             return redirect()->back();

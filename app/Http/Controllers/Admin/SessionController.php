@@ -149,7 +149,10 @@ class SessionController extends Controller
         $session->title = $request->title;
         $session->start_date = $request->start_date;
         $session->end_date = $request->end_date;
-        $session->status = $request->status;
+        //Current Session Must Be Active.
+        if($session->current != 1){
+            $session->status = $request->status;
+        }
         $session->semester_id = $request->semester_id;
         $session->save();
 
