@@ -3,7 +3,7 @@
 <head>
 
     <title>{{ $applicationSetting->title ?? $title }}</title>
-    
+
     @include('admin.layouts.common.header_script')
 
     <!-- Wizard css -->
@@ -318,7 +318,7 @@
                               <div class="col-md-6">
                                 <fieldset class="row scheduler-border">
                                 <legend>{{ __('field_present') }} {{ __('field_address') }}</legend>
-                                
+
                                 @include('common.inc.present_province')
 
                                 <div class="form-group col-md-12">
@@ -335,7 +335,7 @@
                               <div class="col-md-6">
                                 <fieldset class="row scheduler-border">
                                 <legend>{{ __('field_permanent') }} {{ __('field_address') }}</legend>
-                                
+
                                 @include('common.inc.permanent_province')
 
                                 <div class="form-group col-md-12">
@@ -502,7 +502,7 @@
 <!-- End Content-->
 @endisset
 
-    
+
     @include('admin.layouts.common.footer_script')
 
 
@@ -520,7 +520,7 @@
             headerTag: "h3",
             bodyTag: "content",
             transitionEffect: "slideLeft",
-            labels: 
+            labels:
             {
                 finish: "{{ __('btn_finish') }}",
                 next: "{{ __('btn_next') }}",
@@ -545,7 +545,7 @@
             },
             onStepChanged: function (event, currentIndex, priorIndex)
             {
-                
+
             },
             onFinishing: function (event, currentIndex)
             {

@@ -71,6 +71,7 @@ class Student extends Authenticatable
         'is_transfer',
         'created_by',
         'updated_by',
+        'id_on_moodle',
     ];
 
     /**
