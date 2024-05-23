@@ -828,5 +828,6 @@
     "select_session_and_program":"Select Session, Course and Program",
     "financial_agreement":"Financial Agreement",
     "field_session_total":"Session Total Fees",
-    "field_program_total":"Program Total Fees"
+    "field_program_total":"Program Total Fees",
+    "Moodle_Error": "Moodle Error"
 }

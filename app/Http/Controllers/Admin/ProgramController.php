@@ -10,6 +10,9 @@ use App\Models\Program;
 use App\Models\Faculty;
 use App\Models\ProgramSubject;
 use App\Models\SubjectType;
+use App\Services\Moodle\ProgramService;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 use Toastr;
 
 class ProgramController extends Controller
@@ -72,7 +75,7 @@ class ProgramController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, ProgramService $moodle_program_service)
     {
         // Field Validation
         $request->validate([
@@ -88,19 +91,28 @@ class ProgramController extends Controller
             $registration = 1;
         }
 
-        // Insert Data
-        $program = new Program;
-        $program->faculty_id = $request->faculty;
-        $program->title = $request->title;
-        $program->slug = Str::slug($request->title, '-');
-        $program->shortcode = $request->shortcode;
-        $program->registration = $registration;
-        $program->save();
+        try {
+            // Insert Data
+            DB::beginTransaction();
+            $program = new Program;
+            $program->faculty_id = $request->faculty;
+            $program->title = $request->title;
+            $program->slug = Str::slug($request->title, '-');
+            $program->shortcode = $request->shortcode;
+            $program->registration = $registration;
+            $program->save();
 
+            // Create Program On Moodle
+            $moodle_program_service->create($program);
+            DB::commit();
 
-        Toastr::success(__('msg_created_successfully'), __('msg_success'));
-
+            Toastr::success(__('msg_created_successfully'), __('msg_success'));
+        } catch (Throwable $e) {
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+        }
         return redirect()->back();
+
     }
 
     /**
@@ -137,7 +149,7 @@ class ProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Program $program)
+    public function update(Request $request, Program $program, ProgramService $moodle_program_service)
     {
         // Field Validation
         $request->validate([
@@ -152,20 +164,27 @@ class ProgramController extends Controller
         } else {
             $registration = 1;
         }
-
-        // Update Data
-        $program->faculty_id = $request->faculty;
-        $program->title = $request->title;
-        $program->slug = Str::slug($request->title, '-');
-        $program->shortcode = $request->shortcode;
-        $program->registration = $registration;
-        $program->status = $request->status;
-        $program->save();
-
-
-        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
-
-        return redirect()->back();
+        try {
+            $program_title_before_update = $program->title;
+            DB::beginTransaction();
+            // Update Data
+            $program->faculty_id = $request->faculty;
+            $program->title = $request->title;
+            $program->slug = Str::slug($request->title, '-');
+            $program->shortcode = $request->shortcode;
+            $program->registration = $registration;
+            $program->status = $request->status;
+            $program->save();
+            // Create Program On Moodle
+            $moodle_program_service->update($program, $program_title_before_update);
+            DB::commit();
+            Toastr::success(__('msg_updated_successfully'), __('msg_success'));
+            return redirect()->back();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+            return back();
+        }
     }
 
     /**
@@ -174,10 +193,19 @@ class ProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Program $program)
+    public function destroy(Program $program, ProgramService $program_service)
     {
-        // Delete Data
-        $program->delete();
+        try {
+            DB::beginTransaction();
+            // Delete Data
+            $program->delete();
+            // Delete On Moodle
+            $program_service->delete($program);
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+        }
 
         Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
 
@@ -191,7 +219,7 @@ class ProgramController extends Controller
             'enroll_subjects' => 'required|array',
             'enroll_subjects.*' => 'required|array',
             'notes' => 'nullable',
-            'required_courses'  => 'required|array',
+            'required_courses' => 'required|array',
             'required_courses.*' => 'required',
         ], [
             'enroll_subjects.required' => __('all_fields_required'),
@@ -228,6 +256,6 @@ class ProgramController extends Controller
         $data['subjects'] = $data['program']->subjects->groupBy('pivot.subject_type_id');
         // $data['subjects'] = $data['program']->subjects()->with('subjectType')->get()->groupBy('pivot.subject_type_id');
         // dd($data);
-        return view('admin.program.program_print' , $data);
+        return view('admin.program.program_print', $data);
     }
 }

@@ -177,10 +177,11 @@ if (!function_exists('returnSuccess')) {
     }
 }
 if (!function_exists('logError')) {
-    function logError(Throwable $e , $method , $class)
+    function logError(Throwable $e , $method , $class , $custom_message = null)
     {
         info('ERROR IN ' . $class . ' ' . $method . ' ' . $e->getMessage());
-        Toastr::error(__('msg_created_error'),  __('msg_error'));
+        $message = isset($custom_message) ? $custom_message :  __('msg_created_error');
+        Toastr::error($message,  __('msg_error'));
 
     }
 }
