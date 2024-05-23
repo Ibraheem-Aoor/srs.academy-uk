@@ -78,6 +78,8 @@
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
+                                                        <th>{{ __('field_category_on_moodle') }}</th>
+
                                                         <th>{{ __('field_program') }}</th>``
                                                         <th>{{ __('module_exam_type') }}</th>
                                                     </tr>
@@ -91,6 +93,16 @@
                                                                 ->find($program);
                                                         @endphp
                                                         <tr>
+                                                            <td>
+                                                                <div class="radio d-inline">
+                                                                    <input type="radio" name="category_on_moodle"
+                                                                        id="category_on_moodle_{{ $program->id }}"
+                                                                        value="{{ $program->id }}"
+                                                                        @if (isset($category_on_moodle) && $category_on_moodle == $program->id) checked @endif>
+                                                                    <label for="category_on_moodle_{{ $program->id }}"
+                                                                        class="cr"></label>
+                                                                </div>
+                                                            </td>
                                                             <td>
                                                                 <div class="checkbox d-inline">
                                                                     <input type="checkbox"

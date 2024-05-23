@@ -829,5 +829,6 @@
     "financial_agreement":"Financial Agreement",
     "field_session_total":"Session Total Fees",
     "field_program_total":"Program Total Fees",
-    "Moodle_Error": "Moodle Error"
+    "Moodle_Error": "Moodle Error",
+    "field_category_on_moodle" : "Category On Moodle"
 }

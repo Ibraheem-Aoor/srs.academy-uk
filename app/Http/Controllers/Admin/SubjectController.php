@@ -14,8 +14,10 @@ use App\Models\Program;
 use App\Models\Subject;
 use App\Models\Faculty;
 use App\Models\Prerequisit;
+use App\Services\Moodle\CourseService;
 use Toastr;
-use DB;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class SubjectController extends Controller
 {
@@ -146,8 +148,7 @@ class SubjectController extends Controller
     {
         $programs_to_sync = [];
         foreach ($request->programs as $program_id => $attributes) {
-            if(isset($attributes['is_checked']))
-            {
+            if (isset($attributes['is_checked'])) {
                 $programs_to_sync[$program_id] = [
                     'exam_type_category_id' => $attributes['category']
                 ];
@@ -175,7 +176,7 @@ class SubjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, CourseService $course_service)
     {
         // Field Validation
         $request->validate([
@@ -187,6 +188,7 @@ class SubjectController extends Controller
             'prerequisites.*.*' => 'required',
             'programs' => 'required|array',
             'programs.*' => 'required',
+            'category_on_moodle' => 'required',
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),
             'prerequisites.*.array' => __('invalid_prerequisites'),
@@ -195,25 +197,35 @@ class SubjectController extends Controller
             'programs.array' => __('field_program_invalid'),
             'programs.*.array' => __('field_program_invalid'),
         ]);
-        DB::beginTransaction();
-        // Insert Data
-        $subject = new Subject;
-        $subject->title = $request->title;
-        $subject->code = $request->code;
-        $subject->credit_hour = $request->credit_hour;
-        $subject->total_marks = $request->total_marks;
-        $subject->passing_marks = $request->passing_marks;
-        $subject->description = $request->description;
-        $subject->save();
+        try {
+            DB::beginTransaction();
+            // Insert Data
+            $subject = new Subject;
+            $subject->title = $request->title;
+            $subject->code = $request->code;
+            $subject->credit_hour = $request->credit_hour;
+            $subject->total_marks = $request->total_marks;
+            $subject->passing_marks = $request->passing_marks;
+            $subject->description = $request->description;
+            $subject->status = $request->status;
+            $subject->save();
 
-        // Attach Programs
-        $this->attachPrograms(subject: $subject, request: $request);
+            // Attach Programs
+            $this->attachPrograms(subject: $subject, request: $request);
 
-        // Preqrequisites
-        if (is_array($request->prerequisites)) {
-            $this->attachPrerequisites(subject: $subject, request: $request);
+            // Preqrequisites
+            if (is_array($request->prerequisites)) {
+                $this->attachPrerequisites(subject: $subject, request: $request);
+            }
+            // Create Subject On Moodle
+            $course_on_moodle = $course_service->create(subject: $subject, request: $request);
+            $subject->id_on_moodle = $course_on_moodle[0]['id'];
+            $subject->save();
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
         }
-        DB::commit();
 
         Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
@@ -245,20 +257,24 @@ class SubjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Subject $subject)
+    public function edit(Subject $subject, CourseService $course_service)
     {
-        //
-        $data['title'] = $this->title;
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = $this->path;
+        try {
+            //
+            $data['title'] = $this->title;
+            $data['route'] = $this->route;
+            $data['view'] = $this->view;
+            $data['path'] = $this->path;
 
-        $data['row'] = $subject;
-        $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
-        $data['courses'] = Subject::query()->status(1)->where('id', '!=', $subject->id)->orderByDesc('created_at')->get(['id', 'title']);
-        $data['mark_distribution_systems'] = $this->mark_distribution_systems;
-
-        return view($this->view . '.edit', $data);
+            $data['row'] = $subject;
+            $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
+            $data['courses'] = Subject::query()->status(1)->where('id', '!=', $subject->id)->orderByDesc('created_at')->get(['id', 'title']);
+            $data['mark_distribution_systems'] = $this->mark_distribution_systems;
+            $data['category_on_moodle'] = $course_service->category($subject)?->id;
+            return view($this->view . '.edit', $data);
+        } catch (Throwable $e) {
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+        }
     }
 
     /**
@@ -268,7 +284,7 @@ class SubjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Subject $subject)
+    public function update(Request $request, Subject $subject , CourseService $course_service)
     {
         // Field Validation
         $request->validate([
@@ -280,6 +296,8 @@ class SubjectController extends Controller
             'prerequisites.*.*' => 'required',
             'programs' => 'required|array',
             'programs.*' => 'required',
+            'category_on_moodle' => 'required',
+
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),
             'prerequisites.*.array' => __('invalid_prerequisites'),
@@ -289,26 +307,33 @@ class SubjectController extends Controller
             'programs.*.array' => __('field_program_invalid')
         ]);
 
+        try {
+            DB::beginTransaction();
+            // Update Data
+            $subject->title = $request->title;
+            $subject->code = $request->code;
+            $subject->credit_hour = $request->credit_hour;
+            $subject->total_marks = $request->total_marks;
+            $subject->passing_marks = $request->passing_marks;
+            $subject->description = $request->description;
+            $subject->status = $request->status;
+            $subject->save();
 
-        DB::beginTransaction();
-        // Update Data
-        $subject->title = $request->title;
-        $subject->code = $request->code;
-        $subject->credit_hour = $request->credit_hour;
-        $subject->total_marks = $request->total_marks;
-        $subject->passing_marks = $request->passing_marks;
-        $subject->description = $request->description;
-        $subject->status = $request->status;
-        $subject->save();
+            // Attach Update
+            $this->attachPrograms(subject: $subject, request: $request);
+            // Preqrequisites
+            $subject->prerequisites()->delete();
+            if (is_array($request->prerequisites)) {
+                $this->attachPrerequisites(subject: $subject, request: $request);
+            }
 
-        // Attach Update
-        $this->attachPrograms(subject: $subject, request: $request);
-        // Preqrequisites
-        $subject->prerequisites()->delete();
-        if (is_array($request->prerequisites)) {
-            $this->attachPrerequisites(subject: $subject, request: $request);
+            // Update On Moodle
+            $course_service->update($subject, $request);
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
         }
-        DB::commit();
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 

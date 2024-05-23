@@ -25,6 +25,7 @@ class Subject extends Model
         'passing_marks',
         'description',
         'status',
+        'id_on_moodle',
     ];
 
     public function programs()

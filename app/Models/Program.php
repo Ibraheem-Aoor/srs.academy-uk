@@ -22,6 +22,7 @@ class Program extends Model
         'status',
         'notes',
         'required_courses',
+        'id_on_moodle',
     ];
 
     protected $casts = [

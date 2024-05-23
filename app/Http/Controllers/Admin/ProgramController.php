@@ -103,7 +103,9 @@ class ProgramController extends Controller
             $program->save();
 
             // Create Program On Moodle
-            $moodle_program_service->create($program);
+            $program_on_moodle =  $moodle_program_service->create($program);
+            $program->id_on_moodle = $program_on_moodle[0]['id'];
+            $program->save();
             DB::commit();
 
             Toastr::success(__('msg_created_successfully'), __('msg_success'));

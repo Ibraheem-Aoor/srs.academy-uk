@@ -49,12 +49,8 @@ class ProgramService extends BaseService
     public function update(Program $program, $title_before_update)
     {
         try {
-            $moodle_program = $this->findByName($title_before_update);
-            if (count($moodle_program) != 1) {
-                throw new \Exception('Found More Than One Program Or None');
-            }
-            // Unset parameter to avoid exceptions
-            unset($this->params['criteria']);
+            $moodle_program = $this->findById($program->id_on_moodle);
+
 
             // Set the web service function name
             $this->params['wsfunction'] = 'core_course_update_categories';
@@ -62,7 +58,7 @@ class ProgramService extends BaseService
             // Create the data array for the POST request
             $categories = [
                 [
-                    'id' => (int) $moodle_program[0]['id'],
+                    'id' => (int) $moodle_program['id'],
                     'name' => $program->title,
                     'idnumber' => $program->shortcode,
                 ]
@@ -94,12 +90,7 @@ class ProgramService extends BaseService
     public function delete(Program $program)
     {
         try {
-            $moodle_program = $this->findByName($program->title);
-            if (count($moodle_program) != 1) {
-                throw new \Exception('Found More Than One Program Or None');
-            }
-            // Unset parameter to avoid exceptions
-            unset($this->params['criteria']);
+            $moodle_program = $this->findById($program->id_on_moodle);
 
             // Set the web service function name
             $this->params['wsfunction'] = 'core_course_delete_categories';
@@ -107,7 +98,7 @@ class ProgramService extends BaseService
             // Create the data array for the POST request
             $categories = [
                 [
-                    'id' => (int) $moodle_program[0]['id'],
+                    'id' => (int) $moodle_program['id'],
                     'recursive' => 1,//1: recursively delete all contents inside this category
                 ]
             ];
@@ -145,8 +136,34 @@ class ProgramService extends BaseService
                 'value' => $program_title
             ],
         ];
-
-        return $this->http->get($this->url, $this->params)->json();
+        $moodle_program = $this->http->get($this->url, $this->params)->json();
+        if (count($moodle_program) != 1) {
+            throw new \Exception('Found More Than One Program Or None');
+        }
+        // Unset parameter to avoid exceptions
+        unset($this->params['criteria']);
+        return $moodle_program[0];
+    }
+    /**
+     * Find The Program By ID
+     */
+    public function findById($id)
+    {
+        // Set the web service function name
+        $this->params['wsfunction'] = 'core_course_get_categories';
+        $this->params['criteria'] = [
+            [
+                'key' => 'id',
+                'value' => $id
+            ],
+        ];
+        $moodle_program = $this->http->get($this->url, $this->params)->json();
+        if (count($moodle_program) != 1) {
+            throw new \Exception('Found More Than One Program Or None');
+        }
+        // Unset parameter to avoid exceptions
+        unset($this->params['criteria']);
+        return $moodle_program[0];
     }
 
 
