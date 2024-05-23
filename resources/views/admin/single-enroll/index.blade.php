@@ -352,7 +352,7 @@
                                     <option value="">{{ __('select') }}</option>
                                     @foreach ($sessions as $session)
                                         <option value="{{ $session->id }}"
-                                            @if ($enroll->session_id == $session->id) selected @endif>
+                                            @if ($enroll?->session_id == $session->id) selected @endif>
                                             {{ $session->title }}</option>
                                     @endforeach
                                 </select>
@@ -368,7 +368,7 @@
                                     <option value="">{{ __('select') }}</option>
                                     @foreach ($semesters as $semester)
                                         <option value="{{ $semester->id }}"
-                                            @if ($enroll->semester_id == $semester->id) selected @endif>
+                                            @if ($enroll?->semester_id == $semester->id) selected @endif>
                                             {{ $semester->title }}</option>
                                     @endforeach
                                 </select>
@@ -384,7 +384,7 @@
                                     <option value="">{{ __('select') }}</option>
                                     @foreach ($sections as $section)
                                         <option value="{{ $section->id }}"
-                                            @if ($enroll->section_id == $section->id) selected @endif>
+                                            @if ($enroll?->section_id == $section->id) selected @endif>
                                             {{ $section?->title }}</option>
                                     @endforeach
                                 </select>

@@ -12,6 +12,7 @@ use App\Models\Session;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Grade;
+use App\Services\Moodle\StudentEnrollService;
 use Toastr;
 use Auth;
 use DB;
@@ -91,8 +92,9 @@ class StudentSingleEnrollController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     *
      */
-    public function store(Request $request)
+    public function store(Request $request , StudentEnrollService $stuent_enroll_service)
     {
         // Field Validation
         $request->validate([
@@ -142,6 +144,7 @@ class StudentSingleEnrollController extends Controller
                 $student->program_id = $request->program;
                 $student->save();
 
+                $stuent_enroll_service->create($enroll);
                 Toastr::success(__('msg_promoted_successfully'), __('msg_success'));
             }
             else{
