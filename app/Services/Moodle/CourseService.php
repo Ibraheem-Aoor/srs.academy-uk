@@ -11,162 +11,101 @@ class CourseService extends BaseService
 {
     protected $model = Subject::class;
 
-    protected ProgramService $program_service;
 
     public function __construct()
     {
         parent::__construct();
-        $this->program_service = new ProgramService();
     }
 
     /**
      * Create Subject On Moodle
      */
-    public function create(Subject $subject, Request $request)
+    public function store(Subject $subject, $category_id)
     {
-        try {
-            // Set the web service function name
-            $selected_moodle_program = Program::query()->select(['id', 'title' , 'id_on_moodle'])->findOrFail($request->category_on_moodle);
+        // Create the data array for the POST request
+        $courses = [
+            [
+                'fullname' => $subject->title,
+                'shortname' => $subject->code,
+                'categoryid' => $category_id,  // Assuming 1 is a valid category ID
+                'idnumber' => $subject->code,  // Optional
+                // 'summary' => 'This is a dummy course.',  // Optional
+                // 'summaryformat' => 1,  // Default to HTML
+                // 'format' => 'topics',  // Default to topics
+                // 'showgrades' => 1,  // Default to 1
+                // 'newsitems' => 5,  // Default to 5
+                // 'startdate' => time(),  // Optional, current timestamp
+                // 'enddate' => time() + (7 * 24 * 60 * 60),  // Optional, one week from now
+                // 'numsections' => 10,  // Optional
+                'maxbytes' => 1048576,  // 1MB, default to 0
+                // 'showreports' => 0,  // Default to 0
+                'visible' => $subject->status,  // Optional, default to 1
+                // 'hiddensections' => 0,  // Optional
+                // 'groupmode' => 0,  // Default to 0
+                // 'groupmodeforce' => 0,  // Default to 0
+                // 'defaultgroupingid' => 0,  // Default to 0
+                // 'enablecompletion' => 1,  // Optional, default to 1
+                // 'completionnotify' => 0,  // Optional, default to 0
+                'lang' => 'en',  // Optional
+            ]
+        ];
 
-            // Create the data array for the POST request
-            $courses = [
-                [
-                    'fullname' => $subject->title,
-                    'shortname' => $subject->code,
-                    'categoryid' => $selected_moodle_program->id_on_moodle,  // Assuming 1 is a valid category ID
-                    'idnumber' => $subject->code,  // Optional
-                    // 'summary' => 'This is a dummy course.',  // Optional
-                    // 'summaryformat' => 1,  // Default to HTML
-                    // 'format' => 'topics',  // Default to topics
-                    // 'showgrades' => 1,  // Default to 1
-                    // 'newsitems' => 5,  // Default to 5
-                    // 'startdate' => time(),  // Optional, current timestamp
-                    // 'enddate' => time() + (7 * 24 * 60 * 60),  // Optional, one week from now
-                    // 'numsections' => 10,  // Optional
-                    'maxbytes' => 1048576,  // 1MB, default to 0
-                    // 'showreports' => 0,  // Default to 0
-                    'visible' => $subject->status,  // Optional, default to 1
-                    // 'hiddensections' => 0,  // Optional
-                    // 'groupmode' => 0,  // Default to 0
-                    // 'groupmodeforce' => 0,  // Default to 0
-                    // 'defaultgroupingid' => 0,  // Default to 0
-                    // 'enablecompletion' => 1,  // Optional, default to 1
-                    // 'completionnotify' => 0,  // Optional, default to 0
-                    'lang' => 'en',  // Optional
-                ]
-            ];
-
-            $this->params['courses'] = $courses;
-            $this->params['wsfunction'] = 'core_course_create_courses';
-
-            // Build the full URL with the parameters
-            $this->url = $this->url . '?' . http_build_query($this->params);
-
-            // Send the POST request with form parameters
-            $response = $this->http->post(
-                $this->url,
-            )->json();
-
-            return isset($response) && !isset($response['exception']) ? $response : throw new \Exception($response['exception']);
-        } catch (Throwable $e) {
-            logError(e: $e, method: __METHOD__, class: get_class($this));
-        }
+        $query_params['courses'] = $courses;
+        $query_params['wsfunction'] = 'core_course_create_courses';
+        return parent::create($query_params);
     }
 
 
     /**
      * Update Subject On Moodle
      */
-    public function update(Subject $subject, Request $request)
+    public function edit(Subject $subject, $category_id)
     {
-        try {
-            // bring the selected program "category_on_moodle" title to found it on moodle so we can pass it's id :)
-            $selected_moodle_program = Program::query()->select(['id', 'title' , 'id_on_moodle'])->findOrFail($request->category_on_moodle);
-            // Create the data array for the POST request
-            $courses = [
-                [
-                    'id' => $subject->id_on_moodle,
-                    'fullname' => $subject->title,
-                    'shortname' => $subject->code,
-                    'categoryid' => $selected_moodle_program->id_on_moodle,  // Assuming 1 is a valid category ID
-                    'idnumber' => $subject->code,  // Optional
-                    // 'summary' => 'This is a dummy course.',  // Optional
-                    // 'summaryformat' => 1,  // Default to HTML
-                    // 'format' => 'topics',  // Default to topics
-                    // 'showgrades' => 1,  // Default to 1
-                    // 'newsitems' => 5,  // Default to 5
-                    // 'startdate' => time(),  // Optional, current timestamp
-                    // 'enddate' => time() + (7 * 24 * 60 * 60),  // Optional, one week from now
-                    // 'numsections' => 10,  // Optional
-                    'maxbytes' => 1048576,  // 1MB, default to 0
-                    // 'showreports' => 0,  // Default to 0
-                    'visible' => $subject->status,  // Optional, default to 1
-                    // 'hiddensections' => 0,  // Optional
-                    // 'groupmode' => 0,  // Default to 0
-                    // 'groupmodeforce' => 0,  // Default to 0
-                    // 'defaultgroupingid' => 0,  // Default to 0
-                    // 'enablecompletion' => 1,  // Optional, default to 1
-                    // 'completionnotify' => 0,  // Optional, default to 0
-                    'lang' => 'en',  // Optional
-                ]
-            ];
-
-            $this->params['courses'] = $courses;
-            $this->params['wsfunction'] = 'core_course_update_courses';
-
-            // Build the full URL with the parameters
-            $this->url = $this->url . '?' . http_build_query($this->params);
-
-            // Send the POST request with form parameters
-            $response = $this->http->post(
-                $this->url,
-            )->json();
-
-            return isset($response) && !isset($response['exception']) ? $response : throw new \Exception($response['exception']);
-        } catch (Throwable $e) {
-            logError(e: $e, method: __METHOD__, class: get_class($this));
-        }
-    }
-
-
-    /**
-     * Get Category of the Course
-     */
-    public function category(Subject $subject): Program
-    {
-        $course_on_moodle = $this->findById($subject->id_on_moodle);
-        $course_category = $this->program_service->findById($course_on_moodle['categoryid']);
-        return Program::query()->where('title', $course_category['name'])->firstOrFail();
-    }
-
-
-    /**
-     * Find Course In Moodle By It's 'ID ON MOODLE'
-     */
-    public function findById($id)
-    {
-        // Set the web service function name
-        $this->params['wsfunction'] = 'core_course_get_courses';
-        $this->params['options'] = [
-            'ids' => [
-                $id,
-            ],
+        $courses = [
+            [
+                'id' => $subject->id_on_moodle,
+                'fullname' => $subject->title,
+                'shortname' => $subject->code,
+                'categoryid' => $category_id,  // Assuming 1 is a valid category ID
+                'idnumber' => $subject->code,  // Optional
+                // 'summary' => 'This is a dummy course.',  // Optional
+                // 'summaryformat' => 1,  // Default to HTML
+                // 'format' => 'topics',  // Default to topics
+                // 'showgrades' => 1,  // Default to 1
+                // 'newsitems' => 5,  // Default to 5
+                // 'startdate' => time(),  // Optional, current timestamp
+                // 'enddate' => time() + (7 * 24 * 60 * 60),  // Optional, one week from now
+                // 'numsections' => 10,  // Optional
+                'maxbytes' => 1048576,  // 1MB, default to 0
+                // 'showreports' => 0,  // Default to 0
+                'visible' => $subject->status,  // Optional, default to 1
+                // 'hiddensections' => 0,  // Optional
+                // 'groupmode' => 0,  // Default to 0
+                // 'groupmodeforce' => 0,  // Default to 0
+                // 'defaultgroupingid' => 0,  // Default to 0
+                // 'enablecompletion' => 1,  // Optional, default to 1
+                // 'completionnotify' => 0,  // Optional, default to 0
+                'lang' => 'en',  // Optional
+            ]
         ];
-        $moodle_course = $this->http->get($this->url, $this->params)->json();
-        if (count($moodle_course) != 1) {
-            throw new \Exception('Found More Than One Program Or None');
-        }
 
-        return $moodle_course[0];
+        $query_params['courses'] = $courses;
+        $query_params['wsfunction'] = 'core_course_update_courses';
+
+        parent::update($query_params);
     }
 
     /**
-     * get array of categories "Programs"
+     * delete Subject On Moodle
      */
-    public function get()
+    public function destroy(Subject $subject)
     {
-        $this->params['wsfunction'] = 'core_course_get_categories';
-        $response = $this->http->get($this->url, $this->params);
-        return $response->json();
+        $query_params['courseids'][] = $subject->id_on_moodle;
+        $query_params['wsfunction'] = 'core_course_delete_courses';
+        parent::delete($query_params);
     }
+
+
+
+
 }

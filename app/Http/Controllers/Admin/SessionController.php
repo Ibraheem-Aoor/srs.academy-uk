@@ -174,7 +174,6 @@ class SessionController extends Controller
             $session->programs()->sync($request->programs);
 
         } catch (Throwable $e) {
-            dd($e);
             DB::rollBack();
             logError(e: $e, method: __METHOD__, class: get_class($this));
         }

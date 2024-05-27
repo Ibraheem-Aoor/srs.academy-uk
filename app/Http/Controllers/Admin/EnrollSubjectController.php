@@ -11,6 +11,9 @@ use App\Models\Section;
 use App\Models\Subject;
 use App\Models\Faculty;
 use App\Models\Session;
+use App\Services\Moodle\CourseService;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 use Toastr;
 
 class EnrollSubjectController extends Controller
@@ -30,10 +33,10 @@ class EnrollSubjectController extends Controller
         $this->access = 'enroll-subject';
 
 
-        $this->middleware('permission:'.$this->access.'-view|'.$this->access.'-create|'.$this->access.'-edit|'.$this->access.'-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:'.$this->access.'-create', ['only' => ['create','store']]);
-        $this->middleware('permission:'.$this->access.'-edit', ['only' => ['edit','update']]);
-        $this->middleware('permission:'.$this->access.'-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-create|' . $this->access . '-edit|' . $this->access . '-delete', ['only' => ['index', 'show']]);
+        $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:' . $this->access . '-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:' . $this->access . '-delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -51,10 +54,10 @@ class EnrollSubjectController extends Controller
         $data['access'] = $this->access;
 
         $data['faculties'] = Faculty::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
+            ->orderBy('title', 'asc')->get();
         $data['rows'] = EnrollSubject::orderBy('id', 'desc')->get();
-        $data['sessions']   =   Session::query()->status(1)->with('semester:id,title')->get(['id' , 'title']);
-        return view($this->view.'.index', $data);
+        $data['sessions'] = Session::query()->status(1)->with('semester:id,title')->get(['id', 'title']);
+        return view($this->view . '.index', $data);
     }
 
     /**
@@ -73,7 +76,7 @@ class EnrollSubjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, CourseService $moodle_course_service)
     {
         // dd(Session::find($request->session));
         // Field Validation
@@ -83,16 +86,24 @@ class EnrollSubjectController extends Controller
             'section' => 'nullable',
             'subjects' => 'required',
         ]);
-        // Insert Data
-        $enrollSubject = EnrollSubject::query()->firstOrCreate(
-            ['program_id' => $request->program, 'session_id' => $request->session],
-            ['program_id' => $request->program, 'session_id' => $request->session]
-        );
+        try {
+            DB::beginTransaction();
+            // Insert Data
+            $enrollSubject = EnrollSubject::query()->firstOrCreate(
+                ['program_id' => $request->program, 'session_id' => $request->session],
+                ['program_id' => $request->program, 'session_id' => $request->session]
+            );
+            $this->syncWithMoodle($request, $moodle_course_service);
+            // Attach Update
+            $enrollSubject->subjects()->sync($request->subjects);
+            DB::commit();
+            Toastr::success(__('msg_updated_successfully'), __('msg_success'));
+        } catch (Throwable $e) {
+            dd($e);
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+        }
 
-        // Attach Update
-        $enrollSubject->subjects()->sync($request->subjects);
-
-        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
         return redirect()->back();
     }
@@ -131,27 +142,27 @@ class EnrollSubjectController extends Controller
         $data['programs'] = Program::where('faculty_id', $enrollSubject->program->faculty_id)->where('status', '1')->orderBy('title', 'asc')->get();
 
         $semesters = Semester::where('status', 1);
-        $semesters->with('programs')->whereHas('programs', function ($query) use ($enrollSubject){
+        $semesters->with('programs')->whereHas('programs', function ($query) use ($enrollSubject) {
             $query->where('program_id', $enrollSubject->program_id);
         });
         $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
 
         $sections = Section::where('status', 1);
-        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($enrollSubject){
+        $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($enrollSubject) {
             $query->where('program_id', $enrollSubject->program_id);
             $query->where('semester_id', $enrollSubject->semester_id);
         });
         $data['sections'] = $sections->orderBy('title', 'asc')->get();
 
         $subjects = Subject::where('status', 1);
-        $subjects->with('programs')->whereHas('programs', function ($query) use ($enrollSubject){
+        $subjects->with('programs')->whereHas('programs', function ($query) use ($enrollSubject) {
             $query->where('program_id', $enrollSubject->program_id);
         });
         $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
-        $data['sessions']   =   Session::query()->status(1)->with('semester:id,title')->get(['id' , 'title']);
+        $data['sessions'] = Session::query()->status(1)->with('semester:id,title')->get(['id', 'title']);
 
 
-        return view($this->view.'.edit', $data);
+        return view($this->view . '.edit', $data);
     }
 
     /**
@@ -161,7 +172,7 @@ class EnrollSubjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, EnrollSubject $enrollSubject)
+    public function update(Request $request, EnrollSubject $enrollSubject, CourseService $moodle_course_service)
     {
         // Field Validation
         $request->validate([
@@ -170,24 +181,26 @@ class EnrollSubjectController extends Controller
             'section' => 'nullable',
             'subjects' => 'required',
         ]);
+        $enroll = EnrollSubject::where('id', '!=', $enrollSubject->id)->where('program_id', $request->program)->where('session_id', $request->session)->first();
 
-        $enroll = EnrollSubject::where('id', '!=', $enrollSubject->id)->where('program_id', $request->program)->where('semester_id', $request->semester)->where('section_id', $request->section)->first();
-
-        if(isset($enroll)){
-            Toastr::error(__('msg_data_already_exists'), __('msg_error'));
-        }
-        else
-        {
-            // Update Data
-            $enrollSubject->program_id = $request->program;
-            $enrollSubject->session_id = $request->session;
-            $enrollSubject->section_id = $request->section;
-            $enrollSubject->save();
-
-            // Attach Update
-            $enrollSubject->subjects()->sync($request->subjects);
-
-            Toastr::success(__('msg_updated_successfully'), __('msg_success'));
+        try {
+            if (isset($enroll)) {
+                Toastr::error(__('msg_data_already_exists'), __('msg_error'));
+            } else {
+                DB::beginTransaction();
+                // Update Data
+                $enrollSubject->program_id = $request->program;
+                $enrollSubject->session_id = $request->session;
+                $enrollSubject->section_id = $request->section;
+                $enrollSubject->save();
+                $this->syncWithMoodle($request, $moodle_course_service, $enrollSubject);
+                // Attach Update
+                $enrollSubject->subjects()->sync($request->subjects);
+                DB::commit();
+                Toastr::success(__('msg_updated_successfully'), __('msg_success'));
+            }
+        } catch (Throwable $e) {
+            dd($e);
         }
 
         return redirect()->back();
@@ -209,6 +222,39 @@ class EnrollSubjectController extends Controller
 
         Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
 
-        return redirect()->route($this->route.'.index');
+        return redirect()->route($this->route . '.index');
+    }
+
+
+
+    /**
+     * Sync The Subjects with Moodle
+     * Create Unexising Subjects on moodle
+     * Assign Subjects To Proper Sessions "categories" on moodle
+     */
+    public function syncWithMoodle(Request $request, CourseService $moodle_course_service, $enrollSubject = null)
+    {
+        $subjects = Subject::find($request->subjects);
+        $session = Session::query()->findOrFail($request->session);
+        // Create Or Update The Given Subjects
+        foreach ($subjects as $subject) {
+            // Check if the id_on_moodle is set which mean the subject is created on moodle regardless the category "session" else just update.
+            if (!isset($subject->id_on_moodle)) {
+                $created_course_on_moodle = $moodle_course_service->store($subject, $session->id_on_moodle);
+                $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
+                $subject->save();
+            } else {
+                $moodle_course_service->edit($subject, $session->id_on_moodle);
+            }
+        }
+        // Delete the subjects being removed
+        if (isset($enrollSubject)) {
+            foreach ($enrollSubject->subjects as $subject) {
+                $is_course_still_with_sesssion = in_array($subject->id, $request->subjects);
+                if (!$is_course_still_with_sesssion) {
+                    $moodle_course_service->destroy($subject);
+                }
+            }
+        }
     }
 }

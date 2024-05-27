@@ -176,7 +176,7 @@ class SubjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, CourseService $course_service)
+    public function store(Request $request)
     {
         // Field Validation
         $request->validate([
@@ -188,7 +188,6 @@ class SubjectController extends Controller
             'prerequisites.*.*' => 'required',
             'programs' => 'required|array',
             'programs.*' => 'required',
-            'category_on_moodle' => 'required',
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),
             'prerequisites.*.array' => __('invalid_prerequisites'),
@@ -217,9 +216,6 @@ class SubjectController extends Controller
             if (is_array($request->prerequisites)) {
                 $this->attachPrerequisites(subject: $subject, request: $request);
             }
-            // Create Subject On Moodle
-            $course_on_moodle = $course_service->create(subject: $subject, request: $request);
-            $subject->id_on_moodle = $course_on_moodle[0]['id'];
             $subject->save();
             DB::commit();
         } catch (Throwable $e) {
@@ -296,7 +292,6 @@ class SubjectController extends Controller
             'prerequisites.*.*' => 'required',
             'programs' => 'required|array',
             'programs.*' => 'required',
-            'category_on_moodle' => 'required',
 
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),
