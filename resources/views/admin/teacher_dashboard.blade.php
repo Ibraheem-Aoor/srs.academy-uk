@@ -206,6 +206,8 @@
     <!-- End Content-->
 
 @endsection
+@include('dialog.meeting_dialog')
+
 @section('page_js')
     <!-- Full calendar js -->
     <script src="{{ asset('dashboard/plugins/fullcalendar/js/lib/moment.min.js') }}"></script>

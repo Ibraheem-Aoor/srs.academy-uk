@@ -2,6 +2,11 @@
 @section('title', $title)
 
 @section('page_css')
+    <style>
+        .button-divs {
+            cursor: pointer !important;
+        }
+    </style>
     <!-- Full calendar css -->
     <link rel="stylesheet" href="{{ asset('dashboard/plugins/fullcalendar/css/fullcalendar.min.css') }}">
 @endsection
@@ -11,9 +16,9 @@
     <!-- Start Content-->
     <div class="main-body">
         <div class="page-wrapper">
-            <!-- [ Main Content ] start -->
+            <!-- START IAU SignIn -->
             <div class="row">
-                <div class="col-3">
+                <div class="col-sm-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">{{ __('University Library') }}</h5>
@@ -23,7 +28,7 @@
                     </div>
                 </div>
 
-                <div class="col-3">
+                <div class="col-sm-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">{{ __('IAU Study Room') }}</h5>
@@ -33,7 +38,7 @@
                     </div>
                 </div>
 
-                <div class="col-3">
+                <div class="col-sm-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">{{ __('IAU-AEB Study Room') }}</h5>
@@ -44,16 +49,53 @@
                 </div>
 
             </div>
+            <!-- END IAU Sign  -->
+
+            <div class="row">
+                <!-- [ bitcoin-wallet section ] start-->
+                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                    onclick='window.location.href="{{ route('student.transcript.index') }}"'>
+                    <div class="card bg-c-blue bitcoin-wallet">
+                        <div class="card-block">
+                            <h5 class="text-white mb-2">
+                                {{ trans_choice('field_grades', 1) }}</h5>
+                            <i class="fa-solid fa-scroll f-70 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                    onclick='window.location.href="{{ route('student.fees.index') }}"'>
+                    <div class="card bg-c-blue bitcoin-wallet">
+                        <div class="card-block">
+                            <h5 class="text-white mb-2"> {{ trans_choice('module_fees_report', 1) }}
+                            </h5>
+                            <i class="fas fa-money-bill-wave f-70 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                    onclick='window.location.href="{{ route('student.exam-routine.index') }}"'>
+                    <div class="card bg-c-blue bitcoin-wallet">
+                        <div class="card-block">
+                            <h5 class="text-white mb-2">{{ __('field_exam') }}
+                            </h5>
+                            <i class="fas fa-file-alt f-70 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- [ bitcoin-wallet section ] end-->
+            </div>
+
             <div class="row">
 
-                @php
+                {{-- @php
                     function field($slug)
                     {
                         return \App\Models\Field::field($slug);
                     }
-                @endphp
+                @endphp --}}
 
-                @if (field('panel_assignment')->status == 1)
+                {{-- @if (field('panel_assignment')->status == 1)
                     <div class="col-sm-12 col-lg-12">
                         <div class="card">
                             @if (isset($assignments))
@@ -100,9 +142,9 @@
                             @endif
                         </div>
                     </div>
-                @endif
+                @endif --}}
 
-                @if (field('panel_fees_report')->status == 1)
+                {{-- @if (field('panel_fees_report')->status == 1)
                     <div class="col-sm-12 col-lg-6">
                         <div class="card">
                             @if (isset($fees))
@@ -210,10 +252,77 @@
                             </div>
                         </div>
                     </div>
-                @endif
+                @endif --}}
 
             </div>
+            {{-- Start Class Schedule --}}
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>{{ trans_choice('module_class_routine' , 1) }}</h5>
+                        </div>
+                        @if (isset($class_routine_rows))
+                            <div class="card-block">
+                                <!-- [ Data table ] start -->
+                                <div class="table-responsive">
+                                    <table class="table class-routine-table">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('day_saturday') }}</th>
+                                                <th>{{ __('day_sunday') }}</th>
+                                                <th>{{ __('day_monday') }}</th>
+                                                <th>{{ __('day_tuesday') }}</th>
+                                                <th>{{ __('day_wednesday') }}</th>
+                                                <th>{{ __('day_thursday') }}</th>
+                                                <th>{{ __('day_friday') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php
+                                                $weekdays = ['1', '2', '3', '4', '5', '6', '7'];
+                                            @endphp
+                                            <tr>
+                                                @foreach ($weekdays as $weekday)
+                                                    <td>
+                                                        @foreach ($class_routine_rows->where('day', $weekday) as $row)
+                                                            <a href="javascript:void(0);"
+                                                                onclick="MeetingDialog.show(<?= $row->id ?>);">
+                                                                <div class="class-time">
+                                                                    {{ $row->subject->code ?? '' }}<br>
+                                                                    @if (isset($setting->time_format))
+                                                                        {{ date($setting->time_format, strtotime($row->start_time)) }}
+                                                                    @else
+                                                                        {{ date('h:i A', strtotime($row->start_time)) }}
+                                                                    @endif <br />
+                                                                    @if (isset($setting->time_format))
+                                                                        {{ date($setting->time_format, strtotime($row->end_time)) }}
+                                                                    @else
+                                                                        {{ date('h:i A', strtotime($row->end_time)) }}
+                                                                    @endif
+                                                                    <br>
+                                                                    {{ __('field_room') }}:
+                                                                    {{ $row->room->title ?? '' }}<br>
+                                                                    {{ $row->teacher->first_name ?? '' }}
+                                                                    {{ $row->teacher->last_name ?? '' }}
+                                                                </div>
+                                                            </a>
+                                                        @endforeach
+                                                    </td>
+                                                @endforeach
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- [ Data table ] end -->
+                            </div>
+                        @endif
 
+                    </div>
+                </div>
+            </div>
+            {{-- End Class Schedule --}}
+            {{-- Start Calendar --}}
             <div class="row">
                 <div class="col-xl-8 col-md-8 col-sm-12">
                     <div class="card">
@@ -267,12 +376,15 @@
                 </div>
                 <!-- [Event List] end -->
             </div>
+            {{-- End Calendar --}}
             <!-- [ Main Content ] end -->
         </div>
     </div>
     <!-- End Content-->
 
+
 @endsection
+@include('dialog.meeting_dialog')
 
 @section('page_js')
     <!-- Full calendar js -->

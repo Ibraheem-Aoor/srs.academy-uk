@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClassRoutine;
 use App\Models\StudentAssignment;
 use App\Models\StudentEnroll;
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ use App\Models\Student;
 use App\Models\Event;
 use App\Models\Fee;
 use Carbon\Carbon;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -44,46 +45,66 @@ class DashboardController extends Controller
         $student_id = Auth::guard('student')->user()->id;
         $current_session = Session::where('status', '1')->where('current', '1')->first();
 
-        if(isset($current_session)){
+        if (isset($current_session)) {
             $enroll = StudentEnroll::where('student_id', $student_id)
-                            ->where('session_id', $current_session->id)
-                            ->where('status', '1')
-                            ->first();
+                ->where('session_id', $current_session->id)
+                ->where('status', '1')
+                ->first();
 
-            if(isset($enroll)){
+            if (isset($enroll)) {
                 $session = $enroll->session_id;
                 $semester = $enroll->semester_id;
+
+
+                if (isset($current_session)) {
+                    $enroll = StudentEnroll::where('student_id', Auth::guard('student')->user()->id)
+                        ->where('session_id', $current_session->id)
+                        ->where('status', '1')
+                        ->first();
+                }
+
+                // Class Routine
+                if (isset($enroll) && isset($current_session)) {
+                    $data['class_routine_rows'] = ClassRoutine::where('status', '1')
+                        ->where('session_id', $enroll->session_id)
+                        ->whereHas('programs', function ($programs) use ($enroll) {
+                            $programs->where('program_id', $enroll->program_id);
+                        })
+                        ->where('semester_id', $enroll->semester_id)
+                        ->orderBy('start_time', 'asc')
+                        ->get();
+                }
             }
         }
 
 
         // Assignments
-        if(isset($enroll) && isset($session) && isset($semester)){
-        $assignments = StudentAssignment::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($student_id, $session, $semester){
-            $query->where('student_id', $student_id);
-            $query->where('session_id', $session);
-            $query->where('semester_id', $semester);
-        });
-        $assignments->with('assignment')->whereHas('assignment', function ($query){
-            $query->where('start_date', '<=', Carbon::today());
-        });
+        if (isset($enroll) && isset($session) && isset($semester)) {
+            $assignments = StudentAssignment::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($student_id, $session, $semester) {
+                $query->where('student_id', $student_id);
+                $query->where('session_id', $session);
+                $query->where('semester_id', $semester);
+            });
+            $assignments->with('assignment')->whereHas('assignment', function ($query) {
+                $query->where('start_date', '<=', Carbon::today());
+            });
 
-        $data['assignments'] = $assignments->orderBy('id', 'desc')->limit(10)->get();
+            $data['assignments'] = $assignments->orderBy('id', 'desc')->limit(10)->get();
         }
 
 
         // Fees
-        if(isset($enroll) && isset($session) && isset($semester)){
-        $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($student_id, $session, $semester){
-            $query->where('student_id', $student_id);
-            $query->where('session_id', $session);
-            $query->where('semester_id', $semester);
-        });
+        if (isset($enroll) && isset($session) && isset($semester)) {
+            $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($student_id, $session, $semester) {
+                $query->where('student_id', $student_id);
+                $query->where('session_id', $session);
+                $query->where('semester_id', $semester);
+            });
 
-        $data['fees'] = $fees->where('status', '<=', '1')
-                        ->orderBy('assign_date', 'desc')
-                        ->limit(10)
-                        ->get();
+            $data['fees'] = $fees->where('status', '<=', '1')
+                ->orderBy('assign_date', 'desc')
+                ->limit(10)
+                ->get();
         }
 
 
@@ -91,12 +112,12 @@ class DashboardController extends Controller
         $data['events'] = Event::where('status', '1')->orderBy('id', 'asc')->get();
 
         $data['latest_events'] = Event::where('status', '1')
-                            ->where('end_date', '>=', Carbon::today())
-                            ->orderBy('start_date', 'asc')
-                            ->limit(10)
-                            ->get();
+            ->where('end_date', '>=', Carbon::today())
+            ->orderBy('start_date', 'asc')
+            ->limit(10)
+            ->get();
 
 
-        return view($this->view.'.index', $data);
+        return view($this->view . '.index', $data);
     }
 }
