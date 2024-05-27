@@ -9,6 +9,9 @@ use App\Models\Session;
 use App\Models\Program;
 use App\Models\Semester;
 use App\Models\StudentEnroll;
+use App\Services\Moodle\SessionService;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 use Toastr;
 
 class SessionController extends Controller
@@ -71,7 +74,7 @@ class SessionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, SessionService $moodle_session_service)
     {
         // Field Validation
         $request->validate([
@@ -83,24 +86,33 @@ class SessionController extends Controller
 
         ]);
 
-        // Insert Data
-        $session = new Session;
-        $session->title = $request->title;
-        $session->start_date = $request->start_date;
-        $session->end_date = $request->end_date;
-        $session->current = 1;
-        $session->semester_id = $request->semester_id;
-        $session->save();
+        try {
 
-        // Unset current
-        Session::where('id', '!=', $session->id)->update([
-            'current' => 0
-        ]);
+            DB::beginTransaction();
+            // Insert Data
+            $session = new Session;
+            $session->title = $request->title;
+            $session->start_date = $request->start_date;
+            $session->end_date = $request->end_date;
+            $session->current = 1;
+            $session->semester_id = $request->semester_id;
+            $session->save();
+            // Unset current
+            Session::where('id', '!=', $session->id)->update([
+                'current' => 0
+            ]);
+            // Create Session 'mdl_category' On Moodle
+            $session_on_moodle = $moodle_session_service->store($session);
+            $session->id_on_moodle = $session_on_moodle[0]['id'];
+            $session->save();
+            DB::commit();
+            $session->programs()->attach($request->programs);
 
-        $session->programs()->attach($request->programs);
-
-
-        Toastr::success(__('msg_created_successfully'), __('msg_success'));
+            Toastr::success(__('msg_created_successfully'), __('msg_success'));
+        } catch (Throwable $e) {
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+        }
 
         return redirect()->back();
     }
@@ -134,7 +146,7 @@ class SessionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Session $session)
+    public function update(Request $request, Session $session, SessionService $moodle_session_service)
     {
         // Field Validation
         $request->validate([
@@ -144,21 +156,28 @@ class SessionController extends Controller
             'programs' => 'required',
             'semester_id' => ['required', 'exists:semesters,id', new SessionDateWithinSemesterPeriodRule(start_date: $request->start_date, end_date: $request->end_date)],
         ]);
+        try {
+            DB::beginTransaction();
+            // Update Data
+            $session->title = $request->title;
+            $session->start_date = $request->start_date;
+            $session->end_date = $request->end_date;
+            //Current Session Must Be Active.
+            if ($session->current != 1) {
+                $session->status = $request->status;
+            }
+            $session->semester_id = $request->semester_id;
+            $session->save();
 
-        // Update Data
-        $session->title = $request->title;
-        $session->start_date = $request->start_date;
-        $session->end_date = $request->end_date;
-        //Current Session Must Be Active.
-        if($session->current != 1){
-            $session->status = $request->status;
+            DB::commit();
+            $moodle_session_service->edit($session);
+            $session->programs()->sync($request->programs);
+
+        } catch (Throwable $e) {
+            dd($e);
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
         }
-        $session->semester_id = $request->semester_id;
-        $session->save();
-
-        $session->programs()->sync($request->programs);
-
-
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
         return redirect()->back();
@@ -170,11 +189,19 @@ class SessionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Session $session)
+    public function destroy(Session $session , SessionService $moodle_session_service)
     {
-        // Delete Data
-        $session->programs()->detach();
-        $session->delete();
+        try {
+            // Delete Data
+            DB::beginTransaction();
+            $session->programs()->detach();
+            $session->delete();
+            $moodle_session_service->destroy($session);
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+        }
 
         Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
 

@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('programs', function (Blueprint $table) {
-            // Deprecated.
-            $table->string('id_on_moodle')->after('required_courses')->nullable();
+        Schema::table('sessions', function (Blueprint $table) {
+            $table->string('id_on_moodle')->after('current')->nullable();
         });
     }
 
@@ -26,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('programs', function (Blueprint $table) {
-            $table->dropColumn('id_on_moodle');
+        Schema::table('sessions', function (Blueprint $table) {
+            $table->dropColumn(['id_on_moodle']);
         });
     }
 };

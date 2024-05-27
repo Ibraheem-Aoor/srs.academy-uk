@@ -75,7 +75,7 @@ class ProgramController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, ProgramService $moodle_program_service)
+    public function store(Request $request)
     {
         // Field Validation
         $request->validate([
@@ -100,11 +100,6 @@ class ProgramController extends Controller
             $program->slug = Str::slug($request->title, '-');
             $program->shortcode = $request->shortcode;
             $program->registration = $registration;
-            $program->save();
-
-            // Create Program On Moodle
-            $program_on_moodle =  $moodle_program_service->create($program);
-            $program->id_on_moodle = $program_on_moodle[0]['id'];
             $program->save();
             DB::commit();
 
@@ -151,7 +146,7 @@ class ProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Program $program, ProgramService $moodle_program_service)
+    public function update(Request $request, Program $program)
     {
         // Field Validation
         $request->validate([
@@ -178,7 +173,6 @@ class ProgramController extends Controller
             $program->status = $request->status;
             $program->save();
             // Create Program On Moodle
-            $moodle_program_service->update($program, $program_title_before_update);
             DB::commit();
             Toastr::success(__('msg_updated_successfully'), __('msg_success'));
             return redirect()->back();
@@ -195,14 +189,12 @@ class ProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Program $program, ProgramService $program_service)
+    public function destroy(Program $program)
     {
         try {
             DB::beginTransaction();
             // Delete Data
             $program->delete();
-            // Delete On Moodle
-            $program_service->delete($program);
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();

@@ -20,7 +20,8 @@ class Session extends Model
         'end_date',
         'current',
         'status',
-        'semester_id'
+        'semester_id',
+        'id_on_moodle',
     ];
 
     public function programs()
