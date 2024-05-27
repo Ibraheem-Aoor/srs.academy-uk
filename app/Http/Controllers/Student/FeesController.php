@@ -77,9 +77,9 @@ class FeesController extends Controller
                 $data['selected_semester'] = $session->semester_id;
                 $query->where('session_id', $session)->where('semester_id', $data['selected_semester']);
             }
-        })->orWhereDate('assign_date', $session->start_date)
-            ->orWhereDate('due_date', $session->end_date)
-            ->orWhereBetween('pay_date', [$session->start_date, $session->end_date]);
+        })->orWhereDate('assign_date', @$session->start_date)
+            ->orWhereDate('due_date', @$session->end_date)
+            ->orWhereBetween('pay_date', [@$session->start_date, @$session->end_date]);
         if (!empty($request->category)) {
             $fees->where('category_id', $category);
         }

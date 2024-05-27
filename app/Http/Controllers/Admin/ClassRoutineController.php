@@ -140,6 +140,7 @@ class ClassRoutineController extends Controller
             $data['rows'] = $routines->orderBy('start_time', 'asc')->get();
         }
         $data['is_mulit_programs'] = Route::currentRouteName() == 'admin.class-routine.index';
+
         return view($this->view . '.index', $data);
     }
 

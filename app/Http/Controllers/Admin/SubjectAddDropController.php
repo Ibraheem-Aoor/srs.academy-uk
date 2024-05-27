@@ -8,8 +8,12 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Grade;
+use App\Services\Moodle\StudentEnrollService;
 use Toastr;
 use Auth;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class SubjectAddDropController extends Controller
 {
@@ -47,7 +51,7 @@ class SubjectAddDropController extends Controller
 
 
         $data['students'] = Student::whereHas('currentEnroll')->where('status', '1')->orderBy('student_id', 'asc')->get();
-        
+
         if(!empty($request->student) && $request->student != Null){
 
             $data['selected_student'] = $request->student;
@@ -88,7 +92,7 @@ class SubjectAddDropController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request , StudentEnrollService $studentEnrollService)
     {
         // Field Validation
         $request->validate([
@@ -101,10 +105,17 @@ class SubjectAddDropController extends Controller
         $enroll = StudentEnroll::where('student_id', $request->student)
                                 ->where('status', '1')
                                 ->orderBy('id', 'desc')->first();
-
-        $enroll->subjects()->sync($request->subjects);
-
-
+        try{
+            DB::beginTransaction();
+            $enroll->subjects()->sync($request->subjects);
+            // $studentEnrollService->sync($enroll);
+            DB::commit();
+        }catch(Throwable $e)
+        {
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
+            return back();
+        }
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
         return redirect()->back();

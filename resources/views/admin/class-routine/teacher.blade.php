@@ -45,7 +45,7 @@
 
 
                         @if (isset($rows))
-                            <div class="card-block">
+                            <div class="card-block bg-dark">
                                 <!-- [ Data table ] start -->
                                 <div class="table-responsive">
                                     <table class="table class-routine-table">

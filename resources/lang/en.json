@@ -830,5 +830,8 @@
     "field_session_total":"Session Total Fees",
     "field_program_total":"Program Total Fees",
     "Moodle_Error": "Moodle Error",
-    "field_category_on_moodle" : "Category On Moodle"
+    "field_category_on_moodle" : "Category On Moodle",
+    "University Library" : "University Library",
+    "IAU Study Room" : "IAU Study Room",
+    "IAU-AEB Study Room" : "IAU-AEB Study Room"
 }
