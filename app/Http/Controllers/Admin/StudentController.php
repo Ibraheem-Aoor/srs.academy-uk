@@ -29,6 +29,7 @@ use App\Models\Grade;
 use App\Models\Fee;
 use App\Models\PrintSetting;
 use App\Services\Moodle\StudentService;
+use App\Traits\StudentModuleTrait;
 use Carbon\Carbon;
 use Toastr;
 use Auth;
@@ -38,7 +39,7 @@ use DB;
 
 class StudentController extends Controller
 {
-    use FileUploader;
+    use FileUploader , StudentModuleTrait;
 
     /**
      * Create a new controller instance.
@@ -827,19 +828,4 @@ class StudentController extends Controller
     }
 
 
-    public function printFinancialAgreement(Student $student)
-    {
-        $data['title'] = trans_choice('module_fees_report', 1);
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = 'print-setting';
-        // Getting all student fees regaring the enrollement "because enrollments changed according to sessions and we don't konow when the admin adding the fees".
-        $student_enrollments = $student->studentEnrolls()->pluck('id')->toArray();
-        // View
-        $data['print'] = PrintSetting::where('slug', 'fees-receipt')->firstOrFail();
-        $data['rows'] = Fee::query()->whereIn('student_enroll_id', array_values($student_enrollments))->get()->groupBy('assign_date');
-        $data['student'] = $student;
-        return view($this->view . '.financial_agreement', $data);
-
-    }
 }

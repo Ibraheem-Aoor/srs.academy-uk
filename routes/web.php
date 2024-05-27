@@ -539,6 +539,8 @@ Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')-
     // Fees Routes
     Route::get('fees', 'FeesController@index')->name('fees.index');
     Route::post('fees', 'FeesController@store')->name('fees.store');
+    Route::get('fees/{student}/financial-agreement', 'FeesController@printFinancialAgreement')->name('fees.print-financial-agreement');
+
 
     // Library Routes
     Route::get('library', 'LibraryController@index')->name('library.index');

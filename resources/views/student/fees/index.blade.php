@@ -65,6 +65,11 @@
                                         <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-search"></i>
                                             {{ __('btn_filter') }}</button>
                                     </div>
+                                    <div class="form-group col-md-6">
+                                        <a href="{{ route($route.'.print-financial-agreement',$auth_student->id) }}"
+                                            target="__blank" class="btn btn-info btn-sm"><i class="fas fa-print"></i>
+                                            {{ __('financial_agreement') }}</a>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -228,7 +233,8 @@
                                                         <td></td>
                                                         <td>
                                                             @if ($row->status != 1 && $row->status != 2 && !isset($row->prove_file_path))
-                                                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-fee_id="{{ encrypt($row->id) }}"
+                                                                <button class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                                                    data-fee_id="{{ encrypt($row->id) }}"
                                                                     data-bs-target="#payModal"><i class="fas fa-card"></i>
                                                                     {{ __('btn_pay') }}</button>
                                                             @endif
@@ -350,7 +356,7 @@
 @endsection
 @section('page_js')
     <script>
-        $(document).on('show.bs.modal' , '#payModal' , function(e){
+        $(document).on('show.bs.modal', '#payModal', function(e) {
             var src = e.relatedTarget;
             $(this).find('input[name="fee_id"]').val(src.dataset.fee_id);
         });

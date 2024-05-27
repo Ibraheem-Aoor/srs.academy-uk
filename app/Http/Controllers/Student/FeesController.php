@@ -12,6 +12,7 @@ use App\Models\Fee;
 use App\Models\Session;
 use App\Notifications\Admin\ProvePaymentUplaoded;
 use App\Traits\FileUploader;
+use App\Traits\StudentModuleTrait;
 use App\User;
 use Auth;
 use Illuminate\Support\Facades\Notification;
@@ -19,7 +20,7 @@ use Throwable;
 
 class FeesController extends Controller
 {
-    use FileUploader;
+    use FileUploader , StudentModuleTrait;
     /**
      * Create a new controller instance.
      *
@@ -84,7 +85,7 @@ class FeesController extends Controller
             $fees->where('category_id', $category);
         }
         $data['rows'] = $fees->where('status', '<=', '1')->orderBy('assign_date', 'desc')->get();
-
+        $data['auth_student'] = getAuthUser('student');
         return view($this->view . '.index', $data);
     }
 
