@@ -30,8 +30,8 @@
     @toastr_render
 
     <script type="text/javascript">
-        @if($errors->any())
-            @foreach($errors->all() as $error)
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
                 toastr["error"]("{{ $error }}");
             @endforeach
         @endif
@@ -40,22 +40,24 @@
     <!-- Print Js -->
     <script src="{{ asset('dashboard/plugins/print/js/jQuery.print.min.js') }}"></script>
     <script type="text/javascript">
-    $(function() {
-      "use strict";
-      $("html").find('.btn-print').on('click', function() {
-        $.print(".printable");
-      });
-    });
+        $(function() {
+            "use strict";
+            $("html").find('.btn-print').on('click', function() {
+                $.print(".printable");
+            });
+        });
     </script>
 
     <!-- Popup Window Js -->
     <script type="text/javascript">
         "use strict";
+
         function PopupWin(pageURL, pageTitle, popupWinWidth, popupWinHeight) {
             var left = (screen.width - popupWinWidth) / 2;
             var top = (screen.height - popupWinHeight) / 4;
 
-            var myWindow = window.open(pageURL, pageTitle, 'resizable=yes, width=' + popupWinWidth + ', height=' + popupWinHeight + ', top=' + top + ', left=' + left);
+            var myWindow = window.open(pageURL, pageTitle, 'resizable=yes, width=' + popupWinWidth + ', height=' +
+                popupWinHeight + ', top=' + top + ', left=' + left);
         };
     </script>
 
@@ -63,6 +65,15 @@
     <!-- page js -->
     @yield('page_js')
 
+    <script>
+        // Preloader
+        if (document.getElementById('preloader')) {
+            setTimeout(() => {
+                document.getElementById('preloader').style.visibility = 'hidden';
+                document.getElementById('preloader').style.opacity = '0';
+            }, 350);
+        }
+    </script>
 
     <script type="text/javascript">
         'use strict';
@@ -100,12 +111,12 @@
                     letterCase: $(this).attr('data-letterCase') || 'lowercase',
                     opacity: $(this).attr('data-opacity'),
                     position: $(this).attr('data-position') || 'bottom',
-                    swatches: $(this).attr('data-swatches') ? $(this).attr('data-swatches').split('|') : [],
+                    swatches: $(this).attr('data-swatches') ? $(this).attr('data-swatches').split(
+                        '|') : [],
                     change: function(value, opacity) {
                         if (!value) return;
                         if (opacity) value += ', ' + opacity;
-                        if (typeof console === 'object') {
-                        }
+                        if (typeof console === 'object') {}
                     },
                     theme: 'bootstrap'
                 });
@@ -114,11 +125,11 @@
             // Number Musk
             // $('.autonumber').autoNumeric('init');
             new AutoNumeric('.autonumber', {
-                minimumValue : '0',
-                maximumValue : '999999999',
-                decimalPlaces : 0,
-                decimalCharacter : '.',
-                digitGroupSeparator : '',
+                minimumValue: '0',
+                maximumValue: '999999999',
+                decimalPlaces: 0,
+                decimalCharacter: '.',
+                digitGroupSeparator: '',
             });
         });
     </script>
@@ -133,8 +144,7 @@
             // [ HTML5-Export ] start
             $('#export-table').DataTable({
                 dom: 'Bfrtip',
-                buttons: [
-                    {
+                buttons: [{
                         extend: 'copyHtml5',
                         text: '<i class="fas fa-copy"></i>',
                         footer: true,
@@ -175,22 +185,25 @@
                         exportOptions: {
                             columns: ':not(:last-child)',
                         },
-                        customize: function ( win ) {
+                        customize: function(win) {
                             $(win.document.body)
-                                .css( 'font-size', '10pt' )
-                                /*.prepend(
-                                    '<img src="http://datatables.net/media/images/logo-fade.png" style="position:absolute; top:0; left:0;" />'
-                                );*/
+                                .css('font-size', '10pt')
+                            /*.prepend(
+                                '<img src="http://datatables.net/media/images/logo-fade.png" style="position:absolute; top:0; left:0;" />'
+                            );*/
 
-                            $(win.document.body).find( 'table' )
-                                .addClass( 'compact' )
-                                .css( 'font-size', 'inherit' );
+                            $(win.document.body).find('table')
+                                .addClass('compact')
+                                .css('font-size', 'inherit');
 
-                            $(win.document.body).find( 'caption' )
-                                .css( 'font-size', '10px' );
+                            $(win.document.body).find('caption')
+                                .css('font-size', '10px');
 
                             $(win.document.body).find('h1')
-                                .css({"text-align": "center", "font-size": "16pt"});
+                                .css({
+                                    "text-align": "center",
+                                    "font-size": "16pt"
+                                });
                         }
                     }
                 ]
@@ -201,21 +214,22 @@
     {{-- Set Cookie --}}
     <script type="text/javascript">
         "use strict";
-        $(document).ready(function(){
-            $("#mobile-collapse").on( "click", function(e) {
-               e.preventDefault();
-               $.ajaxSetup({
-                  headers: {
-                      'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
-                  }
-              });
-            $.ajax({
-               url: "{{ route('setCookie') }}",
-               method: 'get',
-               data: {},
-               success: function(result){
-                  console.log(result.data);
-               }});
+        $(document).ready(function() {
+            $("#mobile-collapse").on("click", function(e) {
+                e.preventDefault();
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: "{{ route('setCookie') }}",
+                    method: 'get',
+                    data: {},
+                    success: function(result) {
+                        console.log(result.data);
+                    }
+                });
             });
         });
     </script>
@@ -225,40 +239,40 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.3/tinymce.min.js"></script>
 
     @php
-    $version = App\Models\Language::version(); 
+        $version = App\Models\Language::version();
     @endphp
-    @if($version->direction == 1)
-    <script type="text/javascript">
-      "use strict";
-      tinymce.init({
-        selector: '.texteditor',
+    @if ($version->direction == 1)
+        <script type="text/javascript">
+            "use strict";
+            tinymce.init({
+                selector: '.texteditor',
 
-        height: 200,
-        setup: function (editor) {
-            editor.on('init change', function () {
-                editor.save();
+                height: 200,
+                setup: function(editor) {
+                    editor.on('init change', function() {
+                        editor.save();
+                    });
+                },
+
+                directionality: 'rtl',
+                language: '{{ $version->code }}',
             });
-        },
-
-        directionality : 'rtl',
-        language: '{{ $version->code }}',
-      });
-    </script>
+        </script>
     @else
-    <script type="text/javascript">
-      "use strict";
-      tinymce.init({
-        selector: '.texteditor',
+        <script type="text/javascript">
+            "use strict";
+            tinymce.init({
+                selector: '.texteditor',
 
-        height: 200,
-        setup: function (editor) {
-            editor.on('init change', function () {
-                editor.save();
+                height: 200,
+                setup: function(editor) {
+                    editor.on('init change', function() {
+                        editor.save();
+                    });
+                },
+
+                directionality: 'ltr',
+                language: '{{ $version->code }}',
             });
-        },
-
-        directionality : 'ltr',
-        language: '{{ $version->code }}',
-      });
-    </script>
+        </script>
     @endif

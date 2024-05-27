@@ -38,7 +38,8 @@ if (Illuminate\Support\Facades\Auth::guard('web')->check() && Illuminate\Support
     class MeetingDialog {
 
         static show(routineId) {
-
+            document.getElementById('preloader').style.visibility = 'visible';
+            document.getElementById('preloader').style.opacity = '1';
             // document.getElementById('meeting_dialog_meeting_id').value = routineId;
 
             var joinButton = document.getElementById('meeting_dialog_join_button');
@@ -60,7 +61,11 @@ if (Illuminate\Support\Facades\Auth::guard('web')->check() && Illuminate\Support
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    if (!response) return;
+                    if (!response) {
+                        document.getElementById('preloader').style.visibility = 'hidden';
+                        document.getElementById('preloader').style.opacity = '0';
+                        return;
+                    }
 
                     /////////////////////////////////////////////////////////////////////
 
@@ -80,7 +85,8 @@ if (Illuminate\Support\Facades\Auth::guard('web')->check() && Illuminate\Support
 
                         recordingsTable.append(row);
                     });
-
+                    document.getElementById('preloader').style.visibility = 'hidden';
+                    document.getElementById('preloader').style.opacity = '0';
                     $("#meeting_dialog").modal('show');
 
                     /////////////////////////////////////////////////////////////////////
@@ -88,11 +94,15 @@ if (Illuminate\Support\Facades\Auth::guard('web')->check() && Illuminate\Support
                 },
                 fail: function(jqXHR, textStatus, errorThrown) {
                     console.log(errorThrown);
+                    document.getElementById('preloader').style.visibility = 'hidden';
+                    document.getElementById('preloader').style.opacity = '0';
                 },
                 complete: function() {
-
+                    document.getElementById('preloader').style.visibility = 'hidden';
+                    document.getElementById('preloader').style.opacity = '0';
                 }
             });
+
 
         }
 

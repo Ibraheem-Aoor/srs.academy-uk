@@ -7,7 +7,7 @@
         @if(isset($setting))
         <!-- App Title -->
         <title>@yield('title') | {{ $setting->meta_title ?? '' }}</title>
-        
+
         <meta name="description" content="{!! str_limit(strip_tags($setting->meta_description), 160, ' ...') !!}">
         <meta name="keywords" content="{!! strip_tags($setting->meta_keywords) !!}">
 
@@ -35,16 +35,16 @@
         <!-- toastr css -->
         <link rel="stylesheet" href="{{ asset('dashboard/plugins/toastr/css/toastr.min.css') }}">
 
-        
+
         <!-- page css -->
         @yield('page_css')
 
 
         <!-- vendor css -->
-        <link rel="stylesheet" href="{{ asset('dashboard/css/style.css') }}" type="text/css" media="screen, print">
+        <link rel="stylesheet" href="{{ asset('dashboard/css/style.css') }}?v=0.01" type="text/css" media="screen, print">
 
-        @php 
-        $version = App\Models\Language::version(); 
+        @php
+        $version = App\Models\Language::version();
         @endphp
         @if($version->direction == 1)
         <!-- RTL css -->
