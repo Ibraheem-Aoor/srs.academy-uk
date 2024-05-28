@@ -40,6 +40,7 @@ class BaseService
             )->json();
             return isset($response) && !isset($response['exception']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
         } catch (Throwable $e) {
+            dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this));
             return back();
         }
@@ -68,7 +69,9 @@ class BaseService
         }
     }
 
-
+    /**
+     * Delete Resource From Moodle.
+     */
     public function delete(array $query_params = [])
     {
         try {
@@ -81,6 +84,7 @@ class BaseService
             // This Response Is Nullable.
             return !isset($response['exception']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
         } catch (Throwable $e) {
+            dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this), custom_message: __('Moodle_Error'));
             throw new \Exception($e);
         }

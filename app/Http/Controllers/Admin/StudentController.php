@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Rules\MoodlePassword;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
@@ -35,11 +36,11 @@ use Toastr;
 use Auth;
 use Hash;
 use Mail;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
-    use FileUploader , StudentModuleTrait;
+    use FileUploader, StudentModuleTrait;
 
     /**
      * Create a new controller instance.
@@ -230,7 +231,7 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request , StudentService $student_service)
+    public function store(Request $request, StudentService $student_service)
     {
         // Field Validation
         $request->validate([
@@ -250,12 +251,10 @@ class StudentController extends Controller
         ]);
 
         // Random Password
-        $password = str_random(8);
-
+        $password = generate_moodle_password();
         // Insert Data
         try {
             DB::beginTransaction();
-
             $student = new Student;
             $student->student_id = $request->student_id;
             $student->batch_id = $request->batch;
@@ -387,8 +386,8 @@ class StudentController extends Controller
             }
 
 
-            $student_on_moodle = $student_service->create($student , $request , $password);
-            $student->id_on_moodle =  $student_on_moodle[0]['id'];
+            $student_on_moodle = $student_service->store($student, $password);
+            $student->id_on_moodle = $student_on_moodle[0]['id'];
             $student->save();
             DB::commit();
 
@@ -470,7 +469,7 @@ class StudentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Student $student)
+    public function update(Request $request, Student $student, StudentService $moodle_student_service)
     {
         // Field Validation
         $request->validate([
@@ -598,7 +597,7 @@ class StudentController extends Controller
                     }
                 }
             }
-
+            $moodle_student_service->edit($student);
             DB::commit();
 
 
@@ -606,7 +605,7 @@ class StudentController extends Controller
 
             return redirect()->back();
         } catch (\Exception $e) {
-
+            DB::rollBack();
             Toastr::error(__('msg_updated_error'), __('msg_error'));
 
             return redirect()->back();
@@ -619,28 +618,36 @@ class StudentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Student $student)
+    public function destroy(Student $student , StudentService $moodle_student_service)
     {
-        DB::beginTransaction();
-        // Delete
-        $this->deleteMultiMedia($this->path, $student, 'photo');
-        $this->deleteMultiMedia($this->path, $student, 'signature');
+        try {
 
-        // Detach
-        $student->relatives()->delete();
-        $student->statuses()->detach();
-        $student->documents()->detach();
-        $student->contents()->detach();
-        $student->notices()->detach();
-        $student->member()->delete();
-        $student->hostelRoom()->delete();
-        $student->transport()->delete();
-        $student->notes()->delete();
+            DB::beginTransaction();
+            // Delete
+            $this->deleteMultiMedia($this->path, $student, 'photo');
+            $this->deleteMultiMedia($this->path, $student, 'signature');
 
-        $student->delete();
-        DB::commit();
+            // Detach
+            $student->relatives()->delete();
+            $student->statuses()->detach();
+            $student->documents()->detach();
+            $student->contents()->detach();
+            $student->notices()->detach();
+            $student->member()->delete();
+            $student->hostelRoom()->delete();
+            $student->transport()->delete();
+            $student->notes()->delete();
+            $student->delete();
+            $moodle_student_service->destroy($student);
+            DB::commit();
+            Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Toastr::error(__('msg_updated_error'), __('msg_error'));
 
-        Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
+            return redirect()->back();
+        }
+
 
         return redirect()->back();
     }
@@ -735,22 +742,31 @@ class StudentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function passwordChange(Request $request)
+    public function passwordChange(Request $request, StudentService $moodle_student_service)
     {
         // Field Validation
         $request->validate([
             'student_id' => 'required',
-            'password' => 'required|confirmed|min:8',
+            'password' => ['required', 'confirmed', 'min:8', new MoodlePassword],
         ]);
+        try {
+            // Update Data
+            DB::beginTransaction();
+            $student = Student::findOrFail($request->student_id);
+            $student->password = Hash::make($request->password);
+            $student->password_text = Crypt::encryptString($request->password);
+            $student->save();
+            $moodle_student_service->changePassword($student, $request->password);
+            Toastr::success(__('msg_updated_successfully'), __('msg_success'));
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Toastr::error(__('msg_updated_error'), __('msg_error'));
 
-        // Update Data
-        $student = Student::findOrFail($request->student_id);
-        $student->password = Hash::make($request->password);
-        $student->password_text = Crypt::encryptString($request->password);
-        $student->save();
+            return redirect()->back();
+        }
 
 
-        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
         return redirect()->back();
     }

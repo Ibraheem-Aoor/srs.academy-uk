@@ -163,27 +163,51 @@ if (!function_exists('isAdmin')) {
 if (!function_exists('returnError')) {
     function returnError()
     {
-        Toastr::error(__('msg_created_error'),  __('msg_error'));
+        Toastr::error(__('msg_created_error'), __('msg_error'));
 
         return redirect()->back();
     }
 }
 if (!function_exists('returnSuccess')) {
-    function returnSuccess( $route)
+    function returnSuccess($route)
     {
-        Toastr::success(__('msg_created_successfully'),  __('msg_success'));
+        Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
         return redirect()->route($route);
     }
 }
 if (!function_exists('logError')) {
-    function logError(Throwable $e , $method , $class , $custom_message = null)
+    function logError(Throwable $e, $method, $class, $custom_message = null)
     {
         info('ERROR IN ' . $class . ' ' . $method . ' ' . $e->getMessage());
-        $message = isset($custom_message) ? $custom_message :  __('msg_created_error');
-        Toastr::error($message,  __('msg_error'));
+        $message = isset($custom_message) ? $custom_message : __('msg_created_error');
+        Toastr::error($message, __('msg_error'));
 
     }
+}
+if (!function_exists('generate_moodle_password')) {
+    function generate_moodle_password()
+    {
+        // Ensure at least one of each required character type
+        $uppercase = chr(rand(65, 90)); // A-Z
+        $lowercase = chr(rand(97, 122)); // a-z
+        $digit = chr(rand(48, 57)); // 0-9
+        $special = '#'; // The special character
+
+        // Generate the remaining characters randomly
+        $remainingLength = 8 - 4; // 4 characters are already added
+        $remainingChars = '';
+
+        for ($i = 0; $i < $remainingLength; $i++) {
+            $remainingChars .= chr(rand(33, 126)); // All printable ASCII characters
+        }
+
+        // Combine all characters and shuffle them
+        $password = str_shuffle($uppercase . $lowercase . $digit . $special . $remainingChars);
+
+        return $password;
+    }
+
 }
 
 
