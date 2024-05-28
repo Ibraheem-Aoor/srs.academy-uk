@@ -93,7 +93,7 @@ class EnrollSubjectController extends Controller
                 ['program_id' => $request->program, 'session_id' => $request->session],
                 ['program_id' => $request->program, 'session_id' => $request->session]
             );
-            $this->syncWithMoodle($request, $moodle_course_service , $enrollSubject);
+            $this->syncWithMoodle($request, $moodle_course_service, $enrollSubject);
             // Attach Update
             $enrollSubject->subjects()->sync($request->subjects);
             DB::commit();

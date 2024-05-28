@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\StudentEnroll;
+use App\Rules\SubjectMustBeOfferedWithEnrollmentSession;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Subject;
@@ -32,7 +33,7 @@ class SubjectAddDropController extends Controller
         $this->access = 'student-enroll';
 
 
-        $this->middleware('permission:'.$this->access.'-adddrop');
+        $this->middleware('permission:' . $this->access . '-adddrop');
     }
 
     /**
@@ -52,13 +53,13 @@ class SubjectAddDropController extends Controller
 
         $data['students'] = Student::whereHas('currentEnroll')->where('status', '1')->orderBy('student_id', 'asc')->get();
 
-        if(!empty($request->student) && $request->student != Null){
+        if (!empty($request->student) && $request->student != Null) {
 
             $data['selected_student'] = $request->student;
 
             // Student
             $student = Student::where('student_id', $request->student)->where('status', '1');
-            $student->with('currentEnroll')->whereHas('currentEnroll', function ($query){
+            $student->with('currentEnroll')->whereHas('currentEnroll', function ($query) {
                 $query->where('status', '1');
             });
             $data['row'] = $row = $student->first();
@@ -66,7 +67,7 @@ class SubjectAddDropController extends Controller
 
             // Subjects
             $subjects = Subject::where('status', '1');
-            $subjects->with('programs')->whereHas('programs', function ($query) use ($row){
+            $subjects->with('programs')->whereHas('programs', function ($query) use ($row) {
                 $query->where('program_id', $row->program_id);
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
@@ -74,16 +75,15 @@ class SubjectAddDropController extends Controller
 
             // Current Enroll
             $data['curr_enr'] = StudentEnroll::where('student_id', $row->id)
-                        ->where('status', '1')
-                        ->orderBy('id', 'desc')->first();
+                ->where('status', '1')
+                ->orderBy('id', 'desc')->first();
 
             $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
-        }
-        else {
+        } else {
             $data['selected_student'] = Null;
         }
 
-        return view($this->view.'.index', $data);
+        return view($this->view . '.index', $data);
     }
 
     /**
@@ -92,26 +92,27 @@ class SubjectAddDropController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request , StudentEnrollService $studentEnrollService)
+    public function store(Request $request, StudentEnrollService $moodle_student_enroll_service)
     {
         // Field Validation
         $request->validate([
             'student' => 'required',
-            'subjects' => 'required',
+            'subjects' => ['required', new SubjectMustBeOfferedWithEnrollmentSession($request->student)],
         ]);
 
 
+        $requested_subjects = $request->subjects;
+
         // Enroll Update
         $enroll = StudentEnroll::where('student_id', $request->student)
-                                ->where('status', '1')
-                                ->orderBy('id', 'desc')->first();
-        try{
+            ->where('status', '1')
+            ->orderBy('id', 'desc')->first();
+        try {
             DB::beginTransaction();
+            $moodle_student_enroll_service->sync($enroll, $requested_subjects);
             $enroll->subjects()->sync($request->subjects);
-            // $studentEnrollService->sync($enroll);
             DB::commit();
-        }catch(Throwable $e)
-        {
+        } catch (Throwable $e) {
             DB::rollBack();
             logError(e: $e, method: __METHOD__, class: get_class($this));
             return back();

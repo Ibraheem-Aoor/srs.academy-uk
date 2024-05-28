@@ -15,7 +15,7 @@ use App\Models\Grade;
 use App\Services\Moodle\StudentEnrollService;
 use Toastr;
 use Auth;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class StudentSingleEnrollController extends Controller
 {
@@ -50,8 +50,6 @@ class StudentSingleEnrollController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
         $data['access'] = $this->access;
-
-
         $data['students'] = Student::whereHas('currentEnroll')->where('status', '1')->orderBy('student_id', 'asc')->get();
 
         if(!empty($request->student) && $request->student != Null){
@@ -94,7 +92,7 @@ class StudentSingleEnrollController extends Controller
      * @return \Illuminate\Http\Response
      *
      */
-    public function store(Request $request , StudentEnrollService $stuent_enroll_service)
+    public function store(Request $request , StudentEnrollService $moodle_stuent_enroll_service)
     {
         // Field Validation
         $request->validate([
@@ -144,11 +142,10 @@ class StudentSingleEnrollController extends Controller
                 $student->program_id = $request->program;
                 $student->save();
 
-                $stuent_enroll_service->create($enroll);
+                $moodle_stuent_enroll_service->store($enroll);
                 Toastr::success(__('msg_promoted_successfully'), __('msg_success'));
             }
             else{
-
                 Toastr::error(__('msg_enroll_already_exists'), __('msg_error'));
             }
             DB::commit();

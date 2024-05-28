@@ -38,7 +38,7 @@ class BaseService
             $response = $this->http->post(
                 $endpoint
             )->json();
-            return isset($response) && !isset($response['exception']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
+            return isset($response) && !isset($response['exception'] , $response['warnings']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
         } catch (Throwable $e) {
             dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this));
@@ -63,7 +63,7 @@ class BaseService
             // This Response Is Nullable.
             return !isset($response['exception']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
         } catch (Throwable $e) {
-
+            dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this), custom_message: __('Moodle_Error'));
             throw new \Exception($e);
         }
@@ -85,6 +85,24 @@ class BaseService
             return !isset($response['exception']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
         } catch (Throwable $e) {
             dd($e);
+            logError(e: $e, method: __METHOD__, class: get_class($this), custom_message: __('Moodle_Error'));
+            throw new \Exception($e);
+        }
+    }
+
+
+    public function get($query_params = [])
+    {
+        try {
+            $query_params = array_merge($this->params, $query_params);
+            $endpoint = $this->url . '?' . http_build_query($query_params);
+            // Send the GET request with  parameters
+            $response = $this->http->get(
+                $endpoint
+            )->json();
+            // This Response Is Nullable.
+            return isset($response) && !isset($response['exception']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
+        } catch (Throwable $e) {
             logError(e: $e, method: __METHOD__, class: get_class($this), custom_message: __('Moodle_Error'));
             throw new \Exception($e);
         }

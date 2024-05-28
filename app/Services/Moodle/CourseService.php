@@ -61,6 +61,7 @@ class CourseService extends BaseService
      */
     public function edit(Subject $subject, $category_id)
     {
+
         $courses = [
             [
                 'id' => $subject->id_on_moodle,
@@ -91,6 +92,7 @@ class CourseService extends BaseService
 
         $query_params['courses'] = $courses;
         $query_params['wsfunction'] = 'core_course_update_courses';
+
 
         parent::update($query_params);
     }

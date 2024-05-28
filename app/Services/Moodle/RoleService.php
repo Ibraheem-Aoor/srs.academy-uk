@@ -19,22 +19,21 @@ class RoleService extends BaseService
     public function getAllRoles()
     {
         #enrol_manual_enrol_users
-        $this->params['wsfunction'] = 'local_wsgetroles_get_roles';
-        $response = $this->http->get($this->url, $this->params);
-        return $response->json();
+        $query_params['wsfunction'] = 'local_wsgetroles_get_roles';
+        return parent::get($query_params);
     }
-
     /**
      * Get Student Role Id From Moodle
      */
     public function getStudentRoleId()
     {
         $roles = $this->getAllRoles();
-        foreach($roles as $role)
+        if(is_array($roles))
         {
-            if(@$role['shortname'] == 'student' || @$role['archetype'] == 'student')
-            {
-                return $role['id'];
+            foreach ($roles as $role) {
+                if (@$role['shortname'] == 'student' || @$role['archetype'] == 'student') {
+                    return $role['id'];
+                }
             }
         }
         throw new \Exception('Student Role On Not Found');

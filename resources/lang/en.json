@@ -834,5 +834,6 @@
     "field_category_on_moodle" : "Category On Moodle",
     "University Library" : "University Library",
     "IAU Study Room" : "IAU Study Room",
-    "IAU-AEB Study Room" : "IAU-AEB Study Room"
+    "IAU-AEB Study Room" : "IAU-AEB Study Room",
+    "courses_must_be_offered_to_enrollment_session" : "Course: :course Must Be Offered To The Targeted Session: :session_title"
 }
