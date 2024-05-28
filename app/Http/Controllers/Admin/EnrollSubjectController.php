@@ -93,7 +93,7 @@ class EnrollSubjectController extends Controller
                 ['program_id' => $request->program, 'session_id' => $request->session],
                 ['program_id' => $request->program, 'session_id' => $request->session]
             );
-            $this->syncWithMoodle($request, $moodle_course_service);
+            $this->syncWithMoodle($request, $moodle_course_service , $enrollSubject);
             // Attach Update
             $enrollSubject->subjects()->sync($request->subjects);
             DB::commit();
@@ -231,28 +231,36 @@ class EnrollSubjectController extends Controller
      * Sync The Subjects with Moodle
      * Create Unexising Subjects on moodle
      * Assign Subjects To Proper Sessions "categories" on moodle
+     * The Core Key here is session_id because each session might have different subject from different programs.
+     * so we need to make sure that the syncing is constrained to the session enrollments including all the session programs.
      */
     public function syncWithMoodle(Request $request, CourseService $moodle_course_service, $enrollSubject = null)
     {
         $subjects = Subject::find($request->subjects);
         $session = Session::query()->findOrFail($request->session);
-        // Create Or Update The Given Subjects
-        foreach ($subjects as $subject) {
-            // Check if the id_on_moodle is set which mean the subject is created on moodle regardless the category "session" else just update.
-            if (!isset($subject->id_on_moodle)) {
-                $created_course_on_moodle = $moodle_course_service->store($subject, $session->id_on_moodle);
-                $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
-                $subject->save();
-            } else {
-                $moodle_course_service->edit($subject, $session->id_on_moodle);
+        // making sure it's the current session so not loosing the courses on moodle.
+        if ($session->current) {
+            // Create Or Update The Given Subjects
+            foreach ($subjects as $subject) {
+                // Check if the id_on_moodle is set which mean the subject is created on moodle regardless the category "session" else just update.
+                if (!isset($subject->id_on_moodle)) {
+                    $created_course_on_moodle = $moodle_course_service->store($subject, $session->id_on_moodle);
+                    $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
+                    $subject->save();
+                } else {
+                    $moodle_course_service->edit($subject, $session->id_on_moodle);
+                }
             }
-        }
-        // Delete the subjects being removed
-        if (isset($enrollSubject)) {
-            foreach ($enrollSubject->subjects as $subject) {
-                $is_course_still_with_sesssion = in_array($subject->id, $request->subjects);
-                if (!$is_course_still_with_sesssion) {
-                    $moodle_course_service->destroy($subject);
+            // Delete the subjects being removed
+            if (isset($enrollSubject)) {
+                foreach ($enrollSubject->subjects as $subject) {
+                    $is_course_still_with_sesssion = in_array($subject->id, $request->subjects) && EnrollSubject::query()->where('session_id', $session->id)
+                        ->whereHas('subjects', function ($subjects) use ($request) {
+                            $subjects->whereIn('id', $request->subjects);
+                        })->exists();
+                    if (!$is_course_still_with_sesssion) {
+                        $moodle_course_service->destroy($subject);
+                    }
                 }
             }
         }
