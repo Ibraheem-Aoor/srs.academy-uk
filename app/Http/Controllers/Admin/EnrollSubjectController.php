@@ -214,6 +214,8 @@ class EnrollSubjectController extends Controller
      */
     public function destroy(EnrollSubject $enrollSubject)
     {
+        Toastr::error('Not ALlowed', __('msg_error'));
+        return back();
         // Detach
         $enrollSubject->subjects()->detach();
 
@@ -234,33 +236,70 @@ class EnrollSubjectController extends Controller
      * The Core Key here is session_id because each session might have different subject from different programs.
      * so we need to make sure that the syncing is constrained to the session enrollments including all the session programs.
      */
+    /**
+     * Sync the subjects with Moodle.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Services\Moodle\CourseService  $moodle_course_service
+     * @param  \App\Models\EnrollSubject|null  $enrollSubject
+     * @return void
+     */
     public function syncWithMoodle(Request $request, CourseService $moodle_course_service, $enrollSubject = null)
     {
         $subjects = Subject::find($request->subjects);
         $session = Session::query()->findOrFail($request->session);
-        // making sure it's the current session so not loosing the courses on moodle.
         if ($session->current) {
-            // Create Or Update The Given Subjects
-            foreach ($subjects as $subject) {
-                // Check if the id_on_moodle is set which mean the subject is created on moodle regardless the category "session" else just update.
-                if (!isset($subject->id_on_moodle)) {
-                    $created_course_on_moodle = $moodle_course_service->store($subject, $session->id_on_moodle);
-                    $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
-                    $subject->save();
-                } else {
-                    $moodle_course_service->edit($subject, $session->id_on_moodle);
-                }
+            $this->syncSubjectsWithMoodle($subjects, $session, $moodle_course_service);
+            $this->removeUnenrolledSubjects($subjects, $session, $enrollSubject, $moodle_course_service);
+        }
+    }
+
+    /**
+     * Sync the given subjects with Moodle.
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection  $subjects
+     * @param  \App\Models\Session  $session
+     * @param  \App\Services\Moodle\CourseService  $moodle_course_service
+     * @return void
+     */
+    private function syncSubjectsWithMoodle($subjects, $session, CourseService $moodle_course_service)
+    {
+        foreach ($subjects as $subject) {
+            if (!isset($subject->id_on_moodle)) {
+                $created_course_on_moodle = $moodle_course_service->store($subject, $session->id_on_moodle);
+                $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
+                $subject->save();
+            } else {
+                $moodle_course_service->edit($subject, $session->id_on_moodle);
             }
-            // Delete the subjects being removed
-            if (isset($enrollSubject)) {
-                foreach ($enrollSubject->subjects as $subject) {
-                    $is_course_still_with_sesssion = in_array($subject->id, $request->subjects) && EnrollSubject::query()->where('session_id', $session->id)
-                        ->whereHas('subjects', function ($subjects) use ($request) {
-                            $subjects->whereIn('id', $request->subjects);
-                        })->exists();
-                    if (!$is_course_still_with_sesssion) {
-                        $moodle_course_service->destroy($subject);
-                    }
+        }
+    }
+
+    /**
+     * Remove subjects that are no longer enrolled in the session.
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection  $subjects
+     * @param  \App\Models\Session  $session
+     * @param  \App\Models\EnrollSubject|null  $enrollSubject
+     * @param  \App\Services\Moodle\CourseService  $moodle_course_service
+     * @return void
+     */
+    private function removeUnenrolledSubjects($subjects, $session, $enrollSubject, CourseService $moodle_course_service)
+    {
+        if (isset($enrollSubject)) {
+            foreach ($enrollSubject->subjects as $subject) {
+
+                $is_course_still_with_session = in_array($subject->id, array_values($subjects->pluck('id')->toArray())) &&
+                    EnrollSubject::query()
+                        ->where('session_id', $session->id)
+                        ->whereHas('subjects', function ($query) use ($subjects) {
+                            $query->whereIn('id', array_values($subjects->pluck('id')->toArray()));
+                        })
+                        ->exists();
+                if (!$is_course_still_with_session && $subject->id_on_moodle) {
+                    $moodle_course_service->destroy($subject);
+                    $subject->id_on_moodle = null;
+                    $subject->save();
                 }
             }
         }
