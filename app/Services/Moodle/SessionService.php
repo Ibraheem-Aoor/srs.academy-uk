@@ -103,17 +103,4 @@ class SessionService extends BaseService
 
 
 
-    /**
-     * Deprecated for now
-     */
-
-    /**
-     * get array of categories "Programs"
-     */
-    public function get()
-    {
-        $query_params['wsfunction'] = 'core_course_get_categories';
-        $response = $this->http->get($this->url, $this->params);
-        return $response->json();
-    }
 }

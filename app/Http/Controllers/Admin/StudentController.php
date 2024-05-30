@@ -376,7 +376,7 @@ class StudentController extends Controller
 
 
             // Assign Subjects
-            $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('semester_id', $request->semester)->where('section_id', $request->section)->first();
+            $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('session_id', $request->session)->first();
 
             if (isset($enrollSubject)) {
                 foreach ($enrollSubject->subjects as $subject) {
@@ -396,6 +396,7 @@ class StudentController extends Controller
 
             return redirect()->route($this->route . '.index');
         } catch (\Exception $e) {
+            dd($e);
             DB::rollBack();
             Toastr::error(__('msg_created_error'), __('msg_error'));
 
