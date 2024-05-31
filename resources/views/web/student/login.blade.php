@@ -44,17 +44,17 @@
         </form>
         <!-- Form End -->
 
-        @if (Route::has('student.password.request'))
+        {{-- @if (Route::has('student.password.request'))
             <p class="mb-2 text-muted">
                 <a href="{{ route($forgotPasswordRoute) }}">
                     {{ __('auth_forgot_password') }}
                 </a>
             </p>
-        @endif
+        @endif --}}
 
         @if (Route::has('student.register'))
         <p class="mb-0 text-muted">
-            {{ __("auth_dont_have_account") }} 
+            {{ __("auth_dont_have_account") }}
             <a href="{{ route('student.register') }}">
                 {{ __('auth_register') }}
             </a>
