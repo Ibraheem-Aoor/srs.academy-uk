@@ -16,6 +16,8 @@
 use App\Http\Controllers\Admin\AcademySite\ContactController;
 use App\Http\Controllers\Admin\BigBlueButtonController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\ManualTransferDataToMoodleController;
+use App\Http\Controllers\SyncDataWithMoodleController;
 use App\Http\Controllers\VClassController;
 
 Route::middleware(['XSS'])->namespace('Web')->group(function () {
@@ -482,6 +484,15 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
         Route::resource('social-setting', 'SocialSettingController');
         Route::resource('topbar-setting', 'TopbarSettingController');
     });
+
+    // Transfer Data To Moodle
+    Route::get('moodle/transfer-sessions' , [ManualTransferDataToMoodleController::class, 'transferPrograms'])->name('moodle.transfer.sessions');
+    Route::get('moodle/transfer-courses' , [ManualTransferDataToMoodleController::class, 'transferCourses'])->name('moodle.transfer.courses');
+    Route::get('moodle/transfer-students' , [ManualTransferDataToMoodleController::class, 'taransferUsers'])->name('moodle.transfer.students');
+    // Sync Data with moodle
+    Route::get('moodle/sync-sessions' , [SyncDataWithMoodleController::class, 'syncSessions'])->name('moodle.sync.sessions');
+    Route::get('moodle/sync-courses' , [SyncDataWithMoodleController::class, 'syncCourses'])->name('moodle.sync.sessions');
+    Route::get('moodle/sync-students' , [SyncDataWithMoodleController::class, 'syncStudents'])->name('moodle.sync.students');
 });
 
 

@@ -14,7 +14,7 @@ class SessionService extends BaseService
     protected $model = Session::class;
 
     /**
-     * Create The Program On Moodle.
+     * Create The session On Moodle.
      */
     public function store(Session $session)
     {
@@ -31,7 +31,7 @@ class SessionService extends BaseService
     }
 
     /**
-     * Update The Program On Moodle
+     * Update The session On Moodle
      */
     public function edit(Session $session)
     {
@@ -54,7 +54,7 @@ class SessionService extends BaseService
 
 
     /**
-     * Delete Program On Moodle With All Contents
+     * Delete session On Moodle With All Contents
      */
     public function destroy(Session $session)
     {
@@ -79,7 +79,7 @@ class SessionService extends BaseService
 
 
     /**
-     * Find The Program By Searching for it's name
+     * Find The session By Searching for it's name
      * ### Deprecated for now ####
      */
     public function findByName($session_title)
@@ -101,6 +101,8 @@ class SessionService extends BaseService
         return $moodle_program[0];
     }
 
+
+  
 
 
 }
