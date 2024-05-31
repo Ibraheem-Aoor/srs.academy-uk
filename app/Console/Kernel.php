@@ -25,22 +25,25 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule_setting = ScheduleSetting::where('slug', 'fees-schedule')->first();
-        if(isset($schedule_setting)){
-            if($schedule_setting->time){
-                $schedule->command('fees:reminder')
-                     ->dailyAt($schedule_setting->time);
-            }else{
-                $schedule->command('fees:reminder')
-                     ->dailyAt('00:01');
-            }
-        }
+        // $schedule_setting = ScheduleSetting::where('slug', 'fees-schedule')->first();
+        // if (isset($schedule_setting)) {
+        //     if ($schedule_setting->time) {
+        //         $schedule->command('fees:reminder')
+        //             ->dailyAt($schedule_setting->time);
+        //     } else {
+        //         $schedule->command('fees:reminder')
+        //             ->dailyAt('00:01');
+        //     }
+        // }
 
-        $schedule->command('notice:send')
-                ->dailyAt('01:01');
+        // $schedule->command('notice:send')
+        //     ->dailyAt('01:01');
 
-        $schedule->command('content:send')
-                ->dailyAt('02:01');
+        // $schedule->command('content:send')
+        //     ->dailyAt('02:01');
+
+        $schedule->command('current-session:switch')
+            ->everyMinute();
     }
 
     /**
@@ -50,7 +53,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
