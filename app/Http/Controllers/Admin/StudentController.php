@@ -29,11 +29,13 @@ use App\Models\Batch;
 use App\Models\Grade;
 use App\Models\Fee;
 use App\Models\PrintSetting;
+use App\Services\Moodle\StudentEnrollService;
 use App\Services\Moodle\StudentService;
 use App\Traits\StudentModuleTrait;
 use Carbon\Carbon;
 use Toastr;
 use Auth;
+use Cadix\LaravelMoodle\Facades\Auth as FacadesAuth;
 use Hash;
 use Mail;
 use Illuminate\Support\Facades\DB;
@@ -231,7 +233,7 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, StudentService $student_service)
+    public function store(Request $request, StudentService $student_service, StudentEnrollService $moodle_student_enroll_service)
     {
         // Field Validation
         $request->validate([
@@ -382,13 +384,19 @@ class StudentController extends Controller
                 foreach ($enrollSubject->subjects as $subject) {
                     // Attach Subject
                     $enroll->subjects()->attach($subject->id);
+
                 }
+
             }
 
 
             $student_on_moodle = $student_service->store($student, $password);
             $student->id_on_moodle = $student_on_moodle[0]['id'];
             $student->save();
+            if (isset($enrollSubject)) {
+                // Enroll The Student on Moodle
+                $moodle_student_enroll_service->store($enroll);
+            }
             DB::commit();
 
 
@@ -470,7 +478,7 @@ class StudentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Student $student, StudentService $moodle_student_service)
+    public function update(Request $request, Student $student, StudentService $moodle_student_service, StudentEnrollService $moodle_student_enroll_service)
     {
         // Field Validation
         $request->validate([
@@ -490,6 +498,7 @@ class StudentController extends Controller
 
         // Update Data
         try {
+            $is_program_changed = $student->program_id != $request->program;
             DB::beginTransaction();
 
             $student->student_id = $request->student_id;
@@ -598,7 +607,37 @@ class StudentController extends Controller
                     }
                 }
             }
+            // Change The Program Enrollment If Program Is Changed
+            if ($is_program_changed) {
+                $session = Session::query()->where('current', 1)->first();
+                $semester_id = $session->semester_id;
+                $program_id = $request->program;
+                $enrollSubject = EnrollSubject::query()->where('program_id', $program_id)->where('session_id', $session->id)->first();
+                if (isset($enrollSubject)) {
+                    $prev_enroll = $student->currentEnroll;
+                    $student->studentEnrolls()->update(['status' => 0]);
+                    $new_enroll = StudentEnroll::query()->create([
+                        'student_id' => $student->id,
+                        'program_id' => $program_id,
+                        'session_id' => $session->id,
+                        'semester_id' => $semester_id,
+                        'status' => 1,
+                    ]);
+                    foreach ($enrollSubject->subjects as $subject) {
+                        // Attach Subject
+                        $new_enroll->subjects()->attach($subject->id);
+                    }
+                    // Enroll On Moodle
+                    $moodle_student_enroll_service->store($new_enroll);
+                    if(isset($prev_enroll , $new_enroll))
+                    {
+                        $moodle_student_enroll_service->bulkUnEnroll($student->id_on_moodle , $prev_enroll->subjects);
+                    }
+                }
+
+            }
             $moodle_student_service->edit($student);
+
             DB::commit();
 
 
@@ -606,6 +645,7 @@ class StudentController extends Controller
 
             return redirect()->back();
         } catch (\Exception $e) {
+            dd($e);
             DB::rollBack();
             Toastr::error(__('msg_updated_error'), __('msg_error'));
 
@@ -619,7 +659,7 @@ class StudentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Student $student , StudentService $moodle_student_service)
+    public function destroy(Student $student, StudentService $moodle_student_service)
     {
         try {
 

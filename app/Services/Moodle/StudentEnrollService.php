@@ -20,7 +20,7 @@ class StudentEnrollService extends BaseService
     }
 
     /**
-     * Create The Program On Moodle.
+     * Create The Enroll On Moodle.
      */
     public function store(StudentEnroll $student_enroll)
     {
@@ -38,12 +38,7 @@ class StudentEnrollService extends BaseService
                 'suspend' => 0,
             ];
         }
-        // Set the web service function name
-        $query_params['wsfunction'] = 'enrol_manual_enrol_users';
-
-        //data to save sent along with the query parameters.
-        $query_params['enrolments'] = $enrolments;
-        return parent::update($query_params);
+        return $this->makeEnrollmentRequest($enrolments);
     }
 
 
@@ -89,10 +84,34 @@ class StudentEnrollService extends BaseService
                 'suspend' => 1,
             ];
         }
+        return $this->makeEnrollmentRequest($enrolments);
+    }
+
+
+
+    /**
+     * Bulk Suspend For Student Subjects.
+     */
+    public function bulkUnEnroll($id, $subjects_to_unenroll)
+    {
+        // Retrieve the student role ID from Moodle
+        $student_role_id = $this->role_service->getStudentRoleId();
+        foreach ($subjects_to_unenroll as $subject) {
+            $enrolments[] = [
+                'roleid' => $student_role_id,
+                'courseid' => $subject->id_on_moodle,
+                'userid' => $id,
+                'suspend' => 1,
+            ];
+        }
+        return $this->makeEnrollmentRequest($enrolments);
+    }
+
+    private function makeEnrollmentRequest($enrolments)
+    {
         if (isset($enrolments) && !empty($enrolments)) {
             // Set the web service function name
             $query_params['wsfunction'] = 'enrol_manual_enrol_users';
-
             // Add enrolments to the query parameters
             $query_params['enrolments'] = $enrolments;
 
@@ -100,7 +119,6 @@ class StudentEnrollService extends BaseService
             return parent::update($query_params);
         }
     }
-
 
 
 
