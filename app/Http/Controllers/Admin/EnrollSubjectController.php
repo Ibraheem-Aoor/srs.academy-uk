@@ -264,7 +264,7 @@ class EnrollSubjectController extends Controller
     {
         $moodle_category_id = Session::query()->where('current', 1)->first()->id_on_moodle;
         if ($session->current) {
-            $moodle_category_id = $session->id_on_moodlell;
+            $moodle_category_id = $session->id_on_moodle;
         }
         foreach ($subjects as $subject) {
             if (!isset($subject->id_on_moodle)) {
