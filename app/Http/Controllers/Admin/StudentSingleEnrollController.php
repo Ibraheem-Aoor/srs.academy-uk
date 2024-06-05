@@ -34,7 +34,7 @@ class StudentSingleEnrollController extends Controller
         $this->access = 'student-enroll';
 
 
-        $this->middleware('permission:'.$this->access.'-single');
+        $this->middleware('permission:' . $this->access . '-single');
     }
 
     /**
@@ -51,8 +51,8 @@ class StudentSingleEnrollController extends Controller
         $data['path'] = $this->path;
         $data['access'] = $this->access;
         $data['students'] = Student::whereHas('currentEnroll')->where('status', '1')->orderBy('student_id', 'asc')->get();
-
-        if(!empty($request->student) && $request->student != Null){
+        $data['current_session'] = Session::query()->where('current', 1)->first();
+        if (!empty($request->student) && $request->student != Null) {
 
             $data['selected_student'] = $request->student;
 
@@ -61,28 +61,27 @@ class StudentSingleEnrollController extends Controller
             // Filter Enroll Data
             $data['programs'] = Program::where('status', '1')->orderBy('title', 'asc')->get();
 
-            $data['sessions'] = Session::with('programs')->whereHas('programs', function ($query) use ($student){
+            $data['sessions'] = Session::with('programs')->whereHas('programs', function ($query) use ($student) {
                 $query->where('program_id', $student->program_id);
             })->where('status', '1')->orderBy('id', 'desc')->get();
 
-            $data['semesters'] = Semester::with('programs')->whereHas('programs', function ($query) use ($student){
+            $data['semesters'] = Semester::with('programs')->whereHas('programs', function ($query) use ($student) {
                 $query->where('program_id', $student->program_id);
             })->where('status', '1')->orderBy('id', 'asc')->get();
 
-            $data['sections'] = Section::with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($student){
+            $data['sections'] = Section::with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($student) {
                 $query->where('program_id', $student->program_id);
             })->where('status', '1')->orderBy('title', 'asc')->get();
 
-            $data['subjects'] = Subject::with('programs')->whereHas('programs', function ($query) use ($student){
+            $data['subjects'] = Subject::with('programs')->whereHas('programs', function ($query) use ($student) {
                 $query->where('program_id', $student->program_id);
             })->where('status', '1')->orderBy('code', 'asc')->get();
 
             $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
-        }
-        else {
+        } else {
             $data['selected_student'] = Null;
         }
-        return view($this->view.'.index', $data);
+        return view($this->view . '.index', $data);
     }
 
     /**
@@ -92,7 +91,7 @@ class StudentSingleEnrollController extends Controller
      * @return \Illuminate\Http\Response
      *
      */
-    public function store(Request $request , StudentEnrollService $moodle_stuent_enroll_service)
+    public function store(Request $request, StudentEnrollService $moodle_stuent_enroll_service)
     {
         // Field Validation
         $request->validate([
@@ -102,16 +101,16 @@ class StudentSingleEnrollController extends Controller
             'section' => 'nullable',
             'subjects' => 'required',
         ]);
-        try{
+        try {
             DB::beginTransaction();
             // Duplicate Enroll Check
             $duplicate_check = StudentEnroll::where('student_id', $request->student)->where('session_id', $request->session)->first();
             // $semester_check = StudentEnroll::where('student_id', $request->student)->where('semester_id', $request->semester)->first();
 
-            if(!isset($duplicate_check)){
+            if (!isset($duplicate_check)) {
                 // Pre Enroll Update
                 $pre_enroll = StudentEnroll::where('student_id', $request->student)->where('status', '1')->first();
-                if(isset($pre_enroll)){
+                if (isset($pre_enroll)) {
                     $pre_enroll->status = '0';
                     $pre_enroll->save();
                 }
@@ -135,8 +134,8 @@ class StudentSingleEnrollController extends Controller
                 //!! Disable All Enrolls And Make The Current Enroll Where The Current Session !!
                 $student->studentEnrolls()->update(['status' => 0]);
                 // Get The CURRENT SESSION
-                $current_running_session = Session::query()->where('current' , 1)->first();
-                $student->studentEnrolls()->where('session_id' , $current_running_session->id)->update(['status' => 1]);
+                $current_running_session = Session::query()->where('current', 1)->first();
+                $student->studentEnrolls()->where('session_id', $current_running_session->id)->update(['status' => 1]);
 
                 // Program Update
                 $student->program_id = $request->program;
@@ -144,15 +143,13 @@ class StudentSingleEnrollController extends Controller
 
                 $moodle_stuent_enroll_service->store($enroll);
                 Toastr::success(__('msg_promoted_successfully'), __('msg_success'));
-            }
-            else{
+            } else {
                 Toastr::error(__('msg_enroll_already_exists'), __('msg_error'));
             }
             DB::commit();
 
             return redirect()->back();
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             dd($e);
             Toastr::error(__('msg_created_error'), __('msg_error'));

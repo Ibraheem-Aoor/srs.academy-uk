@@ -148,7 +148,14 @@
                     @foreach ($row->preEnrolls() as $enrollment)
                         <div class="card">
                             <div class="card-header">
-                                <h5>{{ __('btn_previous') }} {{ __('field_session') }}:
+
+                                <h5>
+                                    @if($enrollment->session->start_date > $current_session->start_date)
+                                    {{ __('future') }}
+                                @else
+                                {{ __('btn_previous') }}
+                                @endif
+                                {{ __('field_session') }}:
                                     {{ $enrollment->session->title ?? '' }} |
                                     {{ $enrollment->semester->title ?? '' }} |
                                     {{ $enrollment->section->title ?? '' }}</h5>
