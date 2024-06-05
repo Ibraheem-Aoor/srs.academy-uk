@@ -262,11 +262,18 @@ class EnrollSubjectController extends Controller
      */
     private function syncSubjectsWithMoodle($subjects, $session, CourseService $moodle_course_service)
     {
-        $moodle_category_id = Session::query()->where('current', 1)->first()->id_on_moodle;
-        if ($session->current) {
-            $moodle_category_id = $session->id_on_moodle;
-        }
+        $current_session = Session::query()->where('current', 1)->first();
+        $moodle_category_id = $session->id_on_moodle;
         foreach ($subjects as $subject) {
+            // if the course is offered to the current session so keep it.else add it to the targeted session.
+            $is_subject_offered_to_current_session = EnrollSubject::query()
+                ->where('session_id', $current_session->id)
+                ->whereHas('subjects', function ($query) use ($subject) {
+                    $query->where('id', $subject->id);
+                })->exists();
+            if ($is_subject_offered_to_current_session) {
+                $moodle_category_id = $current_session->id_on_moodle;
+            }
             if (!isset($subject->id_on_moodle)) {
                 $created_course_on_moodle = $moodle_course_service->store($subject, $moodle_category_id);
                 $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
