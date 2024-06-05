@@ -296,7 +296,7 @@
                                 @foreach( $row->studentEnrolls as $key => $enroll )
                                 @if($semesters_check != $enroll->session->title)
                                 @php
-                                    array_push($semester_items, array($enroll->session->title, $enroll->semester->title, $enroll->section->title));
+                                    array_push($semester_items, array($enroll->session->title, $enroll->semester->title, $enroll->section?->title));
                                     $semesters_check = $enroll->session->title;
                                 @endphp
                                 @endif
@@ -398,7 +398,7 @@
                                         <p><mark class="text-primary">{{ __('field_program') }}:</mark> {{ $row->program->title ?? '' }}</p><hr/>
                                         <p><mark class="text-primary">{{ __('field_session') }}:</mark> {{ $curr_enroll->session->title ?? '' }}</p><hr/>
                                         <p><mark class="text-primary">{{ __('field_semester') }}:</mark> {{ $curr_enroll->semester->title ?? '' }}</p><hr/>
-                                        <p><mark class="text-primary">{{ __('field_section') }}:</mark> {{ $curr_enroll->section->title ?? '' }}</p><hr/>
+                                        <p><mark class="text-primary">{{ __('field_section') }}:</mark> {{ $curr_enroll->section?->title ?? '' }}</p><hr/>
 
                                         <p><mark class="text-primary">{{ __('field_status') }}:</mark>
                                         @foreach($row->statuses as $key => $status)
