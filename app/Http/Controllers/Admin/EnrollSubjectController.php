@@ -248,10 +248,8 @@ class EnrollSubjectController extends Controller
     {
         $subjects = Subject::find($request->subjects);
         $session = Session::query()->findOrFail($request->session);
-        if ($session->current) {
-            $this->syncSubjectsWithMoodle($subjects, $session, $moodle_course_service);
-            // $this->removeUnenrolledSubjects($subjects, $session, $enrollSubject, $moodle_course_service);
-        }
+        $this->syncSubjectsWithMoodle($subjects, $session, $moodle_course_service);
+        // $this->removeUnenrolledSubjects($subjects, $session, $enrollSubject, $moodle_course_service);
     }
 
     /**
@@ -264,9 +262,13 @@ class EnrollSubjectController extends Controller
      */
     private function syncSubjectsWithMoodle($subjects, $session, CourseService $moodle_course_service)
     {
+        $moodle_category_id = Session::query()->where('current', 1)->first()->id_on_moodle;
+        if ($session->current) {
+            $moodle_category_id = $session->id_on_moodlell;
+        }
         foreach ($subjects as $subject) {
             if (!isset($subject->id_on_moodle)) {
-                $created_course_on_moodle = $moodle_course_service->store($subject, $session->id_on_moodle);
+                $created_course_on_moodle = $moodle_course_service->store($subject, $moodle_category_id);
                 $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
                 $subject->save();
             } else {
