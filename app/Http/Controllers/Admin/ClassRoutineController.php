@@ -93,54 +93,32 @@ class ClassRoutineController extends Controller
         // Search Filter
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
 
-        if (!empty($request->faculty) && !empty($request->program) && !empty($request->session) && !empty($request->semester)) {
+        if (!empty($request->faculty) && !empty($request->program) && !empty($request->session)) {
             $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
 
             $sessions = Session::where('status', 1);
             $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
-                $query->whereIn('program_id', $program);
-            });
-
-            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
-
-            $semesters = Semester::where('status', 1);
-            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
                 $query->where('program_id', $program);
             });
-            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+            $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
 
-            $sections = Section::where('status', 1);
-            $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester) {
-                $query->whereIn('program_id', $program);
-                $query->where('semester_id', $semester);
-            });
-            $data['sections'] = $sections->orderBy('title', 'asc')->get();
         }
 
 
         // Routine Filter
-        if (!empty($request->program) && !empty($request->session) && !empty($request->semester)) {
+        if (!empty($request->program) && !empty($request->session)) {
 
             $routines = ClassRoutine::where('status', '1');
-
             if (!empty($request->program)) {
-                $routines->whereHas('programs', function ($query) use ($request) {
-                    $query->whereIn('program_id', $request->program);
-                });
+                $routines->where('program_id', $request->program);
             }
             if (!empty($request->session)) {
-                $routines->where('session_id', $request->session);
+                $session = Session::query()->find($request->session);
+                $routines->where('session_id', $session->id)->where('semester_id', $session->semester_id);
             }
-            if (!empty($request->semester)) {
-                $routines->where('semester_id', $request->semester);
-            }
-            // if(!empty($request->section)){
-            //     $routines->where('section_id', $request->section);
-            // }
             $data['rows'] = $routines->orderBy('start_time', 'asc')->get();
         }
-        $data['is_mulit_programs'] = Route::currentRouteName() == 'admin.class-routine.index';
-
+        // dd($data);
         return view($this->view . '.index', $data);
     }
 
@@ -185,42 +163,30 @@ class ClassRoutineController extends Controller
         if (!empty($request->section) || $request->section != null) {
             $data['selected_section'] = $section = $request->section;
         } else {
-            $data['selected_section'] = null;
+            $data['selected_section'] = '0';
         }
 
+        // set session
+        $session = Session::query()->find($request->session);
 
         // Search Filter
         $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
 
-        if (!empty($request->faculty) && !empty($request->program) && !empty($request->session) && !empty($request->semester)) {
+        if (!empty($request->faculty) && !empty($request->program) && !empty($request->session)) {
             $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
 
             $sessions = Session::where('status', 1);
             $sessions->with('programs')->whereHas('programs', function ($query) use ($program) {
-                $query->whereIn('program_id', $program);
+                $query->where('program_id', $program);
             });
             $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
 
-            $semesters = Semester::where('status', 1);
-            $semesters->with('programs')->whereHas('programs', function ($query) use ($program) {
-                $query->whereIn('program_id', $program);
-            });
-            $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
-
-            $sections = Section::where('status', 1);
-            $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester) {
-                $query->where('program_id', $program);
-                // $query->where('semester_id', $semester);
-            });
-            $data['sections'] = $sections->orderBy('title', 'asc')->get();
 
             $subjects = Subject::where('status', 1);
-            $subjects->with('subjectEnrolls')->whereHas('subjectEnrolls', function ($query) use ($program, $semester) {
-                $query->whereIn('program_id', $program);
-                // $query->where('semester_id', $semester);
+            $subjects->with('subjectEnrolls')->whereHas('subjectEnrolls', function ($query) use ($program, $session) {
+                $query->where('program_id', $program)->where('semester_id', $session->semester_id);
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
-            // dd($data);
         }
 
 
@@ -232,29 +198,19 @@ class ClassRoutineController extends Controller
         });
         $data['teachers'] = $teachers->orderBy('staff_id', 'asc')->get();
 
-
         // Routine Filter
-        if (!empty($request->program) && !empty($request->session) && !empty($request->semester)) {
-            // dd($request->toArray());
-            $routines = ClassRoutine::where('status', '1');
+        if (!empty($request->program) && !empty($request->session)) {
 
+            $routines = ClassRoutine::where('status', '1');
             if (!empty($request->program)) {
-                $routines->whereHas('programs', function ($query) use ($request) {
-                    $query->whereIn('program_id', $request->program);
-                });
+                $routines->where('program_id', $request->program);
             }
             if (!empty($request->session)) {
-                $routines->where('session_id', $request->session);
+                $routines->where('session_id', $request->session)->where('semester_id', $session->semester_id);
             }
-            if (!empty($request->semester)) {
-                $routines->where('semester_id', $request->semester);
-            }
-            // if(!empty($request->section)){
-            //     $routines->where('section_id', $request->section);
-            // }
             $data['rows'] = $routines->orderBy('start_time', 'asc')->get();
         }
-        $data['is_mulit_programs'] = Route::currentRouteName() == 'admin.class-routine.index';
+
         return view($this->view . '.create', $data);
     }
 
@@ -269,8 +225,7 @@ class ClassRoutineController extends Controller
         // Field Validation
         $request->validate([
             'session' => 'required',
-            'program' => 'required|array',
-            'semester' => 'required',
+            'program' => 'required',
             'subject' => 'required',
             'teacher' => 'required',
             'room' => 'required',
@@ -278,24 +233,22 @@ class ClassRoutineController extends Controller
             'end_time' => 'required',
         ]);
 
-
         DB::beginTransaction();
 
         if ($request->subject) {
             $data = $request->except('_token');
             $subject_count = count($data['subject']);
             $day = $request->day;
-            $programs = $request->program; //Multiple programs
+            $program = $request->program;
             $session = $request->session;
-            $section = null;#$request->section;
-            $semester = $request->semester;
+            $semester = Session::query()->find($session)->semester_id;
 
 
             for ($j = 0; $j < $subject_count; $j++) {
                 $start = $data['start_time'][$j];
                 $end = $data['end_time'][$j];
                 // Check Routine
-                /*$check = ClassRoutine::where('subject_id', $data['subject'][$j])->where('teacher_id', $data['teacher'][$j])->where('session_id', $session)->where('program_id', $programs)->where('semester_id', $semester)->where('section_id', $section)
+                /*$check = ClassRoutine::where('subject_id', $data['subject'][$j])->where('teacher_id', $data['teacher'][$j])->where('session_id', $session)->where('program_id', $program)->where('semester_id', $semester)->where('section_id', $section)
                 ->where('room_id', $data['room'][$j])->where('day', $day)
                 ->whereBetween('start_time', [$start, $end])
                 ->orwhereBetween('end_time', [$start, $end])
@@ -316,15 +269,15 @@ class ClassRoutineController extends Controller
                     ->first();
 
                 //Period Check
-                // $period_check = ClassRoutine::where('session_id', $session)->whereHas('programs' , function($query)use($programs){
-                //     $query->whereIn('id', $programs);
-                // })->where('semester_id', $semester)
-                // ->where('start_time', $start)
-                // ->where('day', $day)
-                // ->first();
+                $period_check = ClassRoutine::where('session_id', $session)
+                    ->where('program_id', $program)
+                    ->where('semester_id', $semester)
+                    ->where('start_time', $start)
+                    ->where('day', $day)
+                    ->first();
 
                 //Subject Check
-                /*$subject_check = ClassRoutine::where('subject_id', $data['subject'][$j])->where('session_id', $session)->where('program_id', $programs)->where('semester_id', $semester)->where('section_id', $section)
+                /*$subject_check = ClassRoutine::where('subject_id', $data['subject'][$j])->where('session_id', $session)->where('program_id', $program)->where('semester_id', $semester)->where('section_id', $section)
                 ->where('day', $day)
                 ->first();*/
 
@@ -336,8 +289,8 @@ class ClassRoutineController extends Controller
                     $classRoutine->teacher_id = $data['teacher'][$j];
                     $classRoutine->room_id = $data['room'][$j];
                     $classRoutine->session_id = $session;
+                    $classRoutine->program_id = $program;
                     $classRoutine->semester_id = $semester;
-                    $classRoutine->section_id = $section;
                     $classRoutine->start_time = $data['start_time'][$j];
                     $classRoutine->end_time = $data['end_time'][$j];
                     $classRoutine->day = $day;
@@ -354,8 +307,8 @@ class ClassRoutineController extends Controller
                         $classRoutine->teacher_id = $data['teacher'][$j];
                         $classRoutine->room_id = $data['room'][$j];
                         $classRoutine->session_id = $session;
+                        $classRoutine->program_id = $program;
                         $classRoutine->semester_id = $semester;
-                        $classRoutine->section_id = $section;
                         $classRoutine->start_time = $data['start_time'][$j];
                         $classRoutine->end_time = $data['end_time'][$j];
                         $classRoutine->day = $day;
@@ -365,7 +318,6 @@ class ClassRoutineController extends Controller
                     }
 
                 }
-                $classRoutine->programs()->sync($programs);
             }
 
             // Delete Routine
@@ -381,6 +333,7 @@ class ClassRoutineController extends Controller
         }
 
         DB::commit();
+
 
         return redirect()->back();
     }
@@ -415,10 +368,10 @@ class ClassRoutineController extends Controller
         $data['access'] = $this->access;
         $session = Session::where('status', '1')->where('current', '1')->first();
         $data['rows'] = ClassRoutine::where('status', '1')
-        ->where('session_id', $session->id)
-        ->where('teacher_id', Auth::id())
-        ->orderBy('start_time', 'asc')
-        ->get();
+            ->where('session_id', $session->id)
+            ->where('teacher_id', Auth::id())
+            ->orderBy('start_time', 'asc')
+            ->get();
         if (Auth::user()->is_admin == 1) {
             // Teacher Filter
             $teachers = User::where('status', '1');

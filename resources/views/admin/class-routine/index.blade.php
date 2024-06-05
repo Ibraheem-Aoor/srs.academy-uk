@@ -31,9 +31,7 @@
                                     <form id="print-routine" target="_blank" method="post"
                                         action="{{ route($route . '.print') }}" hidden>
                                         @csrf
-                                        @foreach ($selected_program as $program)
-                                            <input type="hidden" name="program[]" value="{{ $program }}">
-                                        @endforeach
+                                        <input type="hidden" name="program" value="{{ $selected_program }}">
                                         <input type="hidden" name="session" value="{{ $selected_session }}">
                                         <input type="hidden" name="semester" value="{{ $selected_semester }}">
                                         <input type="hidden" name="section" value="{{ $selected_section }}">
@@ -90,17 +88,17 @@
                                                                     {{ date($setting->time_format, strtotime($row->start_time)) }}
                                                                 @else
                                                                     {{ date('h:i A', strtotime($row->start_time)) }}
-                                                                    @endif <br />
-                                                                    @if (isset($setting->time_format))
-                                                                        {{ date($setting->time_format, strtotime($row->end_time)) }}
-                                                                    @else
-                                                                        {{ date('h:i A', strtotime($row->end_time)) }}
-                                                                    @endif
-                                                                    <br>
-                                                                    {{ __('field_room') }}:
-                                                                    {{ $row->room->title ?? '' }}<br>
-                                                                    {{ $row->teacher->staff_id }} -
-                                                                    {{ $row->teacher->first_name ?? '' }}
+                                                                @endif <br />
+                                                                @if (isset($setting->time_format))
+                                                                    {{ date($setting->time_format, strtotime($row->end_time)) }}
+                                                                @else
+                                                                    {{ date('h:i A', strtotime($row->end_time)) }}
+                                                                @endif
+                                                                <br>
+                                                                {{ __('field_room') }}:
+                                                                {{ $row->room->title ?? '' }}<br>
+                                                                {{ $row->teacher->staff_id }} -
+                                                                {{ $row->teacher->first_name ?? '' }}
                                                             </div>
                                                         @endforeach
                                                     </td>

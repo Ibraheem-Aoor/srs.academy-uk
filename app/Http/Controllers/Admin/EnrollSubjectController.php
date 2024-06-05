@@ -250,7 +250,7 @@ class EnrollSubjectController extends Controller
         $session = Session::query()->findOrFail($request->session);
         if ($session->current) {
             $this->syncSubjectsWithMoodle($subjects, $session, $moodle_course_service);
-            $this->removeUnenrolledSubjects($subjects, $session, $enrollSubject, $moodle_course_service);
+            // $this->removeUnenrolledSubjects($subjects, $session, $enrollSubject, $moodle_course_service);
         }
     }
 
@@ -286,22 +286,22 @@ class EnrollSubjectController extends Controller
      */
     private function removeUnenrolledSubjects($subjects, $session, $enrollSubject, CourseService $moodle_course_service)
     {
-        if (isset($enrollSubject)) {
-            foreach ($enrollSubject->subjects as $subject) {
+        // if (isset($enrollSubject)) {
+        //     foreach ($enrollSubject->subjects as $subject) {
 
-                $is_course_still_with_session = in_array($subject->id, array_values($subjects->pluck('id')->toArray())) &&
-                    EnrollSubject::query()
-                        ->where('session_id', $session->id)
-                        ->whereHas('subjects', function ($query) use ($subjects) {
-                            $query->whereIn('id', array_values($subjects->pluck('id')->toArray()));
-                        })
-                        ->exists();
-                if (!$is_course_still_with_session && $subject->id_on_moodle) {
-                    $moodle_course_service->destroy($subject);
-                    $subject->id_on_moodle = null;
-                    $subject->save();
-                }
-            }
-        }
+        //         $is_course_still_with_session = in_array($subject->id, array_values($subjects->pluck('id')->toArray())) &&
+        //             EnrollSubject::query()
+        //                 ->where('session_id', $session->id)
+        //                 ->whereHas('subjects', function ($query) use ($subjects) {
+        //                     $query->whereIn('id', array_values($subjects->pluck('id')->toArray()));
+        //                 })
+        //                 ->exists();
+        //         if (!$is_course_still_with_session && $subject->id_on_moodle) {
+        //             $moodle_course_service->destroy($subject);
+        //             $subject->id_on_moodle = null;
+        //             $subject->save();
+        //         }
+        //     }
+        // }
     }
 }

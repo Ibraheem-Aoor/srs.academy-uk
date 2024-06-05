@@ -14,41 +14,22 @@
         {{ __('required_field') }} {{ __('field_faculty') }}
     </div>
 </div>
-@if (isset($is_mulit_programs))
-    <div class="form-group col-md-3">
-        <label for="program">{{ __('field_program') }} <span>*</span></label>
-        <select class="form-control program select2" multiple name="program[]" id="program" required>
-            <option value="">{{ __('select') }}</option>
-            @if (isset($programs))
-                @foreach ($programs->sortBy('title') as $program)
-                    <option value="{{ $program->id }}" @if (in_array($program->id, $selected_program)) selected @endif>
-                        {{ $program->title }}</option>
-                @endforeach
-            @endif
-        </select>
+<div class="form-group col-md-3">
+    <label for="program">{{ __('field_program') }} <span>*</span></label>
+    <select class="form-control program " name="program" id="program" required>
+        <option value="">{{ __('select') }}</option>
+        @if (isset($programs))
+            @foreach ($programs->sortBy('title') as $program)
+                <option value="{{ $program->id }}" @selected($program->id == $selected_program) >
+                    {{ $program->title }}</option>
+            @endforeach
+        @endif
+    </select>
 
-        <div class="invalid-feedback">
-            {{ __('required_field') }} {{ __('field_program') }}
-        </div>
+    <div class="invalid-feedback">
+        {{ __('required_field') }} {{ __('field_program') }}
     </div>
-@else
-    <div class="form-group col-md-3">
-        <label for="program">{{ __('field_program') }} <span>*</span></label>
-        <select class="form-control program " name="program" id="program" required>
-            <option value="">{{ __('select') }}</option>
-            @if (isset($programs))
-                @foreach ($programs->sortBy('title') as $program)
-                    <option value="{{ $program->id }}" @if (in_array($program->id, $selected_program)) selected @endif>
-                        {{ $program->title }}</option>
-                @endforeach
-            @endif
-        </select>
-
-        <div class="invalid-feedback">
-            {{ __('required_field') }} {{ __('field_program') }}
-        </div>
-    </div>
-@endif
+</div>
 <div class="form-group col-md-3">
     <label for="session">{{ __('field_session') }} <span>*</span></label>
     <select class="form-control session" name="session" id="session" required>
@@ -65,9 +46,9 @@
         {{ __('required_field') }} {{ __('field_session') }}
     </div>
 </div>
-<div class="form-group col-md-3">
+<div class="form-group col-md-3 d-none">
     <label for="semester">{{ __('field_semester') }} <span>*</span></label>
-    <select class="form-control semester" name="semester" id="semester" required>
+    <select class="form-control semester" name="semester" id="semester">
         <option value="">{{ __('select') }}</option>
         @if (isset($semesters))
             @foreach ($semesters->sortBy('id') as $semester)
@@ -164,58 +145,8 @@
 
         });
 
-        $.ajax({
-            type: 'POST',
-            url: "{{ route('filter-semester') }}",
-            data: {
-                _token: $('input[name=_token]').val(),
-                program: $(this).val()
-            },
-            success: function(response) {
-                // var jsonData=JSON.parse(response);
-                $('option', semester).remove();
-                $('.semester').append('<option value="">{{ __('select') }}</option>');
-                $.each(response, function() {
-                    $('<option/>', {
-                        'value': this.id,
-                        'text': this.title
-                    }).appendTo('.semester');
-                });
-            }
-
-        });
     });
 
-    $(".semester").on('change', function(e) {
-        e.preventDefault(e);
-        var section = $(".section");
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.ajax({
-            type: 'POST',
-            url: "{{ route('filter-section') }}",
-            data: {
-                _token: $('input[name=_token]').val(),
-                semester: $(this).val(),
-                program: $('.program option:selected').val()
-            },
-            success: function(response) {
-                // var jsonData=JSON.parse(response);
-                $('option', section).remove();
-                $('.section').append('<option value="">{{ __('select') }}</option>');
-                $.each(response, function() {
-                    $('<option/>', {
-                        'value': this.id,
-                        'text': this.title
-                    }).appendTo('.section');
-                });
-            }
-
-        });
-    });
 
     @if (isset($is_mulit_programs))
         $(document).ready(function() {
@@ -246,7 +177,7 @@
                             $('option', session).remove();
                             $('.session').append(
                                 '<option value="">{{ __('select') }}</option>'
-                                );
+                            );
                             $.each(response, function() {
                                 $('<option/>', {
                                     'value': this.id,
@@ -256,28 +187,6 @@
                         }
                     });
 
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ route('filter-semester') }}",
-                        data: {
-                            _token: $('input[name=_token]').val(),
-                            program: $(this).val()
-                        },
-                        success: function(response) {
-                            // var jsonData=JSON.parse(response);
-                            $('option', semester).remove();
-                            $('.semester').append(
-                                '<option value="">{{ __('select') }}</option>'
-                                );
-                            $.each(response, function() {
-                                $('<option/>', {
-                                    'value': this.id,
-                                    'text': this.title
-                                }).appendTo('.semester');
-                            });
-                        }
-
-                    });
 
 
                 });

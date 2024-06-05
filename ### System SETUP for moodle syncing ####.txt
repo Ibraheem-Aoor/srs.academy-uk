@@ -14,3 +14,8 @@
            because we are not doing this if the session is not current.
 
 **/
+
+
+
+-- create schedule show only offered courses for the selected session.
+-- user update check enrollments update.

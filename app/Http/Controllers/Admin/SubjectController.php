@@ -256,20 +256,20 @@ class SubjectController extends Controller
     public function edit(Subject $subject, CourseService $course_service)
     {
         try {
+
             //
             $data['title'] = $this->title;
             $data['route'] = $this->route;
             $data['view'] = $this->view;
             $data['path'] = $this->path;
-
             $data['row'] = $subject;
             $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
             $data['courses'] = Subject::query()->status(1)->where('id', '!=', $subject->id)->orderByDesc('created_at')->get(['id', 'title']);
             $data['mark_distribution_systems'] = $this->mark_distribution_systems;
-            $data['category_on_moodle'] = $course_service->category($subject)?->id;
             return view($this->view . '.edit', $data);
         } catch (Throwable $e) {
             logError(e: $e, method: __METHOD__, class: get_class($this));
+            return back()->with('erro', __('msg_error'));
         }
     }
 
@@ -280,7 +280,7 @@ class SubjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Subject $subject , CourseService $course_service)
+    public function update(Request $request, Subject $subject, CourseService $course_service)
     {
         // Field Validation
         $request->validate([
