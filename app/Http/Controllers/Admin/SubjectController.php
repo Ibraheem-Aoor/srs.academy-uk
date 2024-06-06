@@ -280,7 +280,7 @@ class SubjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Subject $subject, CourseService $course_service)
+    public function update(Request $request, Subject $subject)
     {
         // Field Validation
         $request->validate([
@@ -322,8 +322,6 @@ class SubjectController extends Controller
                 $this->attachPrerequisites(subject: $subject, request: $request);
             }
 
-            // Update On Moodle
-            $course_service->update($subject, $request);
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();

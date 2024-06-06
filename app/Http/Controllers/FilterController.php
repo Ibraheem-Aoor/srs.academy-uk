@@ -213,7 +213,7 @@ class FilterController extends Controller
                     }
                 ])
                 ->first();
-            $data = $progam_subject->examTypeCategory?->examsTypes ?? [];
+            $data = $progam_subject->examTypeCategory?->examsTypes ?? collect([]);
             return $request->wantsJson() ?  response()->json($data) : $data;
         } catch (Throwable $e) {
             info('ERROR IN ' . __METHOD__);
