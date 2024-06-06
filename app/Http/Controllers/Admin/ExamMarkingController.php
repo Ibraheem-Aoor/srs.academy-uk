@@ -425,11 +425,7 @@ class ExamMarkingController extends Controller
             $rows = $exams->get();
 
             // Array Sorting
-            $data['rows'] = $rows->sortBy(function ($query) {
-
-                return $query->studentEnroll->student->student_id;
-
-            })->all();
+            $data['rows'] = $rows;
         }
 
         return view($this->view . '.result', $data);
