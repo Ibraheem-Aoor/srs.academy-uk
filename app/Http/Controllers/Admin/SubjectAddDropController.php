@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Grade;
+use App\Models\Session;
 use App\Services\Moodle\StudentEnrollService;
 use Toastr;
 use Auth;
@@ -67,8 +68,9 @@ class SubjectAddDropController extends Controller
 
             // Subjects
             $subjects = Subject::where('status', '1');
-            $subjects->with('programs')->whereHas('programs', function ($query) use ($row) {
-                $query->where('program_id', $row->program_id);
+            $current_session =  Session::query()->where('current', 1)->first()->id;
+            $subjects->with('programs')->whereHas('programs', function ($query) use ($row , $current_session) {
+                $query->where('program_id', $row->program_id)->where('session_id',$current_session->id);
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
 
