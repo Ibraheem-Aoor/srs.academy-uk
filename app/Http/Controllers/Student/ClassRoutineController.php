@@ -33,34 +33,32 @@ class ClassRoutineController extends Controller
     public function index()
     {
         //
-        $data['title']     = $this->title;
-        $data['route']     = $this->route;
-        $data['view']      = $this->view;
-        $data['path']      = $this->path;
+        $data['title'] = $this->title;
+        $data['route'] = $this->route;
+        $data['view'] = $this->view;
+        $data['path'] = $this->path;
 
         $session = Session::where('status', '1')->where('current', '1')->first();
 
-        if(isset($session)){
-        $enroll = StudentEnroll::where('student_id', Auth::guard('student')->user()->id)
-                        ->where('session_id', $session->id)
-                        ->where('status', '1')
-                        ->first();
+        if (isset($session)) {
+            $enroll = StudentEnroll::where('student_id', Auth::guard('student')->user()->id)
+                ->where('session_id', $session->id)
+                ->where('status', '1')
+                ->first();
         }
 
 
         // Class Routine
-        if(isset($enroll) && isset($session)){
-        $data['rows'] = ClassRoutine::where('status', '1')
-                        ->where('session_id', $enroll->session_id)
-                        ->whereHas('programs', function($programs)use($enroll){
-                            $programs->where('program_id' , $enroll->program_id);
-                        })
-                        ->where('semester_id', $enroll->semester_id)
-                        ->orderBy('start_time', 'asc')
-                        ->get();
+        if (isset($enroll) && isset($session)) {
+            $data['rows'] = ClassRoutine::where('status', '1')
+                ->where('session_id', $enroll->session_id)
+                ->where('program_id', $enroll->program_id)
+                ->where('semester_id', $enroll->semester_id)
+                ->orderBy('start_time', 'asc')
+                ->get();
         }
 
 
-        return view($this->view.'.index', $data);
+        return view($this->view . '.index', $data);
     }
 }
