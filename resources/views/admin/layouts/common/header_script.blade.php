@@ -41,7 +41,7 @@
 
 
         <!-- vendor css -->
-        <link rel="stylesheet" href="{{ asset('dashboard/css/style.css') }}?v=0.02" type="text/css" media="screen, print">
+        <link rel="stylesheet" href="{{ asset('dashboard/css/style.css') }}?v=2.0" type="text/css" media="screen, print">
 
         @php
         $version = App\Models\Language::version();
