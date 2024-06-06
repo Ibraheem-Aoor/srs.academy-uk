@@ -17,6 +17,7 @@ trait ExamModuleTrait
     {
         $request['subject_id'] = $request->subject;
         $request['program_id'] = $request->program;
-        return $filter->filterMarkDistribitionCategoryTypesBySubjectAndProgram($request)?->sortBy('created_at');
+        $result = $filter->filterMarkDistribitionCategoryTypesBySubjectAndProgram($request);
+        return  $result;
     }
 }
