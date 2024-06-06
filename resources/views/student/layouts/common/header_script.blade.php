@@ -31,16 +31,16 @@
         <!-- toastr css -->
         <link rel="stylesheet" href="{{ asset('dashboard/plugins/toastr/css/toastr.min.css') }}">
 
-        
+
         <!-- page css -->
         @yield('page_css')
 
 
         <!-- vendor css -->
-        <link rel="stylesheet" href="{{ asset('dashboard/css/style.css') }}">
+        <link rel="stylesheet" href="{{ asset('dashboard/css/style.css') }}?v=0.01">
 
-        @php 
-        $version = App\Models\Language::version(); 
+        @php
+        $version = App\Models\Language::version();
         @endphp
         @if($version->direction == 1)
         <!-- RTL css -->
