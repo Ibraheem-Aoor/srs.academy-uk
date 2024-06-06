@@ -55,7 +55,9 @@
                 media="screen, print">
         @endif
         <style>
-            * START Custom Css By Ibraheem */ #preloader {
+            /* START Custom Css By Ibraheem */
+
+            #preloader {
                 position: fixed;
                 top: 0;
                 left: 0;
