@@ -68,7 +68,7 @@ class SubjectAddDropController extends Controller
 
             // Subjects
             $subjects = Subject::where('status', '1');
-            $current_session =  Session::query()->where('current', 1)->first()->id;
+            $current_session =  Session::query()->where('current', 1)->first();
             $subjects->with('programs')->whereHas('programs', function ($query) use ($row , $current_session) {
                 $query->where('program_id', $row->program_id)->where('session_id',$current_session->id);
             });
