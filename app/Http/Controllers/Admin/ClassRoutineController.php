@@ -184,7 +184,7 @@ class ClassRoutineController extends Controller
 
             $subjects = Subject::where('status', 1);
             $subjects->with('subjectEnrolls')->whereHas('subjectEnrolls', function ($query) use ($program, $session) {
-                $query->where('program_id', $program)->where('semester_id', $session->semester_id);
+                $query->where('program_id', $program)->where('session_id', $session->id);
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
         }

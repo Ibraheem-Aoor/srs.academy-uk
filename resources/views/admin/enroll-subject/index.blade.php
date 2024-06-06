@@ -83,9 +83,9 @@
                                             @endcan
 
                                             @can($access.'-delete')
-                                            <button type="button" class="btn btn-icon btn-danger btn-sm d-none" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ $row->id }}">
+                                            {{-- <button type="button" class="btn btn-icon btn-danger btn-sm d-none" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ $row->id }}">
                                                 <i class="fas fa-trash-alt"></i>
-                                            </button>
+                                            </button> --}}
                                             <!-- Include Delete modal -->
                                             @include('admin.layouts.inc.delete')
                                             @endcan
