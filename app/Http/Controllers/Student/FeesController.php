@@ -20,7 +20,7 @@ use Throwable;
 
 class FeesController extends Controller
 {
-    use FileUploader , StudentModuleTrait;
+    use FileUploader, StudentModuleTrait;
     /**
      * Create a new controller instance.
      *
@@ -62,7 +62,6 @@ class FeesController extends Controller
             $data['selected_session'] = $session = '0';
         }
 
-        $data['selected_semester'] = $semester = '0';
 
         if (!empty($request->category) || $request->category != null) {
             $data['selected_category'] = $category = $request->category;
@@ -73,11 +72,10 @@ class FeesController extends Controller
 
         // Filter Assignment
         $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user, $session, &$data) {
-            $query->where('student_id', $user->id);
-            if ($session) {
-                $data['selected_semester'] = $session->semester_id;
-                $query->where('session_id', $session)->where('semester_id', $data['selected_semester']);
-            }
+            $query->where('student_id', $user->id)
+                ->when(isset($session), function ($query) use ($session) {
+                    $query->where('session_id', $session)->where('semester_id', $session->semester_id);
+                });
         })->orWhereDate('assign_date', @$session->start_date)
             ->orWhereDate('due_date', @$session->end_date)
             ->orWhereBetween('pay_date', [@$session->start_date, @$session->end_date]);

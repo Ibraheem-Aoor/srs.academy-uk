@@ -31,21 +31,6 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="semester">{{ __('field_semester') }}</label>
-                                        <select class="form-control" name="semester" id="semester">
-                                            <option value="0">{{ __('all') }}</option>
-                                            @foreach ($semesters as $semester)
-                                                <option value="{{ $semester->semester_id }}"
-                                                    @if ($selected_semester == $semester->semester_id) selected @endif>
-                                                    {{ $semester->semester->title }}</option>
-                                            @endforeach
-                                        </select>
-
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_semester') }}
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
                                         <label for="category">{{ __('field_fees_type') }}</label>
                                         <select class="form-control" name="category" id="category" required>
                                             <option value="0">{{ __('all') }}</option>
