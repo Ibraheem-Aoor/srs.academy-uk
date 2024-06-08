@@ -69,20 +69,21 @@ class FeesController extends Controller
             $data['selected_category'] = '0';
         }
 
-
         // Filter Assignment
-        $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user, $session, &$data) {
+        $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user, $session, &$data , $category) {
             $query->when(isset($session), function ($query) use ($session) {
-                $query->where('session_id', $session)->where('semester_id', $session->semester_id)
+                $query->where('session_id', $session)
+                    ->where('semester_id', $session->semester_id)
                     ->orWhereDate('assign_date', @$session->start_date)
                     ->orWhereDate('due_date', @$session->end_date)
                     ->orWhereBetween('pay_date', [@$session->start_date, @$session->end_date]);
-            })->where('student_id', $user->id);
+            })
+            ->when(isset($category) , function($query)use($category){
+                $query->where('category_id', $category);
+            })
+            ->where('student_id', $user->id);
         });
 
-        if (!empty($request->category)) {
-            $fees->where('category_id', $category);
-        }
         $data['rows'] = $fees->where('status', '<=', '1')->orderBy('assign_date', 'desc')->get();
         $data['auth_student'] = getAuthUser('student');
         return view($this->view . '.index', $data);
