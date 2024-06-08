@@ -81,10 +81,11 @@ class FeesController extends Controller
             ->when(isset($category) , function($query)use($category){
                 $query->where('category_id', $category);
             })
+            ->where('status', '<=', '1')
             ->where('student_id', $user->id);
         });
 
-        $data['rows'] = $fees->where('status', '<=', '1')->orderBy('assign_date', 'desc')->get();
+        $data['rows'] = $fees->orderBy('assign_date', 'desc')->get();
         $data['auth_student'] = getAuthUser('student');
         return view($this->view . '.index', $data);
     }
