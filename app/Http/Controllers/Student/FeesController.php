@@ -72,10 +72,9 @@ class FeesController extends Controller
 
         // Filter Assignment
         $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user, $session, &$data) {
-            $query->where('student_id', $user->id)
-                ->when(isset($session), function ($query) use ($session) {
+            $query->when(isset($session), function ($query) use ($session) {
                     $query->where('session_id', $session)->where('semester_id', $session->semester_id);
-                });
+                })->where('student_id', $user->id);
         })->orWhereDate('assign_date', @$session->start_date)
             ->orWhereDate('due_date', @$session->end_date)
             ->orWhereBetween('pay_date', [@$session->start_date, @$session->end_date]);
