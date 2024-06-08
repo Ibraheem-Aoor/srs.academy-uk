@@ -56,8 +56,8 @@ class FeesController extends Controller
 
         $session=null;
         if (!empty($request->session) || $request->session != null) {
-            $data['selected_session'] = $session = $request->session;
-            $session = Session::query()->find($session);
+            $data['selected_session'] = $r_session = $request->session;
+            $session = Session::query()->find($r_session);
         } else {
             $data['selected_session'] = $session = '0';
         }
