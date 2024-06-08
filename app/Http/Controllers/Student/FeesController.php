@@ -62,7 +62,7 @@ class FeesController extends Controller
             $data['selected_session'] = $session = '0';
         }
 
-
+        $category = null;
         if (!empty($request->category) || $request->category != null) {
             $data['selected_category'] = $category = $request->category;
         } else {
