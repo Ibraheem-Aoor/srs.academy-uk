@@ -54,7 +54,7 @@ class FeesController extends Controller
         $data['semesters'] = StudentEnroll::where('student_id', $user->id)->groupBy('semester_id')->get();
         $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
 
-
+        $session=null;
         if (!empty($request->session) || $request->session != null) {
             $data['selected_session'] = $session = $request->session;
             $session = Session::query()->find($session);
