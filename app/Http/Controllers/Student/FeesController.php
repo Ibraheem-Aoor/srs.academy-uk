@@ -69,23 +69,34 @@ class FeesController extends Controller
             $data['selected_category'] = '0';
         }
 
-        // Filter Assignment
-        $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user, $session, &$data , $category) {
-            $query->when(isset($session), function ($query) use ($session) {
-                $query->where('session_id', $session)
-                    ->where('semester_id', $session->semester_id)
-                    ->orWhereDate('assign_date', @$session->start_date)
-                    ->orWhereDate('due_date', @$session->end_date)
-                    ->orWhereBetween('pay_date', [@$session->start_date, @$session->end_date]);
-            })
-            ->when(isset($category) , function($query)use($category){
+        $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user, $session, $category) {
+            // Ensure the results are related to the authenticated user
+            $query->where('student_id', $user->id);
+
+            // Apply session-related filters if session is set
+            if (isset($session)) {
+                $query->where(function ($query) use ($session) {
+                    $query->where('session_id', $session->id)
+                        ->where('semester_id', $session->semester_id)
+                        ->orWhereDate('assign_date', $session->start_date ?? null)
+                        ->orWhereDate('due_date', $session->end_date ?? null)
+                        ->orWhereBetween('pay_date', [$session->start_date ?? null, $session->end_date ?? null]);
+                });
+            }
+
+            // Apply category-related filter if category is set
+            if (isset($category)) {
                 $query->where('category_id', $category);
-            })
-            ->where('status', '<=', '1')
-            ->where('student_id', $user->id);
+            }
+
+            // Apply status filter
+            $query->where('status', '<=', 1);
         });
 
+        // Retrieve and order the data
         $data['rows'] = $fees->orderBy('assign_date', 'desc')->get();
+
+        // Filter Assignment
         $data['auth_student'] = getAuthUser('student');
         return view($this->view . '.index', $data);
     }
