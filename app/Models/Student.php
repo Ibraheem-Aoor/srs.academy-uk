@@ -230,4 +230,13 @@ class Student extends Authenticatable
 
         return $enroll;
     }
+
+    /**
+     * Get The Admission semester Of The Student According To Admission Date.
+     */
+    public function admissionSemester() :  string
+    {
+        $semester = Semester::query()->where('start_date' , '<=' , $this->admission_date)->where('end_date' , '>=' , $this->admission_date)->first();
+        return isset($semester) ? $semester->title : $this->admission_date;
+    }
 }
