@@ -39,6 +39,7 @@ use Cadix\LaravelMoodle\Facades\Auth as FacadesAuth;
 use Hash;
 use Mail;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class StudentController extends Controller
 {
@@ -661,6 +662,8 @@ class StudentController extends Controller
      */
     public function destroy(Student $student, StudentService $moodle_student_service)
     {
+        // Not Allowed to delete student.
+        return back();
         try {
 
             DB::beginTransaction();
@@ -884,5 +887,27 @@ class StudentController extends Controller
         return redirect()->back();
     }
 
+
+    public function toggleStatus(Request $request , StudentService $moodle_student_service)
+    {
+        try{
+            $data = $request->toArray();
+            $student = Student::findOrFail($data['id']);
+            if($data['status_type'] == 'moodle_status')
+            {
+                $moodle_student_service->edit($student , !$data['status']);
+            }
+            DB::beginTransaction();
+            $student->update([
+                $data['status_type'] => $data['status'],
+            ]);
+            DB::commit();
+            return generateResponse(status:true , message:__('msg_success'));
+        }catch(Throwable $e)
+        {
+            DB::rollBack();
+            return generateResponse(status:false , message:__('msg_error'));
+        }
+    }
 
 }

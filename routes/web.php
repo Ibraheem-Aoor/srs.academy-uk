@@ -112,6 +112,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::post('admission/student-password-change', 'StudentController@passwordChange')->name('student-password-change');
     Route::get('admission/student-import', 'StudentController@import')->name('student.import');
     Route::post('admission/student-import-store', 'StudentController@importStore')->name('student.import.store');
+    Route::get('admission/student-toggle-status', 'StudentController@toggleStatus')->name('student.toggle_status');
 
     // Admission Routes
     Route::resource('admission/student-transfer-out', 'StudentTransferOutController');
@@ -524,7 +525,7 @@ Route::prefix('student')->name('student.')->namespace('Student')->group(function
 
 
 // Student Dashboard Routes
-Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')->namespace('Student')->group(function () {
+Route::middleware(['auth:student', 'XSS' , 'srs_active'])->prefix('student')->name('student.')->namespace('Student')->group(function () {
 
     // Dashboard Route
     Route::get('/', 'DashboardController@index')->name('dashboard.index');

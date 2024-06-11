@@ -40,7 +40,6 @@ class BaseService
             )->json();
             return isset($response) && !isset($response['exception'] , $response['warnings']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
         } catch (Throwable $e) {
-            dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this));
             return back();
         }

@@ -26,7 +26,7 @@ class StudentService extends BaseService
         // Create the data array for the POST request
         $users = [
             [
-                'username' => preg_replace('/[^-.@_0-9a-z]/', '', strtolower($student->first_name . ' ' . $student->last_name)), //  username
+                'username' => generate_moodle_username($student->first_name , $student->last_name), //  username
                 'firstname' => $student->first_name, //  first name
                 'password' => $password,
                 'lastname' => $student->last_name, //  last name
@@ -51,13 +51,13 @@ class StudentService extends BaseService
     /**
      * Update Subject On Moodle
      */
-    public function edit(Student $student)
+    public function edit(Student $student , $suspended = false)
     {
         // Create the data array for the POST request
         $users = [
             [
                 'id' => $student->id_on_moodle,
-                'username' => preg_replace('/[^-.@_0-9a-z]/', '', strtolower($student->first_name . ' ' . $student->last_name)), //  username
+                'username' => generate_moodle_username($student->first_name , $student->last_name), //  username
                 'firstname' => $student->first_name, //  first name
                 'lastname' => $student->last_name, //  last name
                 'email' => $student->email, //  email
@@ -67,6 +67,7 @@ class StudentService extends BaseService
                 'department' => $student->program->title, // Optional
                 'phone1' => $student->phone, // Optional
                 'address' => $student->present_address, // Optional
+                'suspended' => $suspended,
                 'lang' => 'en', // Default language
             ]
         ];

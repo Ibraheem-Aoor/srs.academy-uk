@@ -83,6 +83,8 @@
                                             <th>{{ __('field_session') }}</th>
                                             <th>{{ __('field_admission_semester') }}</th>
                                             <th>{{ __('field_status') }}</th>
+                                            <th>{{ __('field_srs_status') }}</th>
+                                            <th>{{ __('field_moodle_status') }}</th>
                                             {{-- <th>{{ __('field_login') }}</th> --}}
                                             <th>{{ __('field_action') }}</th>
                                         </tr>
@@ -102,11 +104,29 @@
                                                 <td>{{ $row->first_name }} {{ $row->last_name }}</td>
                                                 <td>{{ $row->program->shortcode ?? '' }}</td>
                                                 <td>{{ $enroll->session->title ?? '' }}</td>
-                                                <td>{{ $row->admissionSemester() }}</td>
+                                                <td>{{ $row->admissionSemester() }} </td>
                                                 <td>
                                                     @foreach ($row->statuses as $key => $status)
                                                         <span class="badge badge-primary">{{ $status->title }}</span><br>
                                                     @endforeach
+                                                </td>
+                                                <td>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            id="{{ $row->id }}-srs-status" name="srs_status"
+                                                            data-route="{{  route('admin.student.toggle_status' , ['status_type' => 'srs_status']) }}"
+                                                            @checked($row->srs_status) data-id="{{ $row->id }}"
+                                                            onclick="toggleStatus($(this));">
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            id="{{ $row->id }}-moodle-status" name="moodle_status"
+                                                            data-route="{{  route('admin.student.toggle_status' , ['status_type' => 'moodle_status']) }}"
+                                                            @checked($row->moodle_status) data-id="{{ $row->id }}"
+                                                            onclick="toggleStatus($(this));">
+                                                    </div>
                                                 </td>
                                                 {{-- <td>
                                             @can($access . '-edit')
@@ -125,21 +145,22 @@
                                         </td> --}}
                                                 <td>
                                                     @can($access . '-password-print')
-                                                        <a href="{{ route($route . '.print-financial-agreement', [$row->id]) }}" target="__blank"
-                                                            class="btn btn-info btn-sm"><i class="fas fa-print"></i>
+                                                        <a href="{{ route($route . '.print-financial-agreement', [$row->id]) }}"
+                                                            target="__blank" class="btn btn-info btn-sm"><i
+                                                                class="fas fa-print"></i>
                                                             {{ __('financial_agreement') }}</a>
                                                         <a href="#" class="btn btn-dark btn-sm"
                                                             onclick="PopupWin('{{ route($route . '.print-password', [$row->id]) }}', '{{ $title }}', 800, 500);"><i
                                                                 class="fas fa-print"></i> {{ __('field_password') }}</a>
                                                     @endcan
 
-                                                    <form action="{{ route($route . '.send-password', [$row->id]) }}"
+                                                    {{-- <form action="{{ route($route . '.send-password', [$row->id]) }}"
                                                         method="post" style="display: inline;">
                                                         @csrf
                                                         <button type="submit" class="btn btn-info btn-sm"><i
                                                                 class="fas fa-envelope"></i>
                                                             {{ __('field_password') }}</button>
-                                                    </form>
+                                                    </form> --}}
                                                     <br />
 
                                                     <a href="{{ route($route . '.show', $row->id) }}"
@@ -174,13 +195,13 @@
                                                     @endcan
 
                                                     @can($access . '-delete')
-                                                        <button type="button" class="btn btn-icon btn-danger btn-sm"
+                                                        {{-- <button type="button" class="btn btn-icon btn-danger btn-sm"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#deleteModal-{{ $row->id }}">
                                                             <i class="fas fa-trash-alt"></i>
                                                         </button>
                                                         <!-- Include Delete modal -->
-                                                        @include('admin.layouts.inc.delete')
+                                                        @include('admin.layouts.inc.delete') --}}
                                                     @endcan
                                                 </td>
                                             </tr>
@@ -198,4 +219,27 @@
     </div>
     <!-- End Content-->
 
+@endsection
+
+@section('page_js')
+    <script>
+
+            // Quick Toggle is Active status from the table row
+            function toggleStatus(input) {
+                console.log('TT');
+                var id = input.data('id');
+                var route = input.data('route');
+                var status = input.prop('checked') == true ? 1 : 0;
+                $.get(route, {
+                    id: id,
+                    status: status,
+                }, function(reseponse) {
+                    if (reseponse.status) {
+                        toastr.success(reseponse.message);
+                    } else {
+                        toastr.error(reseponse.message);
+                    }
+                });
+            }
+    </script>
 @endsection
