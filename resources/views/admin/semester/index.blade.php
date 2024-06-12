@@ -57,7 +57,7 @@
                                     {{-- Start Date --}}
                                     <div class="form-group">
                                         <label for="title" class="form-label">{{ __('field_start_date') }} <span>*</span></label>
-                                        <input type="date" class="form-control" name="start_date" id="start_date"
+                                        <input type="date" class="form-control date" name="start_date" id="start_date"
                                             value="{{ old('start_date') }}" required>
 
                                         <div class="invalid-feedback">
@@ -67,7 +67,7 @@
                                     {{-- End Date --}}
                                     <div class="form-group">
                                         <label for="title" class="form-label">{{ __('field_end_date') }} <span>*</span></label>
-                                        <input type="date" class="form-control" name="end_date" id="end_date"
+                                        <input type="date" class="form-control date" name="end_date" id="end_date"
                                             value="{{ old('end_date') }}" required>
 
                                         <div class="invalid-feedback">

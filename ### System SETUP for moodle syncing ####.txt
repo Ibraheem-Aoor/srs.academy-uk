@@ -19,3 +19,7 @@
 
 -- create schedule show only offered courses for the selected session.
 -- user update check enrollments update.
+
+
+## CASES TO HANDLE ##
+    1- removed offer courses we shoud suspend all enrollments to it.(from addDrop and singEnroll)

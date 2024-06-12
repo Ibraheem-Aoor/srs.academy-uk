@@ -154,8 +154,8 @@
                                                         <span
                                                             class="btn btn-success btn-sm">{{ __('status_current') }}</span>
                                                     @else
-                                                        <a href="{{ route($route . '.current', $row->id) }}"
-                                                            class="btn btn-secondary btn-sm">{{ __('status_not_current') }}</a>
+                                                        {{-- <a href="{{ route($route . '.current', $row->id) }}"
+                                                            class="btn btn-secondary btn-sm">{{ __('status_not_current') }}</a> --}}
                                                     @endif
 
                                                     @can($access . '-edit')
@@ -169,11 +169,11 @@
                                                     @endcan
 
                                                     @can($access . '-delete')
-                                                        <button type="button" class="btn btn-icon btn-danger btn-sm"
+                                                        {{-- <button type="button" class="btn btn-icon btn-danger btn-sm"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#deleteModal-{{ $row->id }}">
                                                             <i class="fas fa-trash-alt"></i>
-                                                        </button>
+                                                        </button> --}}
                                                         <!-- Include Delete modal -->
                                                         @include('admin.layouts.inc.delete')
                                                     @endcan

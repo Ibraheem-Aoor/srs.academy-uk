@@ -62,7 +62,6 @@ class BaseService
             // This Response Is Nullable.
             return !isset($response['exception']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
         } catch (Throwable $e) {
-            dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this), custom_message: __('Moodle_Error'));
             throw new \Exception($e);
         }
@@ -83,7 +82,6 @@ class BaseService
             // This Response Is Nullable.
             return !isset($response['exception']) ? $response : throw new \Exception($response['exception'] . '||Message: ' . $response['message']);
         } catch (Throwable $e) {
-            dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this), custom_message: __('Moodle_Error'));
             throw new \Exception($e);
         }

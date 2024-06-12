@@ -106,17 +106,16 @@ class FilterController extends Controller
 
     public function filterEnrollSubject(Request $request)
     {
-        //
         $data = $request->all();
         $rows = Subject::where('status', 1);
         $rows->with('subjectEnrolls')->whereHas('subjectEnrolls', function ($query) use ($data) {
             $query->when(@$data['program'], function ($subject) use ($data) {
                 $subject->where('program_id', @$data['program']);
             });
-            $query->when($data['semester'], function ($subject) use ($data) {
+            $query->when(@$data['semester'], function ($subject) use ($data) {
                 $subject->where('semester_id', @$data['semester']);
             });
-            $query->when($data['session'], function ($subject) use ($data) {
+            $query->when(@$data['session'], function ($subject) use ($data) {
                 $subject->where('session_id', @$data['session']);
             });
             $query->when(@$data['section_id'], function ($subject) use ($data) {

@@ -47,7 +47,7 @@ class AutoSwitchCurrentSession extends Command
                     Session::query()->where('current', 1)->update([
                         'current' => 0,
                     ]);
-                    $this->updateSessionOfferedCoursesOnMoodle($session);
+                    // $this->updateSessionOfferedCoursesOnMoodle($session);
                     $session->update(['current' => 1]);
                 }
             }
@@ -56,6 +56,9 @@ class AutoSwitchCurrentSession extends Command
         }
     }
 
+    /**
+     * Deperecated for now.
+     */
     public function updateSessionOfferedCoursesOnMoodle($session)
     {
         $moodle_course_service = new CourseService();

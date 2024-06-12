@@ -445,7 +445,7 @@
     "use strict";
 
     // Next Subject
-    $(".next_semester").on('change', function(e) {
+    $(".session").on('change', function(e) {
         e.preventDefault(e);
         var subject = $(".next_subject");
         $.ajaxSetup({
@@ -458,8 +458,7 @@
             url: "{{ route('filter-enroll-subject') }}",
             data: {
                 _token: $('input[name=_token]').val(),
-                semester: $(this).val(),
-                session: $('.session option:selected').val(),
+                session: $(this).val(),
                 program: '{{ $row->program_id }}',
             },
             success: function(response) {
@@ -469,11 +468,10 @@
                         $('<option/>', {
                             'value': this.id,
                             'text': this.title
-                        }).appendTo('.session');
+                        }).appendTo('.next_subject');
                     });
                 }else{
-                    console.log('SS');
-                    $('.session').html("");
+                    $('.next_subject').html("");
                 }
             }
 

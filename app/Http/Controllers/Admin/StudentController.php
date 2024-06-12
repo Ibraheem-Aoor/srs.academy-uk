@@ -629,10 +629,9 @@ class StudentController extends Controller
                         $new_enroll->subjects()->attach($subject->id);
                     }
                     // Enroll On Moodle
-                    $moodle_student_enroll_service->store($new_enroll);
-                    if(isset($prev_enroll , $new_enroll))
-                    {
-                        $moodle_student_enroll_service->bulkUnEnroll($student->id_on_moodle , $prev_enroll->subjects);
+                    if (isset($prev_enroll, $new_enroll)) {
+                        $moodle_student_enroll_service->bulkUnEnroll($student->id_on_moodle, $prev_enroll);
+                        $moodle_student_enroll_service->store($new_enroll);
                     }
                 }
 
@@ -888,25 +887,23 @@ class StudentController extends Controller
     }
 
 
-    public function toggleStatus(Request $request , StudentService $moodle_student_service)
+    public function toggleStatus(Request $request, StudentService $moodle_student_service)
     {
-        try{
+        try {
             $data = $request->toArray();
             $student = Student::findOrFail($data['id']);
-            if($data['status_type'] == 'moodle_status')
-            {
-                $moodle_student_service->edit($student , !$data['status']);
+            if ($data['status_type'] == 'moodle_status') {
+                $moodle_student_service->edit($student, !$data['status']);
             }
             DB::beginTransaction();
             $student->update([
                 $data['status_type'] => $data['status'],
             ]);
             DB::commit();
-            return generateResponse(status:true , message:__('msg_success'));
-        }catch(Throwable $e)
-        {
+            return generateResponse(status: true, message: __('msg_success'));
+        } catch (Throwable $e) {
             DB::rollBack();
-            return generateResponse(status:false , message:__('msg_error'));
+            return generateResponse(status: false, message: __('msg_error'));
         }
     }
 

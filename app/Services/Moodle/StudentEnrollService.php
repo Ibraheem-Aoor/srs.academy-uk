@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\Moodle;
 
+use App\Models\MoodleSubjectSession;
 use App\Models\Program;
 use App\Models\Session;
 use App\Models\StudentEnroll;
@@ -29,9 +30,10 @@ class StudentEnrollService extends BaseService
         // Create the data array for the POST request
         $enrolments = [];
         foreach ($student_enroll->subjects as $subject) {
+            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id' , $subject->id)->where('session_id' , $student_enroll->session_id)->first()->id_on_moodle;
             $enrolments[] = [
                 'roleid' => $student_role_id,
-                'courseid' => $subject->id_on_moodle,
+                'courseid' => $subject_id_on_moodle,
                 'userid' => $student_enroll->student->id_on_moodle,
                 'timestart' => strtotime($student_enroll->session->start_date),
                 'timeend' => strtotime($student_enroll->session->end_date),
@@ -62,9 +64,10 @@ class StudentEnrollService extends BaseService
         // Add enrolments for new subjects
         foreach ($subjects_to_enroll as $subject_id) {
             $subject = Subject::find($subject_id);
+            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id' , $subject->id)->where('session_id' , $student_enroll->session_id)->first()->id_on_moodle;
             $enrolments[] = [
                 'roleid' => $student_role_id,
-                'courseid' => $subject->id_on_moodle,
+                'courseid' => $subject_id_on_moodle,
                 'userid' => $student_enroll->student->id_on_moodle,
                 'timestart' => strtotime($student_enroll->session->start_date),
                 'timeend' => strtotime($student_enroll->session->end_date),
@@ -75,9 +78,10 @@ class StudentEnrollService extends BaseService
         // Suspend enrolments for dropped subjects
         foreach ($subjects_to_drop as $subject_id) {
             $subject = Subject::find($subject_id);
+            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id' , $subject->id)->where('session_id' , $student_enroll->session_id)->first()->id_on_moodle;
             $enrolments[] = [
                 'roleid' => $student_role_id,
-                'courseid' => $subject->id_on_moodle,
+                'courseid' => $subject_id_on_moodle,
                 'userid' => $student_enroll->student->id_on_moodle,
                 'timestart' => strtotime($student_enroll->session->start_date),
                 'timeend' => strtotime($student_enroll->session->end_date),
@@ -92,14 +96,15 @@ class StudentEnrollService extends BaseService
     /**
      * Bulk Suspend For Student Subjects.
      */
-    public function bulkUnEnroll($id, $subjects_to_unenroll)
+    public function bulkUnEnroll($id, $enrollment)
     {
         // Retrieve the student role ID from Moodle
         $student_role_id = $this->role_service->getStudentRoleId();
-        foreach ($subjects_to_unenroll as $subject) {
+        foreach ($enrollment->subjects as $subject) {
+            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id'  , $subject->id)->where('session_id' , $enrollment->session_id)->first()->id_on_moodle;
             $enrolments[] = [
                 'roleid' => $student_role_id,
-                'courseid' => $subject->id_on_moodle,
+                'courseid' => $subject_id_on_moodle,
                 'userid' => $id,
                 'suspend' => 1,
             ];
@@ -114,7 +119,6 @@ class StudentEnrollService extends BaseService
             $query_params['wsfunction'] = 'enrol_manual_enrol_users';
             // Add enrolments to the query parameters
             $query_params['enrolments'] = $enrolments;
-
             // Send the enrolment data to Moodle
             return parent::update($query_params);
         }

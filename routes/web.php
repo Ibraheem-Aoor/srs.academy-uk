@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AcademySite\ContactController;
 use App\Http\Controllers\Admin\BigBlueButtonController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\ManualTransferDataToMoodleController;
+use App\Http\Controllers\QuickSetupSemesterController;
 use App\Http\Controllers\SyncDataWithMoodleController;
 use App\Http\Controllers\VClassController;
 
@@ -494,6 +495,10 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::get('moodle/sync-sessions' , [SyncDataWithMoodleController::class, 'syncSessions'])->name('moodle.sync.sessions');
     Route::get('moodle/sync-courses' , [SyncDataWithMoodleController::class, 'syncCourses'])->name('moodle.sync.sessions');
     Route::get('moodle/sync-students' , [SyncDataWithMoodleController::class, 'syncStudents'])->name('moodle.sync.students');
+
+    // Quick Setup Controller:
+    Route::get('srs/setup-semsters' , [QuickSetupSemesterController::class, 'setupSemestersDate']);
+    Route::get('srs/setup-sessions' , [QuickSetupSemesterController::class, 'setupSessionDates']);
 });
 
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\EnrollSubject;
+use App\Models\MoodleSubjectSession;
 use Illuminate\Http\Request;
 use App\Models\Semester;
 use App\Models\Program;
@@ -262,24 +263,22 @@ class EnrollSubjectController extends Controller
      */
     private function syncSubjectsWithMoodle($subjects, $session, CourseService $moodle_course_service)
     {
-        $current_session = Session::query()->where('current', 1)->first();
-        $moodle_category_id = $session->id_on_moodle;
         foreach ($subjects as $subject) {
-            // if the course is offered to the current session so keep it.else add it to the targeted session.
-            $is_subject_offered_to_current_session = EnrollSubject::query()
-                ->where('session_id', $current_session->id)
-                ->whereHas('subjects', function ($query) use ($subject) {
-                    $query->where('id', $subject->id);
-                })->exists();
-            if ($is_subject_offered_to_current_session) {
-                $moodle_category_id = $current_session->id_on_moodle;
-            }
-            if (!isset($subject->id_on_moodle)) {
-                $created_course_on_moodle = $moodle_course_service->store($subject, $moodle_category_id);
-                $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
+            $is_subject_exists_on_moodle_at_all = MoodleSubjectSession::query()->where('subject_id', $subject->id)->exists();
+            $is_sujbect_exists_for_session = MoodleSubjectSession::query()->where('session_id', $session->id)->where('subject_id', $subject->id)->exists();
+            if (!$is_subject_exists_on_moodle_at_all) {
+                $created_course_on_moodle = $moodle_course_service->store($subject, $session);
+                MoodleSubjectSession::query()->updateOrCreate([
+                    'session_id' => $session->id,
+                    'subject_id' => $subject->id,
+                ], [
+                    'session_id' => $session->id,
+                    'subject_id' => $subject->id,
+                    'id_on_moodle' => $created_course_on_moodle[0]['id'],
+                ]);
                 $subject->save();
-            } else {
-                $moodle_course_service->edit($subject, $session->id_on_moodle);
+            } elseif (!$is_sujbect_exists_for_session) {
+                $moodle_course_service->duplicateCourseForNewSession($subject, $session);
             }
         }
     }

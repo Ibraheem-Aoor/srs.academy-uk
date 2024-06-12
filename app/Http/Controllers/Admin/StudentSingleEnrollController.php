@@ -12,6 +12,7 @@ use App\Models\Session;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Grade;
+use App\Rules\SubjectMustBeOfferedWithSingleEnrollmentSession;
 use App\Services\Moodle\StudentEnrollService;
 use Toastr;
 use Auth;
@@ -99,7 +100,7 @@ class StudentSingleEnrollController extends Controller
             'program' => 'required',
             'session' => 'required',
             'section' => 'nullable',
-            'subjects' => 'required',
+            'subjects' => ['required' ,new SubjectMustBeOfferedWithSingleEnrollmentSession($request->student , $request->session)],
         ]);
         try {
             DB::beginTransaction();

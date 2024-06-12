@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasStatus;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -48,5 +49,13 @@ class Session extends Model
     public function semester() : BelongsTo
     {
         return $this->belongsTo(Semester::class , 'semester_id');
+    }
+
+    /**
+     * Get Session Title Short Name for moodle logic
+     */
+    public function getShortTitleForMoodle()
+    {
+        return str_replace([' ' , '-' , '_'] , '',Carbon::parse( substr($this->title , 0 , 4))->format('y').''. substr($this->title, 4, 4).''. substr($this->title, -1));
     }
 }

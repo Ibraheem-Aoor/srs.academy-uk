@@ -191,6 +191,7 @@ class SessionController extends Controller
     public function destroy(Session $session , SessionService $moodle_session_service)
     {
         try {
+            return back();
             // Delete Data
             DB::beginTransaction();
             $session->programs()->detach();
