@@ -69,7 +69,7 @@
                                                         </td>
                                                         <td>{{ $row->student->first_name ?? '' }}
                                                             {{ $row->student->last_name ?? '' }}</td>
-                                                        @foreach ($row->exams->groupBy('exam_type_id') as $exam_type_id => $exams)
+                                                        @foreach ($row->exams->where('subject_id' , request('subject'))->groupBy('exam_type_id') as $exam_type_id => $exams)
                                                             @foreach ($exams as $exam)
                                                                 <td>
                                                                     <input type="text" class="form-control"

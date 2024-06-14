@@ -53,7 +53,7 @@
 
             <div class="row">
                 <!-- [ bitcoin-wallet section ] start-->
-                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                <div class="col-sm-6 col-md-6 col-xl-6 button-divs"
                     onclick='window.location.href="{{ route('student.transcript.index') }}"'>
                     <div class="card bg-c-blue bitcoin-wallet">
                         <div class="card-block">
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                <div class="col-sm-6 col-md-6 col-xl-6 button-divs"
                     onclick='window.location.href="{{ route('student.fees.index') }}"'>
                     <div class="card bg-c-blue bitcoin-wallet">
                         <div class="card-block">
@@ -73,7 +73,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                {{-- <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
                     onclick='window.location.href="{{ route('student.exam-routine.index') }}"'>
                     <div class="card bg-c-blue bitcoin-wallet">
                         <div class="card-block">
@@ -82,7 +82,7 @@
                             <i class="fas fa-file-alt f-70 text-white"></i>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <!-- [ bitcoin-wallet section ] end-->
             </div>
 

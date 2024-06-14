@@ -17,6 +17,7 @@ use App\Models\Grade;
 use App\Models\Exam;
 use App\Models\ExamTypeCategory;
 use App\Models\StudentEnroll;
+use App\Models\SubjectMarking;
 use App\User;
 use Toastr;
 use Auth;
@@ -145,10 +146,10 @@ class ExamMarkingController extends Controller
             // Filter Subject
             $subjects = Subject::where('status', '1');
             $subjects->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
-                if (isset ($session)) {
+                if (isset($session)) {
                     $query->where('session_id', $session);
                 }
-                if (!isset ($superAdmin)) {
+                if (!isset($superAdmin)) {
                     $query->where('teacher_id', $teacher_id);
                 }
             });
@@ -164,10 +165,10 @@ class ExamMarkingController extends Controller
                 // Check Subject Access
                 $subject_check = Subject::where('id', $subject);
                 $subject_check->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
-                    if (isset ($session)) {
+                    if (isset($session)) {
                         $query->where('session_id', $session);
                     }
-                    if (!isset ($superAdmin)) {
+                    if (!isset($superAdmin)) {
                         $query->where('teacher_id', $teacher_id);
                     }
                 })->firstOrFail();
@@ -178,15 +179,10 @@ class ExamMarkingController extends Controller
                 $enrollments = StudentEnroll::query()
                     ->where('program_id', $request->program)
                     ->where('session_id', $request->session)
-                    ->whereHas('subjects', function ($subjects) use ($request) {
-                        $subjects->where('id', $request->subject);
-                    })->whereHas('exams', function ($exams) use ($request, $exam_types) {
-                        if (!empty ($request->type) && $request->type != '0') {
-                            $exams->whereIn('exam_type_id', array_keys($exam_types));
-                        }
-                    });
+                ->with('subjects', 'exams');
                 $rows = $enrollments->get();
-                if ($rows->isEmpty()) {
+                $exams = Exam::query()->whereIn('student_enroll_id' , array_values($enrollments->pluck('id')->toArray()))->where('subject_id', $request->subject)->get();
+                if ($rows->isEmpty() || $exams->isEmpty()) {
                     return $this->createEmptyExamsForStudents($request, $exam_types);
                 }
                 // Array Sorting
@@ -213,14 +209,15 @@ class ExamMarkingController extends Controller
             ->whereHas('subjects', function ($subjects) use ($request) {
                 $subjects->where('id', $request->subject);
             })->get();
+
         foreach ($enrollments as $enrollment) {
             foreach ($exam_types as $exam_type) {
-                $s = Exam::create([
+                Exam::create([
                     'student_enroll_id' => $enrollment->id,
                     'subject_id' => $request->subject,
                     'exam_type_id' => $exam_type->id,
                     'date' => now()->toDateString(),
-                    'marks' => $exam_type->marks,
+                    'marks' => $exam_type->marks, //max marks allowed
                     'contribution' => $exam_type->contribution,
                     'attendance' => 1,
                     'achieve_marks' => null, // we made this because of the data format after validation.
@@ -257,12 +254,22 @@ class ExamMarkingController extends Controller
             } else {
                 $exam_mark = $marks;
             }
-
             $exam = Exam::find($exam_id);
             $exam->achieve_marks = $exam_mark;
             // $exam->note = $request->notes[$key];
             $exam->updated_by = Auth::guard('web')->user()->id;
             $exam->save();
+            SubjectMarking::query()->updateOrCreate(
+                [
+                    'student_enroll_id' => $exam->student_enroll_id,
+                    'subject_id' => $exam->subject_id
+                ],
+                [
+                    'student_enroll_id' => $exam->student_enroll_id,
+                    'subject_id' => $exam->subject_id,
+                    'total_marks' => Exam::query()->where('student_enroll_id', $exam->student_enroll_id)->where('subject_id', $exam->subject_id)->sum('achieve_marks'),
+                ]
+            );
         }
 
 
@@ -369,10 +376,10 @@ class ExamMarkingController extends Controller
             // Filter Subject
             $subjects = Subject::where('status', '1');
             $subjects->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
-                if (isset ($session)) {
+                if (isset($session)) {
                     $query->where('session_id', $session);
                 }
-                if (!isset ($superAdmin)) {
+                if (!isset($superAdmin)) {
                     $query->where('teacher_id', $teacher_id);
                 }
             });
@@ -389,10 +396,10 @@ class ExamMarkingController extends Controller
             // Check Subject Access
             $subject_check = Subject::where('id', $subject);
             $subject_check->with('classes')->whereHas('classes', function ($query) use ($teacher_id, $session, $superAdmin) {
-                if (isset ($session)) {
+                if (isset($session)) {
                     $query->where('session_id', $session);
                 }
-                if (!isset ($superAdmin)) {
+                if (!isset($superAdmin)) {
                     $query->where('teacher_id', $teacher_id);
                 }
             })->firstOrFail();

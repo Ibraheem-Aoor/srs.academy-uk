@@ -177,7 +177,6 @@
                                 $totalPaid = $totalFee - $totalDiscount + $totalFine;
                                 $sessionTotal += $totalPaid;
                                 $program_total_fees += $totalPaid;
-
                             @endphp
                             <tr class="border-bottom fs-10">
                                 <td>{{ $categoryTitle }}</td>

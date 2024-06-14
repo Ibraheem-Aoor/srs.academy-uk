@@ -148,9 +148,9 @@
                                 @endcanany
 
                                 @canany(['student-enroll-group'])
-                                    <li class="{{ Request::is('admin/student/group-enroll*') ? 'active' : '' }}"><a
+                                    {{-- <li class="{{ Request::is('admin/student/group-enroll*') ? 'active' : '' }}"><a
                                             href="{{ route('admin.group-enroll.index') }}"
-                                            class="">{{ trans_choice('module_group_enroll', 2) }}</a></li>
+                                            class="">{{ trans_choice('module_group_enroll', 2) }}</a></li> --}}
                                 @endcanany
 
                                 @canany(['student-enroll-adddrop'])
