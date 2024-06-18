@@ -312,7 +312,7 @@ class ApplicationController extends Controller
 
 
             // Assign Subjects
-            $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('semester_id', $request->semester)->where('section_id', $request->section)->first();
+            $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('session_id', $session->id)->first();
 
             $student_on_moodle = $student_service->store($application, $password);
             $application->id_on_moodle = $student_on_moodle[0]['id'];
