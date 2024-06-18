@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProgramCategoryEnum;
+use App\Models\Program;
 use App\Models\Semester;
 use App\Models\Session;
 use App\Models\Student;
@@ -14,6 +16,36 @@ use Throwable;
 
 class QuickSetupSemesterController extends Controller
 {
+    public function categorizePrograms()
+    {
+        Program::query()->chunkById(10, function ($programs) {
+            foreach ($programs as $program) {
+                $category = $this->getCategoryForProgram($program->title);
+                if ($category) {
+                    $program->category = $category;
+                    $program->save();
+                }
+            }
+        });
+        dd('DONE SUCCESSFULLY');
+    }
+
+    private function getCategoryForProgram($program)
+    {
+        if (strpos($program, 'Doctor') !== false || strpos($program, 'DM') !== false) {
+            return ProgramCategoryEnum::DOCTOR->value;
+        }
+
+        if (strpos($program, 'Master') !== false || strpos($program, 'MBA') !== false) {
+            return ProgramCategoryEnum::MASTER->value;
+        }
+
+        if (strpos($program, 'Bachelor') !== false || strpos($program, 'BBA') !== false) {
+            return ProgramCategoryEnum::BACHELOR->value;
+        }
+
+        return null;
+    }
     public function setupSemestersDate()
     {
         $semesters = [
@@ -60,7 +92,7 @@ class QuickSetupSemesterController extends Controller
             if ($semester) {
                 foreach ($sessions as $sessionKey => $dates) {
                     $sessionName = "2024_{$sessionKey}";
-                    $session = Session::where('title', 'like' , '%'.$sessionName.'%')->first();
+                    $session = Session::where('title', 'like', '%' . $sessionName . '%')->first();
 
                     if ($session) {
                         // Link session to the semester

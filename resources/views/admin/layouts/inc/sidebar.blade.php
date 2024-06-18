@@ -80,6 +80,11 @@
                                             href="{{ route('admin.id-card-setting.index') }}"
                                             class="">{{ trans_choice('module_id_card_setting', 1) }}</a></li>
                                 @endcan
+                                {{-- @can('application-installments-view') --}}
+                                    <li class="{{ Request::is('admin/admission/application-installments*') ? 'active' : '' }}"><a
+                                            href="{{ route('admin.id-card-setting.index') }}"
+                                            class="">{{ trans_choice('module_id_card_setting', 1) }}</a></li>
+                                {{-- @endcan --}}
                             </ul>
                         </li>
                     @endcanany

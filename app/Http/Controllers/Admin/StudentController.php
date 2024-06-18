@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Rules\MoodlePassword;
+use App\Rules\SessionOfferedToProgram;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ApplicationInstallmentRequest;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\StudentsImport;
 use App\Models\StudentRelative;
@@ -225,6 +227,7 @@ class StudentController extends Controller
         $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
         $data['statuses'] = StatusType::where('status', '1')->orderBy('title', 'asc')->get();
         $data['provinces'] = Province::where('status', '1')->orderBy('title', 'asc')->get();
+        $data['sessions'] = Session::query()->status(1)->select(['id', 'title', 'start_date', 'end_date'])->get();
         return view($this->view . '.create', $data);
     }
 
@@ -241,14 +244,13 @@ class StudentController extends Controller
             'student_id' => 'required|unique:students,student_id',
             'batch' => 'required',
             'program' => 'required',
-            'session' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:students,email',
             'phone' => 'required',
             'gender' => 'required',
             'dob' => 'required|date',
-            'admission_date' => 'required|date',
+            'admission_date' => ['required', 'exists:sessions,id', new SessionOfferedToProgram($request->program)],
             'photo' => 'nullable|image',
             'signature' => 'nullable|image',
         ]);
@@ -257,12 +259,13 @@ class StudentController extends Controller
         $password = generate_moodle_password();
         // Insert Data
         try {
+            $session = Session::query()->findOrFail($request->admission_date);
             DB::beginTransaction();
             $student = new Student;
             $student->student_id = $request->student_id;
             $student->batch_id = $request->batch;
             $student->program_id = $request->program;
-            $student->admission_date = $request->admission_date;
+            $student->admission_date = $session->start_date;
 
             $student->first_name = $request->first_name;
             $student->last_name = $request->last_name;
@@ -371,15 +374,15 @@ class StudentController extends Controller
             // Student Enroll
             $enroll = new StudentEnroll();
             $enroll->student_id = $student->id;
-            $enroll->session_id = $request->session;
-            $enroll->semester_id = Session::query()->find($request->session)->semester_id;
+            $enroll->session_id = $session->id;
+            $enroll->semester_id = $session->semester_id;
             $enroll->program_id = $request->program;
             $enroll->created_by = Auth::guard('web')->user()->id;
             $enroll->save();
 
 
             // Assign Subjects
-            $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('session_id', $request->session)->first();
+            $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('session_id', $session->id)->first();
 
             if (isset($enrollSubject)) {
                 foreach ($enrollSubject->subjects as $subject) {
@@ -436,7 +439,6 @@ class StudentController extends Controller
             ->orderBy('id', 'desc')->get();
 
         $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
-        // dd($student);
         return view($this->view . '.show', $data);
     }
 
@@ -465,6 +467,7 @@ class StudentController extends Controller
             ->orderBy('title', 'asc')->get();
         $data['statuses'] = StatusType::where('status', '1')->get();
         $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
+        $data['sessions'] = Session::query()->status(1)->select(['id', 'title', 'start_date', 'end_date'])->get();
         $student->load('batch:id,title', 'batch.programs:id,title');
         $data['row'] = $student;
 
@@ -492,20 +495,21 @@ class StudentController extends Controller
             'phone' => 'required',
             'gender' => 'required',
             'dob' => 'required|date',
-            'admission_date' => 'required|date',
+            'admission_date' => ['required', 'exists:sessions,id', new SessionOfferedToProgram($request->program)],
             'photo' => 'nullable|image',
             'signature' => 'nullable|image',
         ]);
 
         // Update Data
         try {
+            $session = Session::query()->findOrFail($request->admission_date);
             $is_program_changed = $student->program_id != $request->program;
             DB::beginTransaction();
 
             $student->student_id = $request->student_id;
             $student->batch_id = $request->batch;
             $student->program_id = $request->program;
-            $student->admission_date = $request->admission_date;
+            $student->admission_date = $session->start_date;
 
             $student->first_name = $request->first_name;
             $student->last_name = $request->last_name;
@@ -610,7 +614,6 @@ class StudentController extends Controller
             }
             // Change The Program Enrollment If Program Is Changed
             if ($is_program_changed) {
-                $session = Session::query()->where('current', 1)->first();
                 $semester_id = $session->semester_id;
                 $program_id = $request->program;
                 $enrollSubject = EnrollSubject::query()->where('program_id', $program_id)->where('session_id', $session->id)->first();
@@ -681,7 +684,7 @@ class StudentController extends Controller
             $student->transport()->delete();
             $student->notes()->delete();
             $student->delete();
-            $moodle_student_service->destroy($student);
+            // $moodle_student_service->destroy($student);
             DB::commit();
             Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
         } catch (\Exception $e) {
@@ -906,5 +909,53 @@ class StudentController extends Controller
             return generateResponse(status: false, message: __('msg_error'));
         }
     }
+
+
+    public function updateInstallments(Student $student, ApplicationInstallmentRequest $request)
+    {
+        $installments = $request->input('installments');
+        foreach ($installments as $key => $installment) {
+            $student->installments()->create($installment);
+        }
+        Toastr::success(__('msg_updated_successfully'), 'msg_success');
+        return back();
+    }
+
+    public function enrollmentAgreement(Student $student)
+    {
+        $data = [
+            'student' => $student,
+        ];
+        return view($this->view . '.enrollment_agreement', $data);
+    }
+    public function acceptenceLetter(Student $student)
+    {
+        $admission_session = $student->admissionSession();
+        $data = [
+            'student' => $student,
+            'today_date' => now()->toDateString(),
+            'admission_session' => $admission_session,
+            'session_start_date' => Carbon::parse($admission_session->start_date)->format('M jS, Y'),
+            'program_expected_end_date' => Carbon::parse($student->program->getExpectedEndDate())->format('M jS, Y'),
+
+        ];
+        return view($this->view . '.acceptance_letter', $data);
+    }
+
+    public function pcp(Student $student)
+    {
+        $program = $student->program;
+        $subjects = $program->subjects->groupBy('pivot.subject_type_id');
+        // $data['subjects'] = $data['program']->subjects()->with('subjectType')->get()->groupBy('pivot.subject_type_id');
+        // dd($data);
+        $data = [
+            'student' => $student,
+            'program' => $program,
+            'subjects' => $subjects,
+        ];
+        return view('admin.program.program_print', $data);
+    }
+
+
 
 }

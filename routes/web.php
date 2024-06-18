@@ -16,6 +16,7 @@
 use App\Http\Controllers\Admin\AcademySite\ContactController;
 use App\Http\Controllers\Admin\BigBlueButtonController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\FileDownloadController;
 use App\Http\Controllers\ManualTransferDataToMoodleController;
 use App\Http\Controllers\QuickSetupSemesterController;
 use App\Http\Controllers\SyncDataWithMoodleController;
@@ -96,17 +97,29 @@ Route::middleware(['XSS'])->prefix('admin')->group(function () {
 // Admin Routes
 Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->prefix('admin')->group(function () {
 
+
     // Dashboard Route
     Route::get('/', 'DashboardController@index')->name('dashboard.index');
     Route::get('dashboard', 'DashboardController@index')->name('dashboard.index');
+
+    // Download Routes
+    Route::get('download/', [FileDownloadController::class, 'downloadFile'])->name('download');
+
 
 
 
     // Student Routes
     Route::resource('admission/application', 'ApplicationController');
+
     Route::resource('admission/student', 'StudentController');
-    Route::get('admission/student/{student}/financial-agreement', 'StudentController@printFinancialAgreement')->name('student.print-financial-agreement');
+    // Admission Pcakage Related.
+    Route::post('admission/student/{student}/update-installment', 'StudentController@updateInstallments')->name('student.update_installment');
+    Route::get('admission/student/{student}/enrollment-agreement', 'StudentController@enrollmentAgreement')->name('student.enrollment_agreement');
+    Route::get('admission/student/{student}/acceptance-letter', 'StudentController@acceptenceLetter')->name('student.acceptance_letter');
+    Route::get('admission/student/{student}/pcp', 'StudentController@pcp')->name('student.pcp');
+
     Route::get('admission/student-card/{id}', 'StudentController@card')->name('student.card');
+    Route::get('admission/student/{student}/financial-agreement', 'StudentController@printFinancialAgreement')->name('student.print-financial-agreement');
     // Route::get('admission/student-status/{id}', 'StudentController@status')->name('student.status');
     Route::post('admission/student-send-password/{id}', 'StudentController@sendPassword')->name('student.send-password');
     Route::get('admission/student-print-password/{id}', 'StudentController@printPassword')->name('student.print-password');
@@ -488,24 +501,25 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     });
 
     // Transfer Data To Moodle
-    Route::get('moodle/transfer-sessions' , [ManualTransferDataToMoodleController::class, 'transferPrograms'])->name('moodle.transfer.sessions');
-    Route::get('moodle/transfer-courses' , [ManualTransferDataToMoodleController::class, 'transferCourses'])->name('moodle.transfer.courses');
-    Route::get('moodle/transfer-students' , [ManualTransferDataToMoodleController::class, 'taransferUsers'])->name('moodle.transfer.students');
+    Route::get('moodle/transfer-sessions', [ManualTransferDataToMoodleController::class, 'transferPrograms'])->name('moodle.transfer.sessions');
+    Route::get('moodle/transfer-courses', [ManualTransferDataToMoodleController::class, 'transferCourses'])->name('moodle.transfer.courses');
+    Route::get('moodle/transfer-students', [ManualTransferDataToMoodleController::class, 'taransferUsers'])->name('moodle.transfer.students');
     // Sync Data with moodle
-    Route::get('moodle/sync-sessions' , [SyncDataWithMoodleController::class, 'syncSessions'])->name('moodle.sync.sessions');
-    Route::get('moodle/sync-courses' , [SyncDataWithMoodleController::class, 'syncCourses'])->name('moodle.sync.sessions');
-    Route::get('moodle/sync-students' , [SyncDataWithMoodleController::class, 'syncStudents'])->name('moodle.sync.students');
+    Route::get('moodle/sync-sessions', [SyncDataWithMoodleController::class, 'syncSessions'])->name('moodle.sync.sessions');
+    Route::get('moodle/sync-courses', [SyncDataWithMoodleController::class, 'syncCourses'])->name('moodle.sync.sessions');
+    Route::get('moodle/sync-students', [SyncDataWithMoodleController::class, 'syncStudents'])->name('moodle.sync.students');
 
     // Quick Setup Controller:
-    Route::get('srs/setup-semsters' , [QuickSetupSemesterController::class, 'setupSemestersDate']);
-    Route::get('srs/setup-sessions' , [QuickSetupSemesterController::class, 'setupSessionDates']);
+    Route::get('srs/setup-programs', [QuickSetupSemesterController::class, 'categorizePrograms']);
+    Route::get('srs/setup-semsters', [QuickSetupSemesterController::class, 'setupSemestersDate']);
+    Route::get('srs/setup-sessions', [QuickSetupSemesterController::class, 'setupSessionDates']);
 });
 
 
 // Student Login Routes
 Route::prefix('student')->name('student.')->namespace('Student')->group(function () {
 
-    Route::namespace ('Auth')->group(function () {
+    Route::namespace('Auth')->group(function () {
 
         // Login Routes
         Route::get('/login', 'LoginController@showLoginForm')->name('login');
@@ -530,7 +544,7 @@ Route::prefix('student')->name('student.')->namespace('Student')->group(function
 
 
 // Student Dashboard Routes
-Route::middleware(['auth:student', 'XSS' , 'srs_active'])->prefix('student')->name('student.')->namespace('Student')->group(function () {
+Route::middleware(['auth:student', 'XSS', 'srs_active'])->prefix('student')->name('student.')->namespace('Student')->group(function () {
 
     // Dashboard Route
     Route::get('/', 'DashboardController@index')->name('dashboard.index');

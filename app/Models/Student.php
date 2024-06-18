@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\ContentNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Student extends Authenticatable
@@ -240,5 +241,22 @@ class Student extends Authenticatable
     {
         $semester = Semester::query()->where('start_date' , '<=' , $this->admission_date)->where('end_date' , '>=' , $this->admission_date)->first();
         return isset($semester) ? $semester->title : $this->admission_date;
+    }
+
+
+    /**
+     * Get The Admission semester Of The Student According To Admission Date.
+     */
+    public function admissionSession() 
+    {
+        $session = Session::query()->where('start_date' , '=' , $this->admission_date)->first();
+        return isset($session) ? $session : $this->admission_date;
+    }
+
+
+
+    public function installments(): HasMany
+    {
+        return $this->hasMany(ApplicationInstallment::class);
     }
 }

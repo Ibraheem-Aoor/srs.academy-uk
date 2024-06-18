@@ -16,7 +16,7 @@ use DB;
 class ApplicationController extends Controller
 {
     use FileUploader;
-    
+
     /**
      * Create a new controller instance.
      *
@@ -44,11 +44,10 @@ class ApplicationController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
 
-        
+
         $data['programs'] = Program::where('status', '1')->orderBy('title', 'asc')->get();
         $data['provinces'] = Province::where('status', '1')->orderBy('title', 'asc')->get();
         $data['applicationSetting'] = ApplicationSetting::where('slug', 'admission')->where('status', '1')->firstOrFail();
-
         return view($this->view.'.create', $data);
     }
 
@@ -71,13 +70,15 @@ class ApplicationController extends Controller
             'dob' => 'required|date',
             'photo' => 'nullable|image',
             'signature' => 'nullable|image',
+            'grade_transcripts' => 'required|file|mimes:jpg,jpeg,png,gif,ico,svg,webp,pdf,doc,docx,txt,zip,rar,csv,xls,xlsx,ppt,pptx,mp3,avi,mp4,mpeg,3gp',
+            'previous_certificates' => 'required|file|mimes:jpg,jpeg,png,gif,ico,svg,webp,pdf,doc,docx,txt,zip,rar,csv,xls,xlsx,ppt,pptx,mp3,avi,mp4,mpeg,3gp',
         ]);
 
 
         // Insert Data
         try{
             DB::beginTransaction();
-            
+
             $student = new Application;
             $student->program_id = $request->program;
             $student->apply_date = Carbon::today();
@@ -124,6 +125,13 @@ class ApplicationController extends Controller
             $student->collage_graduation_point = $request->collage_graduation_point;
             $student->photo = $this->uploadImage($request, 'photo', $this->path, 300, 300);
             $student->signature = $this->uploadImage($request, 'signature', $this->path, 300, 100);
+            $student->grade_transcripts = $this->uploadMedia($request, 'grade_transcripts', 'applications/grade_transcripts');
+            $student->previous_certificates = $this->uploadMedia($request, 'previous_certificates', 'applications/previous_certificates');
+            $student->proof_master_in_en = $this->uploadMedia($request, 'proof_master_in_en', 'applications/proof_master_in_en');
+            $student->id_or_passport = $this->uploadMedia($request, 'id_or_passport', 'applications/id_or_passport');
+            $student->letter_of_intrest = $this->uploadMedia($request, 'letter_of_intrest', 'applications/letter_of_intrest');
+            $student->certificate_of_recommendation = $this->uploadMedia($request, 'certificate_of_recommendation', 'applications/certificate_of_recommendation');
+            $student->english_certificate = $this->uploadMedia($request, 'english_certificate', 'applications/english_certificate');
             $student->status = '1';
             $student->save();
 

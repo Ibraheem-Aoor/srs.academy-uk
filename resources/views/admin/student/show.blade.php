@@ -258,6 +258,41 @@
                                                 {{ $row->passport_no }}</p>
                                         @endif
                                     </fieldset>
+                                    <fieldset class="row gx-2 scheduler-border">
+                                        @if (!$row->installments->isEmpty())
+                                            <legend>{{ __('enrollment_offical_files') }}</legend>
+                                            <p><mark
+                                                    class="text-primary">{{ __('download_enrollment_agreement') }}:</mark>
+                                                <a target="__blank"
+                                                    href="{{ route($route . '.enrollment_agreement', ['student' => $row->id]) }}"
+                                                    class="btn btn-sm btn-soft-success"><i
+                                                        class="fa fa-download"></i></a>
+                                            </p>
+                                            <hr />
+                                            <p><mark
+                                                    class="text-primary">{{ __('download_acceptance_letter') }}:</mark>
+                                                <a target="__blank"
+                                                    href="{{ route($route . '.acceptance_letter', ['student' => $row->id]) }}"
+                                                    class="btn btn-sm btn-soft-success"><i
+                                                        class="fa fa-download"></i></a>
+                                            </p>
+                                            <hr />
+                                            <p><mark
+                                                    class="text-primary">{{ __('download_pcp') }}:</mark>
+                                                <a target="__blank"
+                                                    href="{{ route($route . '.pcp', ['student' => $row->id]) }}"
+                                                    class="btn btn-sm btn-soft-success"><i
+                                                        class="fa fa-download"></i></a>
+                                            </p>
+                                            <hr />
+                                        @else
+                                            <legend><button type="button" data-bs-toggle="modal"
+                                                    data-bs-target="#setup-installments" class="btn btn-md btn-info"><i
+                                                        class="fa fa-cogs"></i>{{ __('setup_installments') }}</button>
+                                            </legend>
+                                        @endif
+
+                                    </fieldset>
                                 </div>
                                 <div class="col-md-6">
                                     @if (field('student_address')?->status == 1)
@@ -1030,4 +1065,83 @@
 </div>
 <!-- End Content-->
 
+@endsection
+
+
+
+{{-- START Installments Setup Modal --}}
+<div id="setup-installments" class="modal fade modal-lg" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <form class="needs-validation" action="{{ route($route . '.update_installment', $row->id) }}"
+            method="post">
+            @csrf
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">{{ __('setup_installments') }} {{ $title }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="p-3 rounded box-shadow">
+                    <table class="table" id="installmentTable">
+                        <thead>
+                            <tr>
+                                <th>{{ __('title') }}</th>
+                                <th>{{ __('amount') }}</th>
+                                <th>{{ __('payment_date') }}</th>
+                                <th>{{ __('actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be added here dynamically -->
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary" id="addRowBtn"><i class="fa fa-plus"></i>
+                        {{ __('add') }}</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
+                        class="fas fa-times"></i> {{ __('btn_close') }}</button>
+                <button type="submit" class="btn btn-success"><i class="fas fa-check"></i>
+                    {{ __('btn_update') }}</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+</div>
+{{-- END Installments Setup Modal --}}
+
+
+
+
+@section('page_js')
+<script>
+    let installmentTable = document.getElementById('installmentTable').getElementsByTagName('tbody')[0];
+    let addRowBtn = document.getElementById('addRowBtn');
+
+    addRowBtn.addEventListener('click', function() {
+        addRow();
+    });
+
+    function addRow(data = {}) {
+        let index = installmentTable.rows.length;
+        let newRow = installmentTable.insertRow();
+        newRow.innerHTML = `
+        <tr>
+            <td><input type="text" name="installments[${index}][title]" class="form-control"  required></td>
+            <td><input type="text" name="installments[${index}][amount]" class="form-control"  required></td>
+            <td><input type="date" name="installments[${index}][payment_date]" class="form-control date"  required></td>
+            <td><button type="button" class="btn btn-danger removeRowBtn"><i class="fa fa-trash"></i>{{ __('remove') }}</button></td>
+        </tr>
+    `;
+        newRow.querySelector('.removeRowBtn').addEventListener('click', function() {
+            newRow.remove();
+        });
+    }
+</script>
 @endsection

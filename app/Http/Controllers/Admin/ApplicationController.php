@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ApplicationInstallmentRequest;
 use App\Models\StudentRelative;
 use App\Models\StudentEnroll;
 use App\Models\EnrollSubject;
 use Illuminate\Http\Request;
 use App\Traits\FileUploader;
 use App\Models\Application;
+use App\Models\ApplicationInstallment;
 use App\Models\StatusType;
 use App\Models\Province;
 use App\Models\District;
@@ -19,11 +21,16 @@ use App\Models\Student;
 use App\Models\Batch;
 use App\Models\Session;
 use App\Rules\Admin\ProgramBatchRule;
+use App\Rules\SessionOfferedToProgram;
+use App\Services\Moodle\StudentEnrollService;
+use App\Services\Moodle\StudentService;
+use App\Traits\FileDownloader;
 use Carbon\Carbon;
 use Toastr;
 use Auth;
 use Hash;
 use DB;
+use Illuminate\Support\Facades\File;
 
 class ApplicationController extends Controller
 {
@@ -44,10 +51,10 @@ class ApplicationController extends Controller
         $this->access = 'application';
 
 
-        $this->middleware('permission:'.$this->access.'-view|'.$this->access.'-create|'.$this->access.'-edit|'.$this->access.'-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:'.$this->access.'-create', ['only' => ['create','store']]);
-        $this->middleware('permission:'.$this->access.'-edit', ['only' => ['edit','update']]);
-        $this->middleware('permission:'.$this->access.'-delete', ['only' => ['destroy']]);
+        // $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-create|' . $this->access . '-edit|' . $this->access . '-delete', ['only' => ['index', 'show']]);
+        // $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
+        // $this->middleware('permission:' . $this->access . '-edit', ['only' => ['edit', 'update']]);
+        // $this->middleware('permission:' . $this->access . '-delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -65,45 +72,39 @@ class ApplicationController extends Controller
         $data['access'] = $this->access;
 
 
-        if(!empty($request->batch) || $request->batch != null){
+        if (!empty($request->batch) || $request->batch != null) {
             $data['selected_batch'] = $batch = $request->batch;
-        }
-        else{
+        } else {
             $data['selected_batch'] = '0';
         }
 
-        if(!empty($request->program) || $request->program != null){
+        if (!empty($request->program) || $request->program != null) {
             $data['selected_program'] = $program = $request->program;
-        }
-        else{
+        } else {
             $data['selected_program'] = '0';
         }
 
-        if(!empty($request->status) || $request->status != null){
+        if (!empty($request->status) || $request->status != null) {
             $data['selected_status'] = $status = $request->status;
-        }
-        else{
+        } else {
             $data['selected_status'] = $status = '99';
         }
 
-        if(!empty($request->start_date) || $request->start_date != null){
+        if (!empty($request->start_date) || $request->start_date != null) {
             $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
+        } else {
             $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subYear()));
         }
 
-        if(!empty($request->end_date) || $request->end_date != null){
+        if (!empty($request->end_date) || $request->end_date != null) {
             $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
+        } else {
             $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
         }
 
-        if(!empty($request->registration_no) || $request->registration_no != null){
+        if (!empty($request->registration_no) || $request->registration_no != null) {
             $data['selected_registration_no'] = $registration_no = $request->registration_no;
-        }
-        else{
+        } else {
             $data['selected_registration_no'] = Null;
         }
 
@@ -115,23 +116,23 @@ class ApplicationController extends Controller
 
         // Application Filter
         $applications = Application::whereDate('apply_date', '>=', $start_date)
-                    ->whereDate('apply_date', '<=', $end_date);
-                    if(!empty($request->batch)){
-                        $applications->where('batch_id', $batch);
-                    }
-                    if(!empty($request->program)){
-                        $applications->where('program_id', $program);
-                    }
-                    if(!empty($request->registration_no)){
-                        $applications->where('registration_no', 'LIKE', '%'.$registration_no.'%');
-                    }
-                    if(!empty($request->status) || $request->status != null){
-                        $applications->where('status', $status);
-                    }
+            ->whereDate('apply_date', '<=', $end_date);
+        if (!empty($request->batch)) {
+            $applications->where('batch_id', $batch);
+        }
+        if (!empty($request->program)) {
+            $applications->where('program_id', $program);
+        }
+        if (!empty($request->registration_no)) {
+            $applications->where('registration_no', 'LIKE', '%' . $registration_no . '%');
+        }
+        if (!empty($request->status) || $request->status != null) {
+            $applications->where('status', $status);
+        }
         $data['rows'] = $applications->orderBy('registration_no', 'desc')->get();
 
 
-        return view($this->view.'.index', $data);
+        return view($this->view . '.index', $data);
     }
 
     /**
@@ -150,32 +151,32 @@ class ApplicationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request  , StudentService $student_service ,StudentEnrollService $moodle_student_enroll_service)
     {
         // Field Validation
         $request->validate([
             'student_id' => 'required|unique:students,student_id',
             'batch' => 'required',
-            'program' => ['required' , new ProgramBatchRule($request->batch)],
-            'session' => 'required',
+            'program' => ['required', new ProgramBatchRule($request->batch)],
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:students,email',
             'phone' => 'required',
             'gender' => 'required',
             'dob' => 'required|date',
-            'admission_date' => 'required|date',
+            'admission_date' => ['required', 'exists:sessions,id', new SessionOfferedToProgram($request->program)],
             'photo' => 'nullable|image',
             'signature' => 'nullable|image',
         ]);
 
-        // dd($request->toArray());
         // Random Password
-        $password = str_random(8);
+        $password = generate_moodle_password();
+
         $data = Application::where('registration_no', $request->registration_no)->firstOrFail();
 
         // Insert Data
-        try{
+        try {
+            $session = Session::query()->findOrFail($request->admission_date);
             DB::beginTransaction();
 
             $application = new Student;
@@ -183,7 +184,7 @@ class ApplicationController extends Controller
             $application->registration_no = $request->registration_no;
             $application->batch_id = $request->batch;
             $application->program_id = $request->program;
-            $application->admission_date = $request->admission_date;
+            $application->admission_date = $session->start_date;
 
             $application->first_name = $request->first_name;
             $application->last_name = $request->last_name;
@@ -227,17 +228,15 @@ class ApplicationController extends Controller
             $application->collage_exam_id = $request->collage_exam_id;
             $application->collage_graduation_year = $request->collage_graduation_year;
             $application->collage_graduation_point = $request->collage_graduation_point;
-            if($request->hasFile('photo')){
-            $application->photo = $this->uploadImage($request, 'photo', $this->path, 300, 300);
+            if ($request->hasFile('photo')) {
+                $application->photo = $this->uploadImage($request, 'photo', $this->path, 300, 300);
+            } else {
+                $application->photo = $data->photo;
             }
-            else{
-            $application->photo = $data->photo;
-            }
-            if($request->hasFile('signature')){
-            $application->signature = $this->uploadImage($request, 'signature', $this->path, 300, 100);
-            }
-            else{
-            $application->signature = $data->signature;
+            if ($request->hasFile('signature')) {
+                $application->signature = $this->uploadImage($request, 'signature', $this->path, 300, 100);
+            } else {
+                $application->signature = $data->signature;
             }
             $application->status = '1';
             $application->created_by = Auth::guard('web')->user()->id;
@@ -249,61 +248,64 @@ class ApplicationController extends Controller
 
 
             // Student Relatives
-            if(is_array($request->relations)){
-            foreach($request->relations as $key =>$relation){
-                if($relation != '' && $relation != null){
-                // Insert Data
-                $relation = new StudentRelative;
-                $relation->student_id = $application->id;
-                $relation->relation = $request->relations[$key];
-                $relation->name = $request->relative_names[$key];
-                $relation->occupation = $request->occupations[$key];
-                // $relation->email = $request->relative_emails[$key];
-                $relation->phone = $request->relative_phones[$key];
-                $relation->address = $request->addresses[$key];
-                $relation->save();
+            if (is_array($request->relations)) {
+                foreach ($request->relations as $key => $relation) {
+                    if ($relation != '' && $relation != null) {
+                        // Insert Data
+                        $relation = new StudentRelative;
+                        $relation->student_id = $application->id;
+                        $relation->relation = $request->relations[$key];
+                        $relation->name = $request->relative_names[$key];
+                        $relation->occupation = $request->occupations[$key];
+                        // $relation->email = $request->relative_emails[$key];
+                        $relation->phone = $request->relative_phones[$key];
+                        $relation->address = $request->addresses[$key];
+                        $relation->save();
+                    }
                 }
-            }}
+            }
 
 
             // Student Documents
-            if(is_array($request->documents)){
-            $documents = $request->file('documents');
-            foreach($documents as $key =>$attach){
+            if (is_array($request->documents)) {
+                $documents = $request->file('documents');
+                foreach ($documents as $key => $attach) {
 
-                // Valid extension check
-                $valid_extensions = array('jpg','jpeg','png','gif','ico','svg','webp','pdf','doc','docx','txt','zip','rar','csv','xls','xlsx','ppt','pptx','mp3','avi','mp4','mpeg','3gp');
-                $file_ext = $attach->getClientOriginalExtension();
-                if(in_array($file_ext, $valid_extensions, true))
-                {
+                    // Valid extension check
+                    $valid_extensions = array('jpg', 'jpeg', 'png', 'gif', 'ico', 'svg', 'webp', 'pdf', 'doc', 'docx', 'txt', 'zip', 'rar', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'mp3', 'avi', 'mp4', 'mpeg', '3gp');
+                    $file_ext = $attach->getClientOriginalExtension();
+                    if (in_array($file_ext, $valid_extensions, true)) {
 
-                //Upload Files
-                $filename = $attach->getClientOriginalName();
-                $extension = $attach->getClientOriginalExtension();
-                $fileNameToStore = str_replace([' ','-','&','#','$','%','^',';',':'],'_',$filename).'_'.time().'.'.$extension;
+                        //Upload Files
+                        $filename = $attach->getClientOriginalName();
+                        $extension = $attach->getClientOriginalExtension();
+                        $fileNameToStore = str_replace([' ', '-', '&', '#', '$', '%', '^', ';', ':'], '_', $filename) . '_' . time() . '.' . $extension;
 
-                // Move file inside public/uploads/ directory
-                $attach->move('uploads/'.$this->path.'/', $fileNameToStore);
+                        // Move file inside public/uploads/ directory
+                        $attach->move('uploads/' . $this->path . '/', $fileNameToStore);
 
-                // Insert Data
-                $document = new Document;
-                $document->title = $request->titles[$key];
-                $document->attach = $fileNameToStore;
-                $document->save();
+                        // Insert Data
+                        $document = new Document;
+                        $document->title = $request->titles[$key];
+                        $document->attach = $fileNameToStore;
+                        $document->save();
 
-                // Attach
-                $document->students()->attach($application->id);
+                        // Attach
+                        $document->students()->attach($application->id);
 
+                    }
                 }
-            }}
+            }
+
+            $this->copyApplicationFilesToStudentDocuments($data, $application);
 
 
             // Student Enroll
             $enroll = new StudentEnroll();
             $enroll->student_id = $application->id;
             $enroll->program_id = $request->program;
-            $enroll->session_id = $request->session;
-            $enroll->semester_id = Session::query()->findOrFail($request->session)->semester_id;
+            $enroll->session_id = $session->id;
+            $enroll->semester_id = $session->semester_id;
             // $enroll->section_id = $request->section;
             $enroll->created_by = Auth::guard('web')->user()->id;
             $enroll->save();
@@ -312,11 +314,16 @@ class ApplicationController extends Controller
             // Assign Subjects
             $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('semester_id', $request->semester)->where('section_id', $request->section)->first();
 
-            if(isset($enrollSubject)){
-                foreach($enrollSubject->subjects as $subject){
+            $student_on_moodle = $student_service->store($application, $password);
+            $application->id_on_moodle = $student_on_moodle[0]['id'];
+            $application->save();
+            if (isset($enrollSubject)) {
+                foreach ($enrollSubject->subjects as $subject) {
                     // Attach Subject
                     $enroll->subjects()->attach($subject->id);
                 }
+                $moodle_student_enroll_service->store($enroll);
+
             }
 
 
@@ -330,14 +337,51 @@ class ApplicationController extends Controller
 
             Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-            return redirect()->route($this->route.'.index');
-        }
-        catch(\Exception $e){
-
-            dd($e);
+            return redirect()->route($this->route . '.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            logError(e:$e , method:__METHOD__ , class:get_class($this) );
             Toastr::error(__('msg_created_error'), __('msg_error'));
 
             return redirect()->back();
+        }
+    }
+
+
+    public function copyApplicationFilesToStudentDocuments($application, $student)
+    {
+        $document_paths = [
+            'grade_transcripts',
+            'previous_certificates',
+            'proof_master_in_en',
+            'id_or_passport',
+            'letter_of_intrest',
+            'certificate_of_recommendation',
+            'english_certificate'
+        ];
+
+        foreach ($document_paths as $key => $document_path) {
+            // Construct the file path with the folder named after the document type
+            $file_path = public_path('uploads/applications/' . $document_path . '/' . $application->$document_path);
+            $destination_path = 'uploads/' . $this->path . '/' . $application->$document_path;
+
+            // Ensure the file exists before trying to copy
+            if (isset($application->$document_path) && File::exists($file_path)) {
+                // Copy the file to the new destination
+                if (copy($file_path, $destination_path)) {
+                    // Save the document information
+                    $document = new Document;
+                    $document->title = __($document_path);
+                    $document->attach = $application->$document_path;
+                    $document->save();
+
+                    // Attach the document to the student
+                    $document->students()->attach($student->id);
+                } else {
+                    // Handle error in copying file
+                    throw new \Exception("Failed to copy file: $file_path to $destination_path");
+                }
+            } 
         }
     }
 
@@ -355,10 +399,11 @@ class ApplicationController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
         $data['access'] = $this->access;
+        $data['application_files_path'] = 'uploads/applications/';
 
         $data['row'] = $application;
 
-        return view($this->view.'.show', $data);
+        return view($this->view . '.show', $data);
     }
 
     /**
@@ -377,20 +422,21 @@ class ApplicationController extends Controller
 
 
         $data['provinces'] = Province::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
+            ->orderBy('title', 'asc')->get();
         $data['present_districts'] = District::where('status', '1')
-                            ->where('province_id', $application->present_province)
-                            ->orderBy('title', 'asc')->get();
+            ->where('province_id', $application->present_province)
+            ->orderBy('title', 'asc')->get();
         $data['permanent_districts'] = District::where('status', '1')
-                            ->where('province_id', $application->permanent_province)
-                            ->orderBy('title', 'asc')->get();
+            ->where('province_id', $application->permanent_province)
+            ->orderBy('title', 'asc')->get();
         $data['statuses'] = StatusType::where('status', '1')->get();
         $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
+        $data['sessions'] = Session::query()->status(1)->select(['id', 'title', 'start_date', 'end_date'])->get();
 
         $data['row'] = $application;
 
 
-        return view($this->view.'.edit', $data);
+        return view($this->view . '.edit', $data);
     }
 
     /**
@@ -403,10 +449,10 @@ class ApplicationController extends Controller
     public function update(Request $request, Application $application)
     {
         //
-        if($application->status == 0){
-        $application->status = '1';
-        }else{
-        $application->status = '0';
+        if ($application->status == 0) {
+            $application->status = '1';
+        } else {
+            $application->status = '0';
         }
         $application->updated_by = Auth::guard('web')->user()->id;
         $application->save();
@@ -437,4 +483,7 @@ class ApplicationController extends Controller
 
         return redirect()->back();
     }
+
+
+
 }

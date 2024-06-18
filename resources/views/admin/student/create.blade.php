@@ -20,7 +20,8 @@
                             <h5>{{ __('modal_add') }} {{ $title }}</h5>
                         </div>
                         <div class="card-block">
-                            <a href="{{ route($route . '.index') }}" class="btn btn-primary"><i class="fas fa-arrow-left"></i>
+                            <a href="{{ route($route . '.index') }}" class="btn btn-primary"><i
+                                    class="fas fa-arrow-left"></i>
                                 {{ __('btn_back') }}</a>
 
                             <a href="{{ route($route . '.create') }}" class="btn btn-info"><i class="fas fa-sync-alt"></i>
@@ -322,9 +323,13 @@
                                                 <div class="form-group col-md-6">
                                                     <label for="admission_date">{{ __('field_admission_date') }}
                                                         <span>*</span></label>
-                                                    <input type="date" class="form-control date" name="admission_date"
-                                                        id="admission_date" value="{{ date('Y-m-d') }}" required>
-
+                                                    <select name="admission_date" id="admission_date" class="form-control">
+                                                        <option value="">{{ __('select') }}</option>
+                                                        @foreach ($sessions as $session)
+                                                            <option value="{{ $session->id }}">
+                                                                {{ $session->title }}</option>
+                                                        @endforeach
+                                                    </select>
                                                     <div class="invalid-feedback">
                                                         {{ __('required_field') }} {{ __('field_admission_date') }}
                                                     </div>
@@ -517,16 +522,6 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group col-md-6">
-                                            <label for="session">{{ __('field_session') }} <span>*</span></label>
-                                            <select class="form-control session" name="session" id="session" required>
-                                                <option value="">{{ __('select') }}</option>
-                                            </select>
-
-                                            <div class="invalid-feedback">
-                                                {{ __('required_field') }} {{ __('field_session') }}
-                                            </div>
-                                        </div>
 
                                         <div class="form-group col-md-6 d-none">
                                             <label for="semester">{{ __('field_semester') }} <span>*</span></label>

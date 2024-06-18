@@ -23,6 +23,7 @@ class Program extends Model
         'notes',
         'required_courses',
         'id_on_moodle',
+        'category',
     ];
 
     protected $casts = [
@@ -87,5 +88,10 @@ class Program extends Model
     public function contents()
     {
         return $this->hasMany(Content::class, 'program_id', 'id');
+    }
+
+    public function getExpectedEndDate()
+    {
+        return $this->sessions()->orderByDesc('end_date')->first()->end_date;
     }
 }

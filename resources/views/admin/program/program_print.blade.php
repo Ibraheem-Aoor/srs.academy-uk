@@ -1,9 +1,7 @@
 <html>
 
 <head>
-    <title>
-        Program Completion Plan
-    </title>
+    <title>Program Completion Plan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
@@ -19,12 +17,18 @@
         .table-row {
             border-bottom: 1px solid #d1d5db;
         }
+
+        .avoid-page-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            /* For modern browsers */
+        }
     </style>
 </head>
 
 <body class="bg-white p-8">
     <div class="max-w-4xl mx-auto" id="boxes">
-        <div class="text-center mb-8">
+        <div class="text-center mb-2">
             <h1 class="text-xl font-bold">
                 IAU | PROGRAM COMPLETION PLAN (PCP)
             </h1>
@@ -32,9 +36,13 @@
                 {{ $program->title }} ({{ $program->shortcode }})
             </h2>
         </div>
-        @if ($student = getAuthUser('student'))
-            {{-- Start Applicant Info --}}
-            <div class="mb-4">
+        @php
+            if (!isset($student)) {
+                $student = getAuthUser('student');
+            }
+        @endphp
+        @isset($student)
+            <div class="mb-4 avoid-page-break">
                 <h3 class="font-bold mb-2">
                     APPLICANT
                 </h3>
@@ -51,13 +59,15 @@
                     {{ $student->last_name }}
                 </p>
             </div>
-        @endif
-        {{-- End Applicant Info --}}
-        {{-- Start Courses --}}
+        @endisset
+
         @foreach ($subjects as $subject_type_id => $subjects)
-            <div class="mb-4">
-                <h3 class="font-bold mb-2">
-                    {{ \App\Models\SubjectType::find($subject_type_id)?->title }} COMPONENT | {{ count($subjects) }} Courses  @if($program->required_courses && @$program->required_courses[$subject_type_id] != 0) ({{ @$program->required_courses[$subject_type_id]  . ' ' . __('Required')}})  @endif
+            <div class="page-break">
+                <h3 class="font-bold">
+                    {{ \App\Models\SubjectType::find($subject_type_id)?->title }} COMPONENT | {{ count($subjects) }}
+                    Courses @if ($program->required_courses && @$program->required_courses[$subject_type_id] != 0)
+                        ({{ @$program->required_courses[$subject_type_id] . ' ' . __('Required') }})
+                    @endif
                     / {{ $subjects->sum('credit_hour') }} Semester Hours
                 </h3>
                 <table class="w-full text-sm">
@@ -73,9 +83,10 @@
                     </thead>
                     <tbody>
                         @foreach ($subjects as $subject)
-                            <tr class="table-row">
+                            <tr class="table-row avoid-page-break">
                                 <td class="p-2 text-left">
-                                    ({{ $subject->code }}) {{ $subject->title }}
+                                    ({{ $subject->code }})
+                                    {{ $subject->title }}
                                 </td>
                                 <td class="text-center">
                                     {{ $subject->credit_hour }}
@@ -86,10 +97,9 @@
                 </table>
             </div>
         @endforeach
-        {{-- End Courses --}}
 
         @isset($program->notes)
-            <div class="mb-4">
+            <div class="mb-4 avoid-page-break">
                 <h3 class="font-bold mb-2">
                     NOTES
                 </h3>
@@ -98,7 +108,6 @@
                 </p>
             </div>
         @endisset
-
     </div>
     {{-- JS --}}
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"

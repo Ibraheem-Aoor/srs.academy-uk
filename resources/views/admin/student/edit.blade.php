@@ -324,9 +324,14 @@
                                                 <div class="form-group col-md-6">
                                                     <label for="admission_date">{{ __('field_admission_date') }}
                                                         <span>*</span></label>
-                                                    <input type="date" class="form-control date" name="admission_date"
-                                                        id="admission_date" value="{{ $row->admission_date }}" required>
-
+                                                    <select name="admission_date" id="admission_date"
+                                                        class="form-control">
+                                                        <option value="">{{ __('select') }}</option>
+                                                        @foreach ($sessions as $session)
+                                                            <option value="{{ $session->id }}" @selected($session->start_date == $row->admission_date)>
+                                                                {{ $session->title }}</option>
+                                                        @endforeach
+                                                    </select>
                                                     <div class="invalid-feedback">
                                                         {{ __('required_field') }} {{ __('field_admission_date') }}
                                                     </div>
