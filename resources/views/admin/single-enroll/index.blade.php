@@ -405,7 +405,7 @@
                                         ({{ __('select_multiple') }})</span></label>
                                 <select class="form-control select2 next_subject" name="subjects[]"
                                     id="subject" multiple required>
-                                    @foreach ($subjects as $subject)
+                                    @foreach ($enroll?->subjects ?? []  as $subject)
                                         <option value="{{ $subject->id }}">
                                             {{ $subject->code }} - {{ $subject->title }}
                                         </option>

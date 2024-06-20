@@ -74,9 +74,6 @@ class StudentSingleEnrollController extends Controller
                 $query->where('program_id', $student->program_id);
             })->where('status', '1')->orderBy('title', 'asc')->get();
 
-            $data['subjects'] = Subject::with('programs')->whereHas('programs', function ($query) use ($student) {
-                $query->where('program_id', $student->program_id);
-            })->where('status', '1')->orderBy('code', 'asc')->get();
 
             $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
         } else {
