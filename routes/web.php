@@ -513,6 +513,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::get('srs/setup-programs', [QuickSetupSemesterController::class, 'categorizePrograms']);
     Route::get('srs/setup-semsters', [QuickSetupSemesterController::class, 'setupSemestersDate']);
     Route::get('srs/setup-sessions', [QuickSetupSemesterController::class, 'setupSessionDates']);
+    
 });
 
 
