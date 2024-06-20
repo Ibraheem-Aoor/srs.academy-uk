@@ -118,7 +118,6 @@ class ClassRoutineController extends Controller
             }
             $data['rows'] = $routines->orderBy('start_time', 'asc')->get();
         }
-        // dd($data);
         return view($this->view . '.index', $data);
     }
 
@@ -277,10 +276,14 @@ class ClassRoutineController extends Controller
                     ->first();
 
                 //Subject Check
-                /*$subject_check = ClassRoutine::where('subject_id', $data['subject'][$j])->where('session_id', $session)->where('program_id', $program)->where('semester_id', $semester)->where('section_id', $section)
-                ->where('day', $day)
-                ->first();*/
+                $subject_check = ClassRoutine::where('subject_id', $data['subject'][$j])
+                ->where('session_id', $session)
+                ->where('teacher_id'  , $data['teacher'][$j])
+                ->where('program_id', $program)
 
+                ->where('start_time', $start)
+                ->where('day', $day)
+                ->first();
 
                 if (!empty($data['routine_id'][$j])) {
                     // Update Routine
@@ -299,7 +302,7 @@ class ClassRoutineController extends Controller
                     Toastr::success(__('msg_updated_successfully'), __('msg_success'));
                 } else {
                     // Create Routine
-                    if (!empty($teacher_check) || !empty($room_check) || !empty($period_check)) {
+                    if (!empty($subject_check)) {
                         Toastr::error(__('msg_data_already_exists'), __('msg_error'));
                     } else {
                         $classRoutine = new ClassRoutine;
