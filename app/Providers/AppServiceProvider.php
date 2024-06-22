@@ -37,6 +37,9 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         Paginator::useBootstrap();
 
+        if (app()->environment('testing')) {
+            return;
+        }
 
         // Share view for Common Data
         $user_languages = Language::where('status', '1')->get();

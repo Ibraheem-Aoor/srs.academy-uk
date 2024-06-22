@@ -20,7 +20,7 @@ class BaseService
             'moodlewsrestformat' => 'json',
         ];
         $this->url = $this->configs['host'] . '/' . $this->configs['uri'];
-        $this->http = Http::timeout($this->configs['timeout']);
+        $this->http = Http::timeout($this->configs['timeout'])->withoutVerifying();
     }
 
 
