@@ -37,21 +37,33 @@ class SyncDataWithMoodleController extends Controller
     public function syncCourses(CourseService $moodle_course_service)
     {
         try {
+            Subject::query()->update(['id_on_moodle' => null]);
             $query_params['wsfunction'] = 'core_course_get_courses';
             $moodle_courses = $moodle_course_service->get($query_params);
-
+            $db_subjects = Subject::query()->whereNull('id_on_moodle')->get();
+            $updated_subjects = [];
             foreach ($moodle_courses as $moodle_course) {
-                if ($srs_course = Subject::query()->where('title', $moodle_course['fullname'])->orWhere('code', @$moodle_course['shortname'])->first()) {
-                    $srs_course->update(['id_on_moodle' => $moodle_course['id']]);
+                foreach ($db_subjects as $subject) {
+                    if (
+                        strpos($moodle_course['shortname'], $subject->code) !== false ||
+                        strpos($moodle_course['shortname'], strtoupper($subject->code)) !== false ||
+                        strpos($moodle_course['shortname'], strtolower($subject->code)) !== false ||
+                        strpos($moodle_course['fullname'], $subject->code) !== false ||
+                        strpos($moodle_course['fullname'], strtoupper($subject->code)) !== false ||
+                        strpos($moodle_course['fullname'], strtolower($subject->code)) !== false
+                    ) {
+                        $updated_subjects[$subject->code] = $moodle_course['shortname'];
+                        $subject->update(['id_on_moodle' => $moodle_course['id']]);
+                    }
                 }
             }
-            dd('Done Successfully');
+            dd('Done Successfully', $updated_subjects);
         } catch (Throwable $e) {
             dd($e);
         }
     }
 
-    
+
     public function syncStudents(StudentService $moodle_student_service)
     {
         try {
@@ -70,7 +82,7 @@ class SyncDataWithMoodleController extends Controller
                     ]);
                 }
             });
-            dd('Done Successfully' , $s);
+            dd('Done Successfully', $s);
         } catch (Throwable $e) {
             dd($e);
         }

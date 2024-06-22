@@ -502,7 +502,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
 
     // Transfer Data To Moodle
     Route::get('moodle/transfer-sessions', [ManualTransferDataToMoodleController::class, 'transferPrograms'])->name('moodle.transfer.sessions');
-    Route::get('moodle/transfer-courses', [ManualTransferDataToMoodleController::class, 'transferCourses'])->name('moodle.transfer.courses');
+    // Route::get('moodle/transfer-courses', [ManualTransferDataToMoodleController::class, 'transferCourses'])->name('moodle.transfer.courses');
     Route::get('moodle/transfer-students', [ManualTransferDataToMoodleController::class, 'taransferUsers'])->name('moodle.transfer.students');
     // Sync Data with moodle
     Route::get('moodle/sync-sessions', [SyncDataWithMoodleController::class, 'syncSessions'])->name('moodle.sync.sessions');
@@ -513,7 +513,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::get('srs/setup-programs', [QuickSetupSemesterController::class, 'categorizePrograms']);
     Route::get('srs/setup-semsters', [QuickSetupSemesterController::class, 'setupSemestersDate']);
     Route::get('srs/setup-sessions', [QuickSetupSemesterController::class, 'setupSessionDates']);
-    
+
 });
 
 
