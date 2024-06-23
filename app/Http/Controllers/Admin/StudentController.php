@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\StudentsExport;
 use App\Rules\MoodlePassword;
 use App\Rules\SessionOfferedToProgram;
 use Illuminate\Support\Facades\Crypt;
@@ -955,6 +956,12 @@ class StudentController extends Controller
         ];
         return view('admin.program.program_print', $data);
     }
+
+    public function export(Request $request)
+    {
+        return Excel::download(new StudentsExport, date('d-m-y').'_students.xlsx');
+    }
+
 
 
 

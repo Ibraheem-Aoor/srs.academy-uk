@@ -10,6 +10,8 @@ use App\Services\Moodle\CourseService;
 use App\Services\Moodle\SessionService;
 use App\Services\Moodle\StudentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Throwable;
 
 class ManualTransferDataToMoodleController extends Controller
@@ -98,7 +100,13 @@ class ManualTransferDataToMoodleController extends Controller
             foreach($students as $student)
             {
                 $i++;
-                $moodle_student_service->store($student, generate_moodle_password());
+                $password = generate_moodle_password();
+                $moodle_student_service->store($student, $password);
+                $student->update([
+                    'password' => Hash::make($password),
+                    'password_text' => Crypt::encryptString($password),
+                    'moodle_password' => Crypt::encryptString($password),
+                ]);
             }
             dd('Done Successfully', $i);
         }catch(Throwable $e)

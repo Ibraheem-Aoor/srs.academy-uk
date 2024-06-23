@@ -125,6 +125,8 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::get('admission/student-print-password/{id}', 'StudentController@printPassword')->name('student.print-password');
     Route::post('admission/student-password-change', 'StudentController@passwordChange')->name('student-password-change');
     Route::get('admission/student-import', 'StudentController@import')->name('student.import');
+    Route::get('admission/student-export', 'StudentController@export')->name('student.export');
+
     Route::post('admission/student-import-store', 'StudentController@importStore')->name('student.import.store');
     Route::get('admission/student-toggle-status', 'StudentController@toggleStatus')->name('student.toggle_status');
 

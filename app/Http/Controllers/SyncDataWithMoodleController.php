@@ -115,4 +115,40 @@ class SyncDataWithMoodleController extends Controller
             dd($e);
         }
     }
+
+    // public function syncStudents(StudentService $moodle_student_service)
+    // {
+    //     try {
+    //         set_time_limit(0);
+    //         $query_params['wsfunction'] = 'core_user_get_users';
+    //         $multi_students = [];
+    //         $s = Student::query()->chunkById(10, function ($students) use ($query_params, $moodle_student_service , &$multi_students) {
+    //             foreach ($students as $student) {
+    //                 $query_params['criteria'] = [
+    //                     [
+    //                         'key' => 'email',
+    //                         'value' => $student->email,
+    //                     ]
+    //                 ];
+    //                 $moodle_students = $moodle_student_service->get($query_params);
+    //                 if(count($moodle_students['users']) > 1)
+    //                 {
+    //                     foreach($moodle_students['users']  as $std)
+    //                     {
+    //                         $multi_students[] = [
+    //                             'username' => $std['username'],
+    //                             'email' => $std['email'],
+    //                         ];
+    //                     }
+    //                 }
+    //                 // $student->update([
+    //                 //     'id_on_moodle' => $moodle_students['users'][0]['id'],
+    //                 // ]);
+    //             }
+    //         });
+    //         dd('Done Successfully', $s , $multi_students);
+    //     } catch (Throwable $e) {
+    //         dd($e);
+    //     }
+    // }
 }

@@ -75,6 +75,7 @@ class Student extends Authenticatable
         'id_on_moodle',
         'srs_status',
         'moodle_status',
+        'moodle_password',
     ];
 
     /**
@@ -247,7 +248,7 @@ class Student extends Authenticatable
     /**
      * Get The Admission semester Of The Student According To Admission Date.
      */
-    public function admissionSession() 
+    public function admissionSession()
     {
         $session = Session::query()->where('start_date' , '=' , $this->admission_date)->first();
         return isset($session) ? $session : $this->admission_date;

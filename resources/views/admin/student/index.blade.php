@@ -24,6 +24,8 @@
                             @can($access . '-import')
                                 <a href="{{ route($route . '.import') }}" class="btn btn-dark"><i class="fas fa-upload"></i>
                                     {{ __('btn_import') }}</a>
+                                <a href="{{ route($route . '.export') }}" class="btn btn-dark"><i
+                                        class="fas fa-download"></i> {{ __('btn_export') }}</a>
                             @endcan
                         </div>
 
@@ -114,7 +116,7 @@
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox"
                                                             id="{{ $row->id }}-srs-status" name="srs_status"
-                                                            data-route="{{  route('admin.student.toggle_status' , ['status_type' => 'srs_status']) }}"
+                                                            data-route="{{ route('admin.student.toggle_status', ['status_type' => 'srs_status']) }}"
                                                             @checked($row->srs_status) data-id="{{ $row->id }}"
                                                             onclick="toggleStatus($(this));">
                                                     </div>
@@ -123,7 +125,7 @@
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox"
                                                             id="{{ $row->id }}-moodle-status" name="moodle_status"
-                                                            data-route="{{  route('admin.student.toggle_status' , ['status_type' => 'moodle_status']) }}"
+                                                            data-route="{{ route('admin.student.toggle_status', ['status_type' => 'moodle_status']) }}"
                                                             @checked($row->moodle_status) data-id="{{ $row->id }}"
                                                             onclick="toggleStatus($(this));">
                                                     </div>
@@ -223,23 +225,22 @@
 
 @section('page_js')
     <script>
-
-            // Quick Toggle is Active status from the table row
-            function toggleStatus(input) {
-                console.log('TT');
-                var id = input.data('id');
-                var route = input.data('route');
-                var status = input.prop('checked') == true ? 1 : 0;
-                $.get(route, {
-                    id: id,
-                    status: status,
-                }, function(reseponse) {
-                    if (reseponse.status) {
-                        toastr.success(reseponse.message);
-                    } else {
-                        toastr.error(reseponse.message);
-                    }
-                });
-            }
+        // Quick Toggle is Active status from the table row
+        function toggleStatus(input) {
+            console.log('TT');
+            var id = input.data('id');
+            var route = input.data('route');
+            var status = input.prop('checked') == true ? 1 : 0;
+            $.get(route, {
+                id: id,
+                status: status,
+            }, function(reseponse) {
+                if (reseponse.status) {
+                    toastr.success(reseponse.message);
+                } else {
+                    toastr.error(reseponse.message);
+                }
+            });
+        }
     </script>
 @endsection
