@@ -184,9 +184,7 @@
                                         @if (Auth::user()->gender == 1) onerror="this.src='{{ asset('dashboard/images/user/avatar-2.jpg') }}';" @else  onerror="this.src='{{ asset('dashboard/images/user/avatar-1.jpg') }}';" @endif>
                                     <span>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
 
-                                    <a href="javascript:void(0);" class="dud-logout" href="{{ route('student.logout') }}"
-                                        onclick="event.preventDefault();
-                                                 document.getElementById('logout-form').submit();">
+                                    <a href="#" class="dud-logout"onclick="event.preventDefault();document.getElementById('logout-form').submit();">
 
                                         <i class="feather icon-log-out"></i>
                                     </a>
