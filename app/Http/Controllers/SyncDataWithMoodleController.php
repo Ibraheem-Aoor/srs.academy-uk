@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EnrollSubject;
+use App\Models\MoodleSubjectSession;
 use App\Models\Session;
 use App\Models\Student;
 use App\Models\Subject;
@@ -40,7 +42,8 @@ class SyncDataWithMoodleController extends Controller
             Subject::query()->update(['id_on_moodle' => null]);
             $query_params['wsfunction'] = 'core_course_get_courses';
             $moodle_courses = $moodle_course_service->get($query_params);
-            $db_subjects = Subject::query()->whereNull('id_on_moodle')->get();
+            $moodle_synced_subjects = MoodleSubjectSession::query()->pluck('subject_id')->toArray();
+            $db_subjects = Subject::query()->whereNotIn('id' , array_values($moodle_synced_subjects))->get();
             $updated_subjects = [];
             foreach ($moodle_courses as $moodle_course) {
                 foreach ($db_subjects as $subject) {
@@ -52,15 +55,40 @@ class SyncDataWithMoodleController extends Controller
                         strpos($moodle_course['fullname'], strtoupper($subject->code)) !== false ||
                         strpos($moodle_course['fullname'], strtolower($subject->code)) !== false
                     ) {
-                        $updated_subjects[$subject->code] = $moodle_course['shortname'];
-                        $subject->update(['id_on_moodle' => $moodle_course['id']]);
+                        $session = Session::query()->where('id_on_moodle', $moodle_course['categoryid'])->first();
+                        if ($session) {
+                            MoodleSubjectSession::query()->updateOrCreate([
+                                'session_id' => $session->id,
+                                'subject_id' => $subject->id,
+                            ], [
+                                'session_id' => $session->id,
+                                'subject_id' => $subject->id,
+                                'id_on_moodle' => $moodle_course['id'],
+                            ]);
+                            $updated_subjects[$subject->code] = $moodle_course['shortname'];
+                        }
                     }
                 }
             }
+            // $this->updateSessionEnrollsOnSrs();
             dd('Done Successfully', $updated_subjects);
         } catch (Throwable $e) {
             dd($e);
         }
+    }
+
+    public function updateSessionEnrollsOnSrs()
+    {
+        $sessions_with_synced_subjects_on_moodle = MoodleSubjectSession::query()->pluck('session_id')->toArray();
+        EnrollSubject::query()->whereIn('session_id' , array_values($sessions_with_synced_subjects_on_moodle))->delete();
+        MoodleSubjectSession::query()->chunkById(10 , function($session_subjects){
+            foreach($session_subjects as $session_subject)
+            {
+                EnrollSubject::query()->create([
+                    'session_id' => $session_subject->session_id,
+                ]);
+            }
+        });
     }
 
 

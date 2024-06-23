@@ -100,7 +100,7 @@ class EnrollSubjectController extends Controller
             DB::commit();
             Toastr::success(__('msg_updated_successfully'), __('msg_success'));
         } catch (Throwable $e) {
-            dd($e);
+            // dd($e);
             DB::rollBack();
             logError(e: $e, method: __METHOD__, class: get_class($this));
         }
@@ -201,7 +201,9 @@ class EnrollSubjectController extends Controller
                 Toastr::success(__('msg_updated_successfully'), __('msg_success'));
             }
         } catch (Throwable $e) {
-            dd($e);
+            // dd($e);
+            DB::rollBack();
+            logError(e: $e, method: __METHOD__, class: get_class($this));
         }
 
         return redirect()->back();
