@@ -51,6 +51,7 @@ class DuplicateMoodleCourseJob implements ShouldQueue
         try {
             $moodle_course_service = new CourseService();
             $moodle_course_service->duplicateCourseForNewSession($this->subject, $this->session);
+            info("DUPLICATE COURSE ON MOODLE SUCCESS WITH ERROR FOR COURSE:  " . $this->subject->code . ' IN SESSION: ' . $this->session->title);
         } catch (Throwable $e) {
             info("DUPLICATE COURSE ON MOODLE FAILED WITH ERROR FOR COURSE:  " . $this->subject->code . ' IN SESSION: ' . $this->session->title);
             logError(e: $e, method: __METHOD__, class: get_class($this));
