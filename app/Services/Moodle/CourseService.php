@@ -71,6 +71,8 @@ class CourseService extends BaseService
                 'fullname' => $subject->title,
                 'shortname' => $subject->code . '_' . $session->getShortTitleForMoodle(),
                 'idnumber' => $subject->code . '_' . $session->getShortTitleForMoodle(),
+                'startdate' => strtotime($session->start_date),  // Optional, current timestamp
+                'enddate' => strtotime($session->end_date),  // Optional, one week from now
             ]
         ];
 
