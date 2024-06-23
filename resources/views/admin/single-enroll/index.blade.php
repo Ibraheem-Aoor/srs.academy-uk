@@ -467,7 +467,7 @@
                     $.each(response, function() {
                         $('<option/>', {
                             'value': this.id,
-                            'text': this.title
+                            'text':  this.code + " - " + this.title
                         }).appendTo('.next_subject');
                     });
                 }else{
