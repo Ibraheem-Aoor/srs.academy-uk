@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\DuplicateMoodleCourseJob;
 use App\Models\EnrollSubject;
 use App\Models\MoodleSubjectSession;
 use Illuminate\Http\Request;
@@ -280,7 +281,8 @@ class EnrollSubjectController extends Controller
                 ]);
                 $subject->save();
             } elseif (!$is_sujbect_exists_for_session) {
-                $moodle_course_service->duplicateCourseForNewSession($subject, $session);
+
+                DuplicateMoodleCourseJob::dispatch($subject, $session);
             }
         }
     }
