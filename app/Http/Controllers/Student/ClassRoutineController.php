@@ -39,7 +39,6 @@ class ClassRoutineController extends Controller
         $data['path'] = $this->path;
 
         $session = Session::where('status', '1')->where('current', '1')->first();
-
         if (isset($session)) {
             $enroll = StudentEnroll::where('student_id', Auth::guard('student')->user()->id)
                 ->where('session_id', $session->id)
@@ -54,10 +53,10 @@ class ClassRoutineController extends Controller
                 ->where('session_id', $enroll->session_id)
                 ->where('program_id', $enroll->program_id)
                 ->where('semester_id', $enroll->semester_id)
+                ->whereIn('subject_id' , $enroll->subjects()->pluck('id')->toArray())
                 ->orderBy('start_time', 'asc')
                 ->get();
         }
-
 
         return view($this->view . '.index', $data);
     }

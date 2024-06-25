@@ -69,6 +69,7 @@ class DashboardController extends Controller
                         ->where('session_id', $enroll->session_id)
                         ->where('program_id', $enroll->program_id)
                         ->where('semester_id', $enroll->semester_id)
+                        ->whereIn('subject_id', $enroll->subjects()->pluck('id')->toArray())
                         ->orderBy('start_time', 'asc')
                         ->get();
                 }
