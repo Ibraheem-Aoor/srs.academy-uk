@@ -64,19 +64,23 @@ class SubjectAddDropController extends Controller
                 $query->where('status', '1');
             });
             $data['row'] = $row = $student->first();
-
+            if(!isset($row))
+            {
+                Toastr::error(__('std_no_enroll_with_curr_session'), __('msg_error'));
+                return back();
+            }
 
             // Subjects
             $subjects = Subject::where('status', '1');
             $current_session =  Session::query()->where('current', 1)->first();
             $subjects->with('subjectEnrolls')->whereHas('subjectEnrolls', function ($query) use ($row, $current_session) {
-                $query->where('program_id', $row->program_id)->where('session_id', $current_session->id);
+                $query->where('program_id', $row?->program_id)->where('session_id', $current_session->id);
             });
             $data['subjects'] = $subjects->orderBy('code', 'asc')->get();
 
 
             // Current Enroll
-            $data['curr_enr'] = StudentEnroll::where('student_id', $row->id)
+            $data['curr_enr'] = StudentEnroll::where('student_id', $row?->id)
                 ->where('status', '1')
                 ->orderBy('id', 'desc')->first();
 

@@ -863,5 +863,6 @@
     "session_must_belong_to_selected_program":"Session Must Belong To Selected Program",
     "setup_installments" : "Setup Installments",
     "payment_date" : "Payment Date",
-    "download_acceptance_letter" : "Download Acceptance Letter"
+    "download_acceptance_letter" : "Download Acceptance Letter",
+    "std_no_enroll_with_curr_session" : "Student Has No Enroll With Current Session"
 }

@@ -114,4 +114,19 @@ class QuickSetupSemesterController extends Controller
         dd('DONE SUCCESSFULLY');
     }
 
+
+    public function setupStudentCurrentEnroll()
+    {
+        // Get The CURRENT SESSION
+        $current_running_session = Session::query()->where('current', 1)->first();
+        $s = Student::query()->chunkById(10, function ($students)use($current_running_session) {
+            foreach ($students as $student) {
+                //!! Disable All Enrolls And Make The Current Enroll Where The Current Session !!
+                $student->studentEnrolls()->update(['status' => 0]);
+                $student->studentEnrolls()->where('session_id', $current_running_session->id)->update(['status' => 1]);
+            }
+        });
+        dd('DONE SUCCESSFULLY' , $s );
+    }
+
 }
