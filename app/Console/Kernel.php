@@ -48,8 +48,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('current-session:switch')
             ->everyMinute();
 
-        $schedule->command('cron:log')
-            ->everyMinute();
+        // $schedule->command('cron:log')
+        //     ->everyMinute();
     }
 
     /**

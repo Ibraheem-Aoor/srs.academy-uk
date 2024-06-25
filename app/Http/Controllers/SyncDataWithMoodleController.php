@@ -11,6 +11,8 @@ use App\Services\Moodle\CourseService;
 use App\Services\Moodle\SessionService;
 use App\Services\Moodle\StudentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Throwable;
 
 class SyncDataWithMoodleController extends Controller
@@ -105,9 +107,16 @@ class SyncDataWithMoodleController extends Controller
                         ]
                     ];
                     $moodle_students = $moodle_student_service->get($query_params);
+                    $moodle_username = generate_moodle_username($student->first_name, $student->last_name);
+                    $moodle_password = generate_moodle_password();
                     $student->update([
                         'id_on_moodle' => $moodle_students['users'][0]['id'],
+                        'moodle_username' => $moodle_username,
+                        'moodle_password' => Crypt::encryptString($moodle_password),
+                        'password_text' => Crypt::encryptString($moodle_password),
+                        'password' => Hash::make($moodle_password),
                     ]);
+                    $moodle_student_service->changePassword($student , $moodle_password);
                 }
             });
             dd('Done Successfully', $s);

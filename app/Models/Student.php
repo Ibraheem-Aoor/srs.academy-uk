@@ -76,6 +76,7 @@ class Student extends Authenticatable
         'srs_status',
         'moodle_status',
         'moodle_password',
+        'moodle_username',
     ];
 
     /**

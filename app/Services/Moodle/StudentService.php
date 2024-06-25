@@ -88,6 +88,9 @@ class StudentService extends BaseService
         $users = [
             [
                 'id' => $student->id_on_moodle,
+                'username' => generate_moodle_username($student->first_name , $student->last_name), //  username
+                'firstname' => $student->first_name, //  first name
+                'lastname' => $student->last_name, //  last name
                 'password' => $password,
             ]
         ];
