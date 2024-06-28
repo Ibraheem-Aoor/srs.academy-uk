@@ -95,17 +95,20 @@ class ManualTransferDataToMoodleController extends Controller
     public function taransferUsers(StudentService $moodle_student_service)
     {
         try{
+            set_time_limit(0);
             $students = Student::get();
             $i= 0;
             foreach($students as $student)
             {
                 $i++;
                 $password = generate_moodle_password();
-                $moodle_student_service->store($student, $password);
+                $moodle_created_student = $moodle_student_service->store($student, $password);
                 $student->update([
                     'password' => Hash::make($password),
                     'password_text' => Crypt::encryptString($password),
+                    'id_on_moodle' => $moodle_created_student[0]['id'],
                     'moodle_password' => Crypt::encryptString($password),
+                    'moodle_username' =>  generate_moodle_username($student->first_name , $student->last_name),
                 ]);
             }
             dd('Done Successfully', $i);

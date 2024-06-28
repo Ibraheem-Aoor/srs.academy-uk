@@ -25,20 +25,36 @@ class StudentEnrollService extends BaseService
      */
     public function store(StudentEnroll $student_enroll)
     {
+        $course_service = new CourseService();
         //bring the student role id  from moodle
         $student_role_id = $this->role_service->getStudentRoleId();
         // Create the data array for the POST request
         $enrolments = [];
         foreach ($student_enroll->subjects as $subject) {
-            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id' , $subject->id)->where('session_id' , $student_enroll->session_id)->first()->id_on_moodle;
-            $enrolments[] = [
-                'roleid' => $student_role_id,
-                'courseid' => $subject_id_on_moodle,
-                'userid' => $student_enroll->student->id_on_moodle,
-                'timestart' => strtotime($student_enroll->session->start_date),
-                'timeend' => strtotime($student_enroll->session->end_date),
-                'suspend' => 0,
-            ];
+            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id', $subject->id)->where('session_id', $student_enroll->session_id)->first()?->id_on_moodle;
+            if (isset($subject_id_on_moodle)) {
+
+                $enrolments[] = [
+                    'roleid' => $student_role_id,
+                    'courseid' => $subject_id_on_moodle,
+                    'userid' => $student_enroll->student->id_on_moodle,
+                    'timestart' => strtotime($student_enroll->session->start_date),
+                    'timeend' => strtotime($student_enroll->session->end_date),
+                    'suspend' => 0,
+                ];
+            }else{
+                $session = Session::find($student_enroll->session_id);
+                $created_course_on_moodle = $course_service->store($subject, $session);
+                MoodleSubjectSession::query()->updateOrCreate([
+                    'session_id' => $session->id,
+                    'subject_id' => $subject->id,
+                ], [
+                    'session_id' => $session->id,
+                    'subject_id' => $subject->id,
+                    'id_on_moodle' => $created_course_on_moodle[0]['id'],
+                ]);
+                return $this->store($student_enroll);
+            }
         }
         return $this->makeEnrollmentRequest($enrolments);
     }
@@ -64,7 +80,7 @@ class StudentEnrollService extends BaseService
         // Add enrolments for new subjects
         foreach ($subjects_to_enroll as $subject_id) {
             $subject = Subject::find($subject_id);
-            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id' , $subject->id)->where('session_id' , $student_enroll->session_id)->first()->id_on_moodle;
+            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id', $subject->id)->where('session_id', $student_enroll->session_id)->first()->id_on_moodle;
             $enrolments[] = [
                 'roleid' => $student_role_id,
                 'courseid' => $subject_id_on_moodle,
@@ -78,7 +94,7 @@ class StudentEnrollService extends BaseService
         // Suspend enrolments for dropped subjects
         foreach ($subjects_to_drop as $subject_id) {
             $subject = Subject::find($subject_id);
-            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id' , $subject->id)->where('session_id' , $student_enroll->session_id)->first()->id_on_moodle;
+            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id', $subject->id)->where('session_id', $student_enroll->session_id)->first()->id_on_moodle;
             $enrolments[] = [
                 'roleid' => $student_role_id,
                 'courseid' => $subject_id_on_moodle,
@@ -101,7 +117,7 @@ class StudentEnrollService extends BaseService
         // Retrieve the student role ID from Moodle
         $student_role_id = $this->role_service->getStudentRoleId();
         foreach ($enrollment->subjects as $subject) {
-            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id'  , $subject->id)->where('session_id' , $enrollment->session_id)->first()->id_on_moodle;
+            $subject_id_on_moodle = MoodleSubjectSession::query()->where('subject_id', $subject->id)->where('session_id', $enrollment->session_id)->first()->id_on_moodle;
             $enrolments[] = [
                 'roleid' => $student_role_id,
                 'courseid' => $subject_id_on_moodle,

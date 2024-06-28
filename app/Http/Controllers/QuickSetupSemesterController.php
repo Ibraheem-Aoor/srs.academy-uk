@@ -10,6 +10,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Services\Moodle\CourseService;
 use App\Services\Moodle\SessionService;
+use App\Services\Moodle\StudentEnrollService;
 use App\Services\Moodle\StudentService;
 use Illuminate\Http\Request;
 use Throwable;
@@ -119,14 +120,70 @@ class QuickSetupSemesterController extends Controller
     {
         // Get The CURRENT SESSION
         $current_running_session = Session::query()->where('current', 1)->first();
-        $s = Student::query()->chunkById(10, function ($students)use($current_running_session) {
+        $s = Student::query()->chunkById(10, function ($students) use ($current_running_session) {
             foreach ($students as $student) {
                 //!! Disable All Enrolls And Make The Current Enroll Where The Current Session !!
                 $student->studentEnrolls()->update(['status' => 0]);
                 $student->studentEnrolls()->where('session_id', $current_running_session->id)->update(['status' => 1]);
             }
         });
-        dd('DONE SUCCESSFULLY' , $s );
+        dd('DONE SUCCESSFULLY', $s);
     }
+
+
+    /**
+     * This Function Delets All Moodel Students.
+     */
+    public function deleteMoodleDuplicatedStudents(StudentService $moodle_student_service)
+    {
+        try {
+            set_time_limit(0);
+            $query_params['wsfunction'] = 'core_user_get_users';
+            $user_ids = [];
+            $s = Student::query()->chunkById(10, function ($students) use ($query_params, $moodle_student_service, &$user_ids) {
+                foreach ($students as $student) {
+                    $query_params['criteria'] = [
+                        [
+                            'key' => 'email',
+                            'value' => $student->email,
+                        ]
+                    ];
+                    $moodle_students = $moodle_student_service->get($query_params);
+                    foreach ($moodle_students['users'] as $std) {
+                        array_push($user_ids, $std['id']);
+                    }
+                }
+            });
+            // dd($user_ids);
+            // Create the data array for the POST request
+            $params['userids'] = $user_ids;
+            $params['wsfunction'] = 'core_user_delete_users';
+            $moodle_student_service->delete($params);
+            dd('Done Successfully', $user_ids);
+        } catch (Throwable $e) {
+            dd($e);
+        }
+    }
+
+
+    /**
+     * Sync Current Session Student Enrolls With Moodle.
+     */
+    public function ernollStudents()
+    {
+        set_time_limit(0);
+        $current_session = Session::query()->where('current' , 1)->first();
+        $student_enroll_service = new StudentEnrollService();
+        $students = Student::query()->chunkById(10, function ($students)use($current_session , $student_enroll_service) {
+            foreach ($students as $student) {
+                $student_enrolls = $student->studentEnrolls()->where('session_id' , $current_session->id)->get();
+                foreach($student_enrolls as $student_enroll){
+                    $student_enroll_service->store($student_enroll);
+                }
+            }
+        });
+        dd('DONE SUCCESSFULLY');
+    }
+
 
 }
