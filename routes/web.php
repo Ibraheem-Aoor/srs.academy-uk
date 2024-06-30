@@ -517,7 +517,8 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     // Route::get('srs/setup-sessions', [QuickSetupSemesterController::class, 'setupSessionDates']);
     // Route::get('srs/setup-student-current-enrolls', [QuickSetupSemesterController::class, 'setupStudentCurrentEnroll']);
     // Route::get('srs/delete-student-duplicates', [QuickSetupSemesterController::class, 'deleteMoodleDuplicatedStudents']);
-    // Route::get('srs/sync-student-enrolls', [QuickSetupSemesterController::class, 'ernollStudents']);
+    Route::get('srs/sync-student-enrolls', [QuickSetupSemesterController::class, 'ernollStudents']);
+    Route::get('srs/update-student-credits', [QuickSetupSemesterController::class, 'updateStudentsCredits']);
 
 });
 

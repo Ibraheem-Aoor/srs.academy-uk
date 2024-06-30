@@ -13,6 +13,8 @@ use App\Services\Moodle\SessionService;
 use App\Services\Moodle\StudentEnrollService;
 use App\Services\Moodle\StudentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Throwable;
 
 class QuickSetupSemesterController extends Controller
@@ -183,6 +185,20 @@ class QuickSetupSemesterController extends Controller
             }
         });
         dd('DONE SUCCESSFULLY');
+    }
+
+    public function updateStudentsCredits()
+    {
+        $s = Student::query()->chunkById(20 , function($students){
+            foreach($students as $student){
+                $student->update([
+                    'email' => 'std'.$student->student_id.'@aeb.edu',
+                    'password' => Hash::make('Summer2@2024'),
+                    'password_text' => Crypt::encryptString('Summer2@2024'),
+                ]);
+            }
+        });
+        dd($s);
     }
 
 
