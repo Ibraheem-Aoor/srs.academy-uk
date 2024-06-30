@@ -172,14 +172,15 @@ class ExamMarkingController extends Controller
                         $query->where('teacher_id', $teacher_id);
                     }
                 })->firstOrFail();
-
                 // User Enrollments For Easy Data Retrieval
                 $exam_types = $this->getExamTypes($request, new FilterController())->pluck('title', 'id')->toArray();
                 // Enrollments
                 $enrollments = StudentEnroll::query()
                     ->where('program_id', $request->program)
                     ->where('session_id', $request->session)
-                ->with('subjects', 'exams');
+                ->with('subjects' , 'exams')->whereHas('subjects' , function($q)use($subject){
+                    $q->where('id' , $subject);
+                });
                 $rows = $enrollments->get();
                 $exams = Exam::query()->whereIn('student_enroll_id' , array_values($enrollments->pluck('id')->toArray()))->where('subject_id', $request->subject)->get();
                 if ($rows->isEmpty() || $exams->isEmpty()) {
