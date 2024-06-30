@@ -24,8 +24,8 @@
                             @can($access . '-import')
                                 <a href="{{ route($route . '.import') }}" class="btn btn-dark"><i class="fas fa-upload"></i>
                                     {{ __('btn_import') }}</a>
-                                <a href="{{ route($route . '.export') }}" class="btn btn-dark"><i
-                                        class="fas fa-download"></i> {{ __('btn_export') }}</a>
+                                <a href="{{ route($route . '.export') }}" class="btn btn-dark"><i class="fas fa-download"></i>
+                                    {{ __('btn_export') }}</a>
                             @endcan
                         </div>
 
@@ -152,8 +152,10 @@
                                                                 class="fas fa-print"></i>
                                                             {{ __('financial_agreement') }}</a>
                                                         <a href="#" class="btn btn-dark btn-sm"
-                                                            onclick="PopupWin('{{ route($route . '.print-password', [$row->id]) }}', '{{ $title }}', 800, 500);"><i
-                                                                class="fas fa-print"></i> {{ __('field_password') }}</a>
+                                                            data-email="{{ $row->email }}"
+                                                            data-password="{{ Crypt::decryptString($row->password_text) }}"
+                                                            onclick="copyData(this); return false;"><i class="fas fa-print"></i>
+                                                            {{ __('field_password') }}</a>
                                                     @endcan
 
                                                     {{-- <form action="{{ route($route . '.send-password', [$row->id]) }}"
@@ -242,5 +244,22 @@
                 }
             });
         }
+
+        function copyData(button) {
+            const email = button.getAttribute('data-email');
+            const password = button.getAttribute('data-password');
+
+            const textToCopy = `Email: ${email}\nPassword: ${password}`;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            alert('Copied to clipboard');
+        }
     </script>
+
 @endsection
