@@ -504,7 +504,7 @@ class FeesStudentController extends Controller
             'student' => 'required',
             'category' => 'required',
             'amount' => 'required|numeric',
-            'discount' => 'required|exists:fees_discounts,id',
+            'discount' => 'nullable|exists:fees_discounts,id',
             'type' => 'required|numeric',
             'session' => 'required|exists:sessions,id',
             // 'assign_date' => 'required|date|after_or_equal:today',
@@ -525,23 +525,14 @@ class FeesStudentController extends Controller
             $fee_amount = $total_credits * $request->amount;
         }
         $session = Session::query()->find($request->session);
-        $discount = FeesDiscount::query()->find($request->discount);
         // Assign Fees
         $fees = new Fee;
         $fees->student_enroll_id = $request->student;
         $fees->category_id = $request->category;
         $fees->fee_amount = $fee_amount;
-        if ($discount->type == '1') {
-            $fees->discount_amount = $discount->amount;
-        } else {
-            $fees->discount_amount = (($fees->fee_amount / 100) * $discount->amount);
-        }
-        $fees->assign_date = $session->start_date;
-        $fees->due_date = $session->end_date;
-        $fees->created_by = Auth::guard('web')->user()->id;
         $fees->save();
-
-
+        $discount = FeesDiscount::query()->find($request->discount);
+        $fees->insertDiscount($discount)->insertFineAmount();
         Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
         return redirect()->back();

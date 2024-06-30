@@ -98,7 +98,7 @@
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="category">{{ __('field_discount') }} <span>*</span></label>
-                                        <select class="form-control" name="discount" id="discount" required>
+                                        <select class="form-control" name="discount" id="discount" >
                                             <option value="">{{ __('select') }}</option>
                                             @foreach ($discounts as $discount)
                                                 <option value="{{ $discount->id }}"

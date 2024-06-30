@@ -864,5 +864,6 @@
     "setup_installments" : "Setup Installments",
     "payment_date" : "Payment Date",
     "download_acceptance_letter" : "Download Acceptance Letter",
-    "std_no_enroll_with_curr_session" : "Student Has No Enroll With Current Session"
+    "std_no_enroll_with_curr_session" : "Student Has No Enroll With Current Session",
+    "field_pending_amount" : "Pending Amount"
 }

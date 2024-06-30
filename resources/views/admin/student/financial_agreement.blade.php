@@ -141,7 +141,8 @@
             <!-- Fees Section -->
             @php
                 $program_total_fees = 0;
-
+                $program_total_paid = 0;
+                $program_total_pending = 0;
             @endphp
             @foreach ($rows as $session_start_date => $fees)
                 @php
@@ -152,51 +153,62 @@
                             ->orderBy('start_date')
                             ->first();
                     }
-                    $sessionTotal = 0;
+                    $sessionTotalPaid = 0;
+                    $sessionTotalPending = 0;
                 @endphp
                 <h2 class="text-center">{{ __('field_session') }}:
-                    {{ $session?->title }} ({{ $session->start_date }}
-                    / {{ $session?->end_date }})</h2>
+                    {{ $session?->title }} ({{ $session->start_date }} - {{ $session?->end_date }})</h2>
                 <table class="table-no-border receipt">
                     <thead>
                         <tr>
                             <th style="width:20% !important;">{{ __('field_fees_type') }}</th>
                             <th style="width:15% !important;">{{ __('field_fee') }}</th>
                             <th style="width:15% !important;">{{ __('field_discount') }}</th>
-                            {{-- <th style="width:15% !important;">{{ __('field_fine_amount') }}</th> --}}
-                            <th colspan="6">{{ __('field_total') }}</th>
+                            <th style="width:15% !important;">{{ __('field_fine_amount') }}</th>
+                            <th style="width:15% !important;">{{ __('field_paid_amount') }}</th>
+                            <th colspan="6">{{ __('field_pending_amount') }}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($fees->groupBy('category_id') as $fees_category => $rows)
+                        @foreach ($fees->where('status', '!=', 2)->groupBy('category_id') as $fees_category => $rows)
                             @php
                                 $categoryTitle = $rows->first()->category->title ?? '';
                                 $totalFee = $rows->sum('fee_amount');
                                 $totalDiscount = $rows->sum('discount_amount');
                                 $totalFine = $rows->sum('fine_amount');
-                                $totalPaid = $totalFee - $totalDiscount + $totalFine;
-                                $sessionTotal += $totalPaid;
-                                $program_total_fees += $totalPaid;
+                                $totalPaid = $rows->where('status', 1)->sum('paid_amount');
+                                $totalPending = $totalFee - $totalPaid - $totalDiscount + $totalFine;
+                                $sessionTotalPaid += $totalPaid;
+                                $sessionTotalPending += $totalPending;
+                                $program_total_fees += $totalFee;
+                                $program_total_paid += $totalPaid;
+                                $program_total_pending += $totalPending;
                             @endphp
-                            <tr class="border-bottom fs-10">
-                                <td>{{ $categoryTitle }}</td>
-                                <td>
-                                    {{ number_format((float) $totalFee, $setting->decimal_place ?? 2, '.', '') }}
-                                    {!! $setting->currency_symbol !!}
-                                </td>
-                                <td>-
-                                    {{ number_format((float) $totalDiscount, $setting->decimal_place ?? 2, '.', '') }}
-                                    {!! $setting->currency_symbol !!}
-                                </td>
-                                {{-- <td>+
-                                    {{ number_format((float) $totalFine, $setting->decimal_place ?? 2, '.', '') }}
-                                    {!! $setting->currency_symbol !!}
-                                </td> --}}
-                                <td colspan="6">
-                                    {{ number_format((float) $totalPaid, $setting->decimal_place ?? 2, '.', '') }}
-                                    {!! $setting->currency_symbol !!}
-                                </td>
-                            </tr>
+                            @if (isset($totalFee) && $totalFee > 0)
+                                <tr class="border-bottom fs-10">
+                                    <td>{{ $categoryTitle }}</td>
+                                    <td>
+                                        {{ number_format((float) $totalFee, $setting->decimal_place ?? 2, '.', '') }}
+                                        {!! $setting->currency_symbol !!}
+                                    </td>
+                                    <td>-
+                                        {{ number_format((float) $totalDiscount, $setting->decimal_place ?? 2, '.', '') }}
+                                        {!! $setting->currency_symbol !!}
+                                    </td>
+                                    <td>+
+                                        {{ number_format((float) $totalFine, $setting->decimal_place ?? 2, '.', '') }}
+                                        {!! $setting->currency_symbol !!}
+                                    </td>
+                                    <td>
+                                        {{ number_format((float) $totalPaid, $setting->decimal_place ?? 2, '.', '') }}
+                                        {!! $setting->currency_symbol !!}
+                                    </td>
+                                    <td colspan="6">
+                                        {{ number_format((float) $totalPending, $setting->decimal_place ?? 2, '.', '') }}
+                                        {!! $setting->currency_symbol !!}
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
                     <tfoot>
@@ -204,8 +216,13 @@
                             <th>{{ __('field_session_total') }}:</th>
                             <th>&nbsp;</th>
                             <th>&nbsp;</th>
-                            <th colspan="6" class="text-right">
-                                {{ number_format((float) $sessionTotal, $setting->decimal_place ?? 2, '.', '') }}
+                            <th>&nbsp;</th>
+                            <th class="text-right">
+                                {{ number_format((float) $sessionTotalPaid, $setting->decimal_place ?? 2, '.', '') }}
+                                {!! $setting->currency_symbol !!}
+                            </th>
+                            <th colspan="6" class="text-left">
+                                {{ number_format((float) $sessionTotalPending, $setting->decimal_place ?? 2, '.', '') }}
                                 {!! $setting->currency_symbol !!}
                             </th>
                         </tr>
@@ -230,8 +247,12 @@
                         <th class="text-success">{{ __('field_program_total') }}:</th>
                         <th class="text-success">&nbsp;</th>
                         <th class="text-success">&nbsp;</th>
+                        <th class="text-success" class="text-right">
+                            {{ number_format((float) $program_total_paid, $setting->decimal_place ?? 2, '.', '') }}
+                            {!! $setting->currency_symbol !!}
+                        </th>
                         <th class="text-success" colspan="6" class="text-right">
-                            {{ number_format((float) $program_total_fees, $setting->decimal_place ?? 2, '.', '') }}
+                            {{ number_format((float) $program_total_pending, $setting->decimal_place ?? 2, '.', '') }}
                             {!! $setting->currency_symbol !!}
                         </th>
                     </tr>

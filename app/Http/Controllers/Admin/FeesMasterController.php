@@ -13,6 +13,7 @@ use App\Models\Section;
 use App\Models\Session;
 use App\Models\Faculty;
 use App\Models\Fee;
+use App\Models\FeesDiscount;
 use Toastr;
 use Auth;
 use DB;
@@ -231,6 +232,8 @@ class FeesMasterController extends Controller
 
             })->all();
         }
+        $data['discounts'] = FeesDiscount::query()->get();
+
 
 
         return view($this->view . '.create', $data);
@@ -255,6 +258,8 @@ class FeesMasterController extends Controller
             'type' => 'required|numeric',
             'category' => 'required',
             'students' => 'required',
+            'discount' => 'nullable|exists:fees_discounts,id',
+
         ]);
         try {
             DB::beginTransaction();
@@ -274,7 +279,7 @@ class FeesMasterController extends Controller
             $feesMaster->created_by = Auth::guard('web')->user()->id;
             $feesMaster->save();
 
-
+            $discount = FeesDiscount::query()->find($request->discount);
             // Assign Fees
             foreach ($request->students as $student) {
                 $total_credits = 0;
@@ -297,6 +302,7 @@ class FeesMasterController extends Controller
                 $fees->due_date = $session->end_date;
                 $fees->created_by = Auth::guard('web')->user()->id;
                 $fees->save();
+                $fees->insertDiscount($discount)->insertFineAmount();
             }
 
 
