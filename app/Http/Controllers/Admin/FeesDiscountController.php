@@ -76,28 +76,17 @@ class FeesDiscountController extends Controller
         //Field Validation
         $request->validate([
             'title' => 'required',
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after_or_equal:start_date',
             'amount' => 'required|numeric',
             'type' => 'required|integer',
             'actual_type' => ['required', Rule::in(['discount', 'grant'])],
-            'categories' => 'required',
-            'statuses' => 'required',
         ]);
-
         // Insert Data
         $feesDiscount = new FeesDiscount;
         $feesDiscount->title = $request->title;
-        $feesDiscount->start_date = $request->start_date;
-        $feesDiscount->end_date = $request->end_date;
         $feesDiscount->amount = $request->amount;
         $feesDiscount->type = $request->type;
         $feesDiscount->discount_type = $request->actual_type;
         $feesDiscount->save();
-
-        // Create Attach
-        $feesDiscount->feesCategories()->attach($request->categories);
-        $feesDiscount->statusTypes()->attach($request->statuses);
 
 
         Toastr::success(__('msg_created_successfully'), __('msg_success'));
@@ -151,28 +140,19 @@ class FeesDiscountController extends Controller
         //Field Validation
         $request->validate([
             'title' => 'required',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
             'amount' => 'required|numeric',
             'type' => 'required|integer',
-            'categories' => 'required',
-            'statuses' => 'required',
         ]);
 
 
         // Update Data
         $feesDiscount = FeesDiscount::findOrFail($id);
         $feesDiscount->title = $request->title;
-        $feesDiscount->start_date = $request->start_date;
-        $feesDiscount->end_date = $request->end_date;
         $feesDiscount->amount = $request->amount;
         $feesDiscount->type = $request->type;
-        // $feesDiscount->status = $request->status;
+        $feesDiscount->discount_type = $request->actual_type;
         $feesDiscount->save();
 
-        // Update Attach
-        $feesDiscount->feesCategories()->sync($request->categories);
-        $feesDiscount->statusTypes()->sync($request->statuses);
 
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));

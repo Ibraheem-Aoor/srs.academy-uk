@@ -15,6 +15,7 @@ use App\Models\Session;
 use App\Models\Program;
 use App\Models\Section;
 use App\Models\Fee;
+use App\Models\FeesDiscount;
 use Carbon\Carbon;
 use Toastr;
 use Auth;
@@ -166,9 +167,8 @@ class FeesStudentController extends Controller
             $query->orderBy('student_id', 'asc');
         });
         // Searched Id's might be sent in notifications
-        if($searched_id = $request->query('searched_id'))
-        {
-            $fees = Fee::where('status',  '0')->where('id' , $searched_id);
+        if ($searched_id = $request->query('searched_id')) {
+            $fees = Fee::where('status', '0')->where('id', $searched_id);
         }
 
         $data['rows'] = $fees->orderBy('id', 'desc')->get();
@@ -199,26 +199,6 @@ class FeesStudentController extends Controller
 
         $fee = Fee::find($request->fee_id);
 
-        // Discount Calculation
-        $discount_amount = 0;
-        $today = date('Y-m-d');
-
-        if (isset($fee->category)) {
-            foreach ($fee->category->discounts->where('status', '1') as $discount) {
-
-                $availability = \App\Models\FeesDiscount::availability($discount->id, $fee->studentEnroll->student_id);
-
-                if (isset($availability)) {
-                    if ($discount->start_date <= $today && $discount->end_date >= $today) {
-                        if ($discount->type == '1') {
-                            $discount_amount = $discount_amount + $discount->amount;
-                        } else {
-                            $discount_amount = $discount_amount + (($fee->fee_amount / 100) * $discount->amount);
-                        }
-                    }
-                }
-            }
-        }
 
 
         // Fine Calculation
@@ -246,13 +226,12 @@ class FeesStudentController extends Controller
 
 
         // Net Amount Calculation
-        $net_amount = ($fee->fee_amount - $discount_amount) + $fine_amount;
+        $net_amount = ($fee->fee_amount - $fee->discount_amount) + $fine_amount;
 
 
         DB::beginTransaction();
         // Update Data
         // $fee->fee_amount = $request->fee_amount;
-        $fee->discount_amount = $discount_amount;
         $fee->fine_amount = $fine_amount;
         $fee->paid_amount = $net_amount;
         $fee->pay_date = $request->pay_date;
@@ -288,7 +267,6 @@ class FeesStudentController extends Controller
     public function unpay(Request $request, $id)
     {
         try {
-
             DB::beginTransaction();
             // Update Data
             $fee = Fee::findOrFail($id);
@@ -429,7 +407,7 @@ class FeesStudentController extends Controller
                 }
             });
 
-            $fees->whereHas('studentEnroll', function ($query) use ($program, $session , &$data) {
+            $fees->whereHas('studentEnroll', function ($query) use ($program, $session, &$data) {
                 if ($program != 0) {
                     $query->where('program_id', $program);
                 }
@@ -498,7 +476,7 @@ class FeesStudentController extends Controller
 
 
         $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
-        $data['sessions'] = Session::query()->status(1)->get(['id' , 'title']);
+        $data['sessions'] = Session::query()->status(1)->get(['id', 'title']);
 
         // Filter Student
         $students = StudentEnroll::where('status', '1');
@@ -508,7 +486,7 @@ class FeesStudentController extends Controller
         });
 
         $data['students'] = $students->orderBy('student_id', 'asc')->get();
-
+        $data['discounts'] = FeesDiscount::query()->get();
 
         return view($this->view . '.quick-assign', $data);
     }
@@ -526,6 +504,7 @@ class FeesStudentController extends Controller
             'student' => 'required',
             'category' => 'required',
             'amount' => 'required|numeric',
+            'discount' => 'required|exists:fees_discounts,id',
             'type' => 'required|numeric',
             'session' => 'required|exists:sessions,id',
             // 'assign_date' => 'required|date|after_or_equal:today',
@@ -546,11 +525,17 @@ class FeesStudentController extends Controller
             $fee_amount = $total_credits * $request->amount;
         }
         $session = Session::query()->find($request->session);
+        $discount = FeesDiscount::query()->find($request->discount);
         // Assign Fees
         $fees = new Fee;
         $fees->student_enroll_id = $request->student;
         $fees->category_id = $request->category;
         $fees->fee_amount = $fee_amount;
+        if ($discount->type == '1') {
+            $fees->discount_amount = $discount->amount;
+        } else {
+            $fees->discount_amount = (($fees->fee_amount / 100) * $discount->amount);
+        }
         $fees->assign_date = $session->start_date;
         $fees->due_date = $session->end_date;
         $fees->created_by = Auth::guard('web')->user()->id;

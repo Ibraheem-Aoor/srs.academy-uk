@@ -103,46 +103,12 @@
                                                         {!! $setting->currency_symbol !!}
                                                     </td>
                                                     <td>
-                                                        @php
-                                                            $discount_amount = 0;
-                                                            $today = date('Y-m-d');
-                                                        @endphp
-
-                                                        @isset($row->category)
-                                                            @foreach ($row->category->discounts->where('status', '1') as $discount)
-                                                                @php
-                                                                    $availability = \App\Models\FeesDiscount::availability(
-                                                                        $discount->id,
-                                                                        $row->studentEnroll->student_id,
-                                                                    );
-                                                                @endphp
-
-                                                                @if (isset($availability))
-                                                                    @if ($discount->start_date <= $today && $discount->end_date >= $today)
-                                                                        @if ($discount->type == '1')
-                                                                            @php
-                                                                                $discount_amount =
-                                                                                    $discount_amount +
-                                                                                    $discount->amount;
-                                                                            @endphp
-                                                                        @else
-                                                                            @php
-                                                                                $discount_amount =
-                                                                                    $discount_amount +
-                                                                                    ($row->fee_amount / 100) *
-                                                                                        $discount->amount;
-                                                                            @endphp
-                                                                        @endif
-                                                                    @endif
-                                                                @endif
-                                                            @endforeach
-                                                        @endisset
 
 
                                                         @if (isset($setting->decimal_place))
-                                                            {{ number_format((float) $discount_amount, $setting->decimal_place, '.', '') }}
+                                                            {{ number_format((float) $row->discount_amount, $setting->decimal_place, '.', '') }}
                                                         @else
-                                                            {{ number_format((float) $discount_amount, 2, '.', '') }}
+                                                            {{ number_format((float) $row->discount_amount, 2, '.', '') }}
                                                         @endif
                                                         {!! $setting->currency_symbol !!}
                                                     </td>
@@ -191,7 +157,7 @@
                                                     <td>
                                                         @php
                                                             $net_amount =
-                                                                $row->fee_amount - $discount_amount + $fine_amount;
+                                                                $row->fee_amount - $row->discount_amount + $fine_amount;
                                                         @endphp
 
                                                         @if (isset($setting->decimal_place))
@@ -228,7 +194,7 @@
                                                                 <i class="fas fa-plus"></i>
                                                             </button>
                                                             <!-- Include Pay modal -->
-                                                            @include($view . '.pay')
+                                                            @include($view . '.pay' , ['discount_amount' => $row->discount_amount])
 
                                                             @can($access . '-action')
                                                                 <button type="button" class="btn btn-icon btn-danger btn-sm"

@@ -28,27 +28,6 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="start_date" class="form-label">{{ __('field_start_date') }}
-                                            <span>*</span></label>
-                                        <input type="date" class="form-control date" name="start_date" id="start_date"
-                                            value="{{ old('start_date') }}" required>
-
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_start_date') }}
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="end_date" class="form-label">{{ __('field_end_date') }}
-                                            <span>*</span></label>
-                                        <input type="date" class="form-control date" name="end_date" id="end_date"
-                                            value="{{ old('end_date') }}" required>
-
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_end_date') }}
-                                        </div>
-                                    </div>
 
                                     <div class="form-group">
                                         <label for="amount" class="form-label">{{ __('field_amount') }}
@@ -96,36 +75,6 @@
                                     {{-- END Acutal Discount Type For Adminstration Purposes "GRANT|DISCOUNT" --}}
 
 
-                                    <div class="form-group">
-                                        <br />
-                                        <label for="categories" class="form-label">{{ __('field_fees_type') }} <span>*
-                                                ({{ __('select_multiple') }})</span></label>
-                                        <select class="form-control select2" name="categories[]" id="categories" multiple
-                                            required>
-                                            @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}">{{ $category->title }}</option>
-                                            @endforeach
-                                        </select>
-
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_fees_type') }}
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <br />
-                                        <label for="statuses" class="form-label">{{ __('field_student') }}
-                                            {{ __('field_status') }} <span>* ({{ __('select_multiple') }})</span></label>
-                                        <select class="form-control select2" name="statuses[]" id="statuses" multiple required>
-                                            @foreach ($statusTypes as $statusType)
-                                                <option value="{{ $statusType->id }}">{{ $statusType->title }}</option>
-                                            @endforeach
-                                        </select>
-
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_student') }} {{ __('field_status') }}
-                                        </div>
-                                    </div>
                                     <!-- Form End -->
                                 </div>
                                 <div class="card-footer">
@@ -150,10 +99,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>{{ __('field_title') }}</th>
-                                            <th>{{ __('field_date') }}</th>
                                             <th>{{ __('field_amount') }}</th>
-                                            <th>{{ __('field_fees_type') }}</th>
-                                            <th>{{ __('field_student') }} {{ __('field_status') }}</th>
                                             <th>{{ __('field_action') }}</th>
                                         </tr>
                                     </thead>
@@ -162,19 +108,6 @@
                                             <tr>
                                                 <td>{{ $key + 1 }}</td>
                                                 <td>{{ $row->title }}</td>
-                                                <td>
-                                                    @if (isset($setting->date_format))
-                                                        {{ date($setting->date_format, strtotime($row->start_date)) }}
-                                                    @else
-                                                        {{ date('Y-m-d', strtotime($row->start_date)) }}
-                                                    @endif
-                                                    <br>
-                                                    @if (isset($setting->date_format))
-                                                        {{ date($setting->date_format, strtotime($row->end_date)) }}
-                                                    @else
-                                                        {{ date('Y-m-d', strtotime($row->end_date)) }}
-                                                    @endif
-                                                </td>
                                                 <td>
                                                     @if (isset($setting->decimal_place))
                                                         {{ number_format((float) $row->amount, $setting->decimal_place, '.', '') }}
@@ -186,18 +119,6 @@
                                                     @elseif($row->type == 2)
                                                         %
                                                     @endif
-                                                </td>
-                                                <td>
-                                                    @foreach ($row->feesCategories as $key => $category)
-                                                        <span
-                                                            class="badge badge-primary">{{ $category->title }}</span><br>
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @foreach ($row->statusTypes as $key => $statusType)
-                                                        <span
-                                                            class="badge badge-primary">{{ $statusType->title }}</span><br>
-                                                    @endforeach
                                                 </td>
                                                 <td>
                                                     @can($access . '-edit')
