@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\AutoSwitchCurrentSession;
 use App\Console\Commands\LogCronCommand;
+use App\Console\Commands\SetFeeFineAmount;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Models\ScheduleSetting;
@@ -18,6 +19,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         LogCronCommand::class,
         AutoSwitchCurrentSession::class,
+        SetFeeFineAmount::class,
     ];
 
     /**
@@ -47,6 +49,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('current-session:switch')
             ->everyMinute();
+        $schedule->command('fee:set-fine')
+            ->daily();
 
         // $schedule->command('cron:log')
         //     ->everyMinute();
