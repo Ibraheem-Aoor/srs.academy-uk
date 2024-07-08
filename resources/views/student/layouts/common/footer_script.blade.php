@@ -57,6 +57,11 @@
                 format: 'HH:mm'
             });
         });
+        $(document).on('click', '#logout', function(){
+            event.preventDefault();
+            console.log('SS');
+            $('#logout-form').submit();
+        });
     </script>
 
     <script type="text/javascript">
@@ -152,9 +157,6 @@
                     }
                 });
             });
-            $('#logout').click(function(){
-                event.preventDefault();
-                $('#logout-form').submit();
-            });
+
         });
     </script>

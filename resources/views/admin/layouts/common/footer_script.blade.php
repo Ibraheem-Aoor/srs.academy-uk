@@ -73,6 +73,11 @@
                 document.getElementById('preloader').style.opacity = '0';
             }, 350);
         }
+        $(document).on('click', '#logout', function(){
+            event.preventDefault();
+            console.log('SS');
+            $('#logout-form').submit();
+        });
     </script>
 
     <script type="text/javascript">
