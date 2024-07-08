@@ -306,12 +306,12 @@
             var opt = {
                 filename: '{{ $student->first_name . '' . $student->last_name . '_' . $student->student_id }}.pdf',
                 image: {
-                    type: 'pdf',
-                    quality: 1
+                    type: 'jpeg', // Changed to jpeg
+                    quality: 0.75 // Reduced quality
                 },
                 html2canvas: {
-                    scale: 4,
-                    dpi: 72,
+                    scale: 2, // Reduced scale
+                    dpi: 96, // Reduced dpi
                     letterRendering: true
                 },
                 jsPDF: {

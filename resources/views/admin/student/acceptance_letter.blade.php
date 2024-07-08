@@ -131,12 +131,12 @@
             var opt = {
                 filename: 'Enrollment-Agreement.pdf',
                 image: {
-                    type: 'jpeg',
-                    quality: 1
+                    type: 'jpeg', // Changed to jpeg
+                    quality: 0.75 // Reduced quality
                 },
                 html2canvas: {
-                    scale: 4,
-                    dpi: 72,
+                    scale: 2, // Reduced scale
+                    dpi: 96, // Reduced dpi
                     letterRendering: true
                 },
                 jsPDF: {

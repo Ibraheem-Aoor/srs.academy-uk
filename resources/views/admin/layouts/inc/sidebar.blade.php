@@ -643,7 +643,7 @@
             </li>
         @endcanany
 
-        @canany(['income-create', 'income-view', 'income-category-create', 'income-category-view', 'expense-create',
+        {{-- @canany(['income-create', 'income-view', 'income-category-create', 'income-category-view', 'expense-create',
             'expense-view', 'expense-category-create', 'expense-category-view', 'outcome-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/account*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
@@ -682,7 +682,7 @@
                     @endcan
                 </ul>
             </li>
-        @endcanany
+        @endcanany --}}
 
         @canany(['email-notify-create', 'email-notify-view', 'sms-notify-create', 'sms-notify-view', 'event-create',
             'event-view', 'event-calendar', 'notice-create', 'notice-view', 'notice-category-create',
@@ -732,7 +732,7 @@
             </li>
         @endcanany
 
-        @canany(['book-issue-return-action', 'book-issue-return-view', 'book-issue-return-over', 'library-member-view',
+        {{-- @canany(['book-issue-return-action', 'book-issue-return-view', 'book-issue-return-over', 'library-member-view',
             'library-member-create', 'library-member-card', 'book-create', 'book-view', 'book-print', 'book-request-create',
             'book-request-view', 'book-category-create', 'book-category-view', 'library-card-setting-view'])
             <li
@@ -1065,7 +1065,7 @@
                     @endcanany
                 </ul>
             </li>
-        @endcanany
+        @endcanany --}}
 
         @canany(['marksheet-view', 'marksheet-print', 'marksheet-download', 'marksheet-setting-view',
             'certificate-view', 'certificate-create', 'certificate-print', 'certificate-download',
@@ -1180,7 +1180,7 @@
             </li>
         @endcanany
 
-        @canany(['topbar-setting-view', 'social-setting-view', 'slider-view', 'slider-create', 'about-us-view',
+        {{-- @canany(['topbar-setting-view', 'social-setting-view', 'slider-view', 'slider-create', 'about-us-view',
             'feature-view', 'feature-create', 'course-view', 'course-create', 'web-event-view', 'web-event-create',
             'news-view', 'news-create', 'gallery-view', 'gallery-create', 'faq-view', 'faq-create', 'testimonial-view',
             'testimonial-create', 'page-view', 'page-create', 'call-to-action-view'])
@@ -1269,7 +1269,7 @@
                     @endcan
                 </ul>
             </li>
-        @endcanany
+        @endcanany --}}
 
         @canany(['setting-view', 'province-view', 'province-create', 'district-view', 'district-create',
             'language-view', 'language-create', 'translations-view', 'translations-create', 'mail-setting-view',
