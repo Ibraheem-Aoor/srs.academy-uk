@@ -336,9 +336,9 @@
                     @endcan
 
                     @can('subject-result')
-                        <li class="{{ Request::is('admin/exam/subject-result*') ? 'active' : '' }}"><a
+                        {{-- <li class="{{ Request::is('admin/exam/subject-result*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.subject-result') }}"
-                                class="">{{ trans_choice('module_subject_result', 2) }}</a></li>
+                                class="">{{ trans_choice('module_subject_result', 2) }}</a></li> --}}
                     @endcan
 
                     @canany(['grade-view', 'grade-create'])

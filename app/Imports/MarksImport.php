@@ -34,10 +34,14 @@ class MarksImport implements ToCollection, WithHeadingRow
             '*.student_id' => 'required',
             '*.attendance' => 'required',
         ];
+        $validation_messages = [];
         foreach ($this->exam_types as $exam_type) {
-            $validation_rules['*.' . $exam_type->title . '(' . $exam_type->marks . ')'] = 'nullable|numeric|lte:' . $exam_type->marks;
+            $column_name = $this->getFormatedColumnName(($exam_type->title) . ($exam_type->marks * 100));
+            $validation_rules['*.' . $column_name] = 'nullable|numeric|lte:' . $exam_type->marks;
+            $validation_messages['*.' . $column_name.'.numeric']  = __('Entered Mark Must Be Numeric  For Exam: '.$exam_type->title);
+            $validation_messages['*.' . $column_name.'.lte']  = __('Entered Mark Must Less Than Or Equal Exam Total Mark For Exam: '.$exam_type->title);
         }
-        Validator::make($rows->toArray(),$validation_rules )->validate();
+        Validator::make($rows->toArray(), $validation_rules , $validation_messages)->stopOnFirstFailure()->validate();
 
 
         foreach ($rows as $row) {
@@ -67,8 +71,8 @@ class MarksImport implements ToCollection, WithHeadingRow
 
             if (isset($student) && isset($this->exam_types)) {
                 // Attendance Update
-                foreach($this->exam_types as $exam_type)
-                {
+                foreach ($this->exam_types as $exam_type) {
+                    $column_name = $this->getFormatedColumnName(($exam_type->title) . ($exam_type->marks * 100));
                     Exam::updateOrCreate(
                         [
                             'student_enroll_id' => $student->id,
@@ -83,7 +87,7 @@ class MarksImport implements ToCollection, WithHeadingRow
                             'marks' => $exam_type->marks,
                             'contribution' => $exam_type->contribution,
                             'attendance' => $attendance,
-                            'achieve_marks' => $row[strtolower($exam_type->title).($exam_type->marks*100)], // we made this because of the data format after validation.
+                            'achieve_marks' => $row[$column_name], // we made this because of the data format after validation.
                             // 'note' => $row['note'],
                             'created_by' => Auth::guard('web')->user()->id,
                         ]
@@ -91,5 +95,15 @@ class MarksImport implements ToCollection, WithHeadingRow
                 }
             }
         }
+    }
+
+
+    /**
+     * Formatting to get the correct column name according to this package rules
+     */
+
+    private function getFormatedColumnName($column)
+    {
+        return str_replace(' ', '_', strtolower($column));
     }
 }
