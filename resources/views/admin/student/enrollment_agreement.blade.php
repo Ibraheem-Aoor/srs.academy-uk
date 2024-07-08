@@ -3,6 +3,11 @@
 <head>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <style>
+        *{
+            break-inside: avoid;    
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 p-8" id="boxes">
@@ -24,7 +29,7 @@
         <div class="text-center mb-2">
             <p>Address: {{ $topbarSetting->address }}</p>
             <p>Phone: {{ $topbarSetting->phone }}</p>
-            <p>E-mail: {{ $topbarSetting->email  }}</p>
+            <p>E-mail: {{ $topbarSetting->email }}</p>
         </div>
         <div class="max-w-4xl mx-auto">
             <h1 class="text-center text-2xl font-bold mb-2">
@@ -242,7 +247,7 @@
             <p>
                 Application and admission fees are not refundable. Semester fees can be refundable completely or
                 partially according to the conditions below. To withdraw or cancel the contract, fill in the form and
-                submit it from your email to ({{ $topbarSetting->email  }}).
+                submit it from your email to ({{ $topbarSetting->email }}).
             </p>
             <ul class="list-disc pl-5">
                 <li>
@@ -300,9 +305,9 @@
                             </td>
                         </tr>
                     @endforeach
-
                 </tbody>
             </table>
+            <img src="{{ asset('dashboard/images/bank_info.png') }}" alt="bank info" width="130%">
         </div>
         <div class="bg-black text-white font-bold p-2 mb-2">
             CERTIFICATION
