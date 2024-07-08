@@ -102,7 +102,7 @@
                 </a>
                 <ul class="pcoded-submenu">
 
-                    @canany(['student-attendance-action', 'student-attendance-report'])
+                    {{-- @canany(['student-attendance-action', 'student-attendance-report'])
                         <li
                             class="nav-item pcoded-hasmenu {{ Request::is('admin/student-attendance*') ? 'pcoded-trigger active' : '' }}">
                             <a href="#!" class="nav-link">
@@ -123,7 +123,7 @@
                                 @endcan
                             </ul>
                         </li>
-                    @endcanany
+                    @endcanany --}}
 
                     @canany(['student-leave-manage-view', 'student-leave-manage-edit'])
                         <li class="{{ Request::is('admin/student-leave-manage*') ? 'active' : '' }}"><a
@@ -390,7 +390,7 @@
             </li>
         @endcanany
 
-        @canany(['assignment-create', 'assignment-view', 'assignment-marking', 'content-create', 'content-view',
+        {{-- @canany(['assignment-create', 'assignment-view', 'assignment-marking', 'content-create', 'content-view',
             'content-type-view', 'content-type-create'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/download*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
@@ -417,7 +417,7 @@
                     @endcanany
                 </ul>
             </li>
-        @endcanany
+        @endcanany --}}
 
         @canany(['fees-student-due', 'fees-student-quick-assign', 'fees-student-quick-received', 'fees-student-report',
             'fees-student-print', 'fees-master-view', 'fees-master-create', 'fees-category-view', 'fees-category-create',
@@ -684,7 +684,7 @@
             </li>
         @endcanany --}}
 
-        @canany(['email-notify-create', 'email-notify-view', 'sms-notify-create', 'sms-notify-view', 'event-create',
+        {{-- @canany(['email-notify-create', 'email-notify-view', 'sms-notify-create', 'sms-notify-view', 'event-create',
             'event-view', 'event-calendar', 'notice-create', 'notice-view', 'notice-category-create',
             'notice-category-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/communicate*') ? 'pcoded-trigger active' : '' }}">
@@ -730,7 +730,7 @@
                     @endcanany
                 </ul>
             </li>
-        @endcanany
+        @endcanany --}}
 
         {{-- @canany(['book-issue-return-action', 'book-issue-return-view', 'book-issue-return-over', 'library-member-view',
             'library-member-create', 'library-member-card', 'book-create', 'book-view', 'book-print', 'book-request-create',

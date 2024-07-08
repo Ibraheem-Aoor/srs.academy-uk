@@ -45,9 +45,9 @@
                 <div class="col-sm-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">{{ __('IAU-AEB Study Room') }}</h5>
+                            <h5 class="card-title">{{ __('AEB Study Room') }}</h5>
                             {{-- <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> --}}
-                            <a href="<?= url('') ?>/auto-login/local-moodle" class="btn btn-primary">Signin</a>
+                            <a href="http://moodle.academy-uk.net/" class="btn btn-primary">Signin</a>
                         </div>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
 
             <div class="row">
                 <!-- [ bitcoin-wallet section ] start-->
-                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                <div class="col-sm-4 col-md-4 col-xl-4 button-divs d-none"
                     onclick='window.location.href="{{ route('admin.exam-marking.index') }}"'>
                     <div class="card bg-c-blue bitcoin-wallet">
                         <div class="card-block">
@@ -66,7 +66,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                <div class="col-sm-4 col-md-4 col-xl-4 button-divs d-none"
                     onclick='window.location.href="{{ route('admin.exam-type.index') }}"'>
                     <div class="card bg-c-blue bitcoin-wallet">
                         <div class="card-block">
@@ -76,7 +76,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4 col-md-4 col-xl-4 button-divs"
+                <div class="col-sm-4 col-md-4 col-xl-4 button-divs d-none"
                     onclick='window.location.href="{{ route('admin.student.index') }}"'>
                     <div class="card bg-c-blue bitcoin-wallet">
                         <div class="card-block">
