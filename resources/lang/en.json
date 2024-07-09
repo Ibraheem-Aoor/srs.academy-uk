@@ -867,5 +867,6 @@
     "download_acceptance_letter" : "Download Acceptance Letter",
     "std_no_enroll_with_curr_session" : "Student Has No Enroll With Current Session",
     "field_pending_amount" : "Pending Amount",
-    "installments_total_amount_invalid": "Invalid total Installments Amount. Program Total Amount Is: :program_total_fees"
+    "installments_total_amount_invalid": "Invalid total Installments Amount. Program Total Amount Is: :program_total_fees",
+    "credt_hours_total_amount_invalid": "Invalid total Subject Credit Hours . Program Total Credit Hours Is: :program_total_hours"
 }

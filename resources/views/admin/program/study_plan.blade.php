@@ -28,7 +28,10 @@
                                 <div class="row">
                                     {{-- Start Subject Programs --}}
                                     <div class="col-md-12">
-                                        <label>{{ __('program_courses', ['program' => $row->title]) }}</label>
+                                        <div class="w-100 d-flex">
+                                            <label class="text-left w-50">{{ __('program_courses', ['program' => $row->title]) }}</label>
+                                            <label class="text-right w-50">{{ __('field_program_total_hours') }} : {{ $row->default_total_hours }}</label>
+                                        </div>
                                         <table class="table table-bordered">
                                             <thead>
                                                 <tr>

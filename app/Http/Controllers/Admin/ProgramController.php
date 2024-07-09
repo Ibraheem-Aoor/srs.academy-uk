@@ -10,6 +10,7 @@ use App\Models\Program;
 use App\Models\Faculty;
 use App\Models\ProgramSubject;
 use App\Models\SubjectType;
+use App\Rules\Admin\CheckValidProgramTotalHours;
 use App\Services\Moodle\ProgramService;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -218,7 +219,7 @@ class ProgramController extends Controller
     public function updatePlan(Request $request, Program $program)
     {
         $request->validate([
-            'enroll_subjects' => 'required|array',
+            'enroll_subjects' => ['required' ,'array' , new CheckValidProgramTotalHours($program)],
             'enroll_subjects.*' => 'required|array',
             'notes' => 'nullable',
             'required_courses' => 'required|array',
