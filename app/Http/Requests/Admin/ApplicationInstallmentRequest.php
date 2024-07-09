@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\Admin\CheckValidInstallmentsAmount;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ApplicationInstallmentRequest extends BaseAdminRequest
@@ -15,7 +16,7 @@ class ApplicationInstallmentRequest extends BaseAdminRequest
     public function rules()
     {
         return [
-            'installments' => 'required|array',
+            'installments' => ['required','array' , new CheckValidInstallmentsAmount($this->student)],
             'installments.*.title' => 'required|string',
             'installments.*.amount' => 'required|numeric',
             'installments.*.payment_date' => 'required|date',

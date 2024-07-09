@@ -830,6 +830,7 @@
     "financial_agreement": "Financial Agreement",
     "field_session_total": "Session Total Fees",
     "field_program_total": "Program Total Fees",
+    "field_program_total_hours": "Program Total Hours",
     "Moodle_Error": "Moodle Error",
     "field_category_on_moodle": "Category On Moodle",
     "University Library": "University Library",
@@ -865,5 +866,6 @@
     "payment_date" : "Payment Date",
     "download_acceptance_letter" : "Download Acceptance Letter",
     "std_no_enroll_with_curr_session" : "Student Has No Enroll With Current Session",
-    "field_pending_amount" : "Pending Amount"
+    "field_pending_amount" : "Pending Amount",
+    "installments_total_amount_invalid": "Invalid total Installments Amount. Program Total Amount Is: :program_total_fees"
 }

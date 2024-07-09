@@ -24,6 +24,8 @@ class Program extends Model
         'required_courses',
         'id_on_moodle',
         'category',
+        'default_total_fees',
+        'default_total_hours',
     ];
 
     protected $casts = [

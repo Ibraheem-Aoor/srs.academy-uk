@@ -82,6 +82,8 @@ class ProgramController extends Controller
             'faculty' => 'required',
             'title' => 'required|max:191|unique:programs,title',
             'shortcode' => 'required|max:191|unique:programs,shortcode',
+            'total_fees' => 'required|numeric',
+            'total_hours' => 'required|numeric',
         ]);
 
         // Registration status
@@ -100,6 +102,8 @@ class ProgramController extends Controller
             $program->slug = Str::slug($request->title, '-');
             $program->shortcode = $request->shortcode;
             $program->registration = $registration;
+            $program->default_total_fees = $request->total_fees;
+            $program->default_total_hours = $request->total_hours;
             $program->save();
             DB::commit();
 
@@ -153,6 +157,8 @@ class ProgramController extends Controller
             'faculty' => 'required',
             'title' => 'required|max:191|unique:programs,title,' . $program->id,
             'shortcode' => 'required|max:191|unique:programs,shortcode,' . $program->id,
+            'total_fees' => 'required|numeric',
+            'total_hours' => 'required|numeric',
         ]);
 
         // Registration status
@@ -170,6 +176,8 @@ class ProgramController extends Controller
             $program->slug = Str::slug($request->title, '-');
             $program->shortcode = $request->shortcode;
             $program->registration = $registration;
+            $program->default_total_fees = $request->total_fees;
+            $program->default_total_hours = $request->total_hours;
             $program->status = $request->status;
             $program->save();
             // Create Program On Moodle
