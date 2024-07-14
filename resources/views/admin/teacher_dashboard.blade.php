@@ -91,7 +91,7 @@
             {{-- Class Schedule --}}
             <div class="row">
                 @if (isset($class_routines))
-                    <div class="card-block">
+                    <div class="card-block bg-light">
                         <!-- [ Data table ] start -->
                         <div class="table-responsive">
                             <table class="table class-routine-table">
