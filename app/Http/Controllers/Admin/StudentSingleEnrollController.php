@@ -51,7 +51,7 @@ class StudentSingleEnrollController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
         $data['access'] = $this->access;
-        $data['students'] = Student::whereHas('currentEnroll')->where('status', '1')->orderBy('student_id', 'asc')->get();
+        $data['students'] = Student::query()->where('status', '1')->orderBy('student_id', 'asc')->get();
         $data['current_session'] = Session::query()->where('current', 1)->first();
         if (!empty($request->student) && $request->student != Null) {
 

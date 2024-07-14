@@ -173,20 +173,7 @@ class StudentController extends Controller
                 $query->where('faculty_id', $faculty);
             });
         }
-        $students->with('currentEnroll')->whereHas('currentEnroll', function ($query) use ($program, $session, $semester, $section) {
-            if ($program != 0) {
-                $query->where('program_id', $program);
-            }
-            if ($session != 0) {
-                $query->where('session_id', $session);
-            }
-            if ($semester != 0) {
-                $query->where('semester_id', $semester);
-            }
-            if ($section != 0) {
-                $query->where('section_id', $section);
-            }
-        });
+        $students->with('currentEnroll');
         if (!empty($request->status)) {
             $students->with('statuses')->whereHas('statuses', function ($query) use ($status) {
                 $query->where('status_type_id', $status);

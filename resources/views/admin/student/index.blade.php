@@ -105,7 +105,7 @@
                                                 </td>
                                                 <td>{{ $row->first_name }} {{ $row->last_name }}</td>
                                                 <td>{{ $row->program->shortcode ?? '' }}</td>
-                                                <td>{{ $enroll->session->title ?? '' }}</td>
+                                                <td>{{ $enroll?->session?->title ?? '' }}</td>
                                                 <td>{{ $row->admissionSemester() }} </td>
                                                 <td>
                                                     @foreach ($row->statuses as $key => $status)
