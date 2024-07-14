@@ -204,9 +204,9 @@
         </div>
     </div>
     <!-- End Content-->
+    @include('dialog.meeting_dialog')   
 
 @endsection
-@include('dialog.meeting_dialog')
 
 @section('page_js')
     <!-- Full calendar js -->
@@ -258,3 +258,4 @@
         });
     </script>
 @endsection
+
