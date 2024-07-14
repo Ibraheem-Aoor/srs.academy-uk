@@ -130,7 +130,7 @@
         $(window).on('load', function() {
             var element = document.getElementById('boxes');
             var opt = {
-                filename: 'Enrollment-Agreement.pdf',
+                filename: 'Acceptance-Letter.pdf',
                 image: {
                     type: 'jpeg', // Changed to jpeg
                     quality: 0.75 // Reduced quality
