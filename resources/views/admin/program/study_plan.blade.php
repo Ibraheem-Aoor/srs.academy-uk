@@ -45,7 +45,7 @@
                                                     <tr>
                                                         <td>{{ $loop->index + 1 }}</td>
                                                         <td>
-                                                            <label for="">{{ $program_subject->title }}</label>
+                                                            <label for="">{{ $program_subject->code }}  - {{ $program_subject->title }}</label>
                                                             <input required type="hidden" class="form-control"
                                                                 name="enroll_subjects[{{ $program_subject->id }}][subject_id]"
                                                                 value="{{ $program_subject->id }}">
