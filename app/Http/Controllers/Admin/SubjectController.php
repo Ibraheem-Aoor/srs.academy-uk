@@ -150,7 +150,6 @@ class SubjectController extends Controller
         foreach ($request->programs as $program_id => $attributes) {
             if (isset($attributes['is_checked'])) {
                 $programs_to_sync[$program_id] = [
-                    'exam_type_category_id' => $attributes['category']
                 ];
             }
         }

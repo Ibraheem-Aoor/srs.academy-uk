@@ -78,8 +78,7 @@
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>{{ __('field_program') }}</th>``
-                                                        <th>{{ __('module_exam_type') }}</th>
+                                                        <th>{{ __('field_program') }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -101,18 +100,6 @@
                                                                     <label for="program-{{ $program->id }}"
                                                                         class="cr">{{ $program->title }}</label>
                                                                 </div>
-                                                            </td>
-                                                            <td>
-                                                                <select class="form-control"
-                                                                    name="programs[{{ $program->id }}][category]"
-                                                                    id="category-{{ $program->id }}">
-                                                                    <option value="">{{ __('select') }}</option>
-                                                                    @foreach ($mark_distribution_systems as $mark_distribution_system)
-                                                                        <option value="{{ $mark_distribution_system->id }}"
-                                                                            @selected($mark_distribution_system->id == @$program_object->pivot['exam_type_category_id'])>
-                                                                            {{ $mark_distribution_system->title }}</option>
-                                                                    @endforeach
-                                                                </select>
                                                             </td>
                                                         </tr>
                                                     @endforeach

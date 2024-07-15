@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\EnrollSubject;
+use App\Models\ExamTypeCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Program;
@@ -18,6 +19,7 @@ use Toastr;
 
 class ProgramController extends Controller
 {
+    protected  $mark_distribution_systems;
     /**
      * Create a new controller instance.
      *
@@ -37,6 +39,10 @@ class ProgramController extends Controller
         $this->middleware('permission:' . $this->access . '-create', ['only' => ['create', 'store']]);
         $this->middleware('permission:' . $this->access . '-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:' . $this->access . '-delete', ['only' => ['destroy']]);
+        $this->mark_distribution_systems = ExamTypeCategory::query()
+        ->status(1)
+        ->orderByDesc('created_at')
+        ->get(['id', 'title']);
     }
 
     /**
@@ -141,6 +147,8 @@ class ProgramController extends Controller
         $data['route'] = $this->route;
         $data['row'] = $program->load('subjects');
         $data['subject_types'] = SubjectType::query()->pluck('title', 'id')->toArray();
+        $data['mark_distribution_systems'] = $this->mark_distribution_systems;
+
         return view($this->view . '.study_plan', $data);
     }
 
@@ -230,14 +238,14 @@ class ProgramController extends Controller
             'enroll_subjects.*.required' => __('all_fields_required'),
             'enroll_subjects.*.array' => __('all_fields_required'),
         ]);
-
         $enroll_subjects = $request->enroll_subjects;
         foreach ($enroll_subjects as $enroll_subject_data) {
             $subject_id = $enroll_subject_data['subject_id'];
             $subject_type_id = $enroll_subject_data['subject_type_id'];
+            $category = $enroll_subject_data['category'];
             // Update the pivot record
             $program->subjects()
-                ->updateExistingPivot($subject_id, ['subject_type_id' => $subject_type_id]);
+                ->updateExistingPivot($subject_id, ['subject_type_id' => $subject_type_id , 'exam_type_category_id' => $category]);
         }
         $program->update([
             'notes' => $request->notes,

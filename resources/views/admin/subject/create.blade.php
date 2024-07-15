@@ -77,7 +77,6 @@
                                                 <thead>
                                                     <tr>
                                                         <th>{{ __('field_program') }}</th>
-                                                        <th>{{ __('module_exam_type') }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -93,18 +92,6 @@
                                                                     <label for="program-{{ $program->id }}"
                                                                         class="cr">{{ $program->title }}</label>
                                                                 </div>
-                                                            </td>
-                                                            <td>
-                                                                <select class="form-control"
-                                                                    name="programs[{{ $program->id }}][category]"
-                                                                    id="category-{{ $program->id }}">
-                                                                    <option value="">{{ __('select') }}</option>
-                                                                    @foreach ($mark_distribution_systems as $mark_distribution_system)
-                                                                        <option @selected(old('programs[$program->id][category]') == $mark_distribution_system->id)
-                                                                            value="{{ $mark_distribution_system->id }}">
-                                                                            {{ $mark_distribution_system->title }}</option>
-                                                                    @endforeach
-                                                                </select>
                                                             </td>
                                                         </tr>
                                                     @endforeach
