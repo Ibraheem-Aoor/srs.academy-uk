@@ -7,6 +7,7 @@ use App\Models\ClassRoutine;
 use Illuminate\Http\Request;
 use App\Models\PrintSetting;
 use App\Models\ClassRoom;
+use App\Models\EnrollSubject;
 use App\Models\Semester;
 use App\Models\Faculty;
 use App\Models\Session;
@@ -277,27 +278,36 @@ class ClassRoutineController extends Controller
 
                 //Subject Check
                 $subject_check = ClassRoutine::where('subject_id', $data['subject'][$j])
-                ->where('session_id', $session)
-                ->where('teacher_id'  , $data['teacher'][$j])
-                ->where('program_id', $program)
+                    ->where('session_id', $session)
+                    ->where('teacher_id', $data['teacher'][$j])
+                    ->where('program_id', $program)
 
-                ->where('start_time', $start)
-                ->where('day', $day)
-                ->first();
+                    ->where('start_time', $start)
+                    ->where('day', $day)
+                    ->first();
 
                 if (!empty($data['routine_id'][$j])) {
                     // Update Routine
                     $classRoutine = ClassRoutine::find($data['routine_id'][$j]);
-                    $classRoutine->subject_id = $data['subject'][$j];
-                    $classRoutine->teacher_id = $data['teacher'][$j];
-                    $classRoutine->room_id = $data['room'][$j];
-                    $classRoutine->session_id = $session;
-                    $classRoutine->program_id = $program;
-                    $classRoutine->semester_id = $semester;
-                    $classRoutine->start_time = $data['start_time'][$j];
-                    $classRoutine->end_time = $data['end_time'][$j];
-                    $classRoutine->day = $day;
-                    $classRoutine->save();
+                    ClassRoutine::query()->where([
+                        ['subject_id', $classRoutine->subject_id],
+                        ['day', $classRoutine->day],
+                        ['teacher_id', $classRoutine->teacher_id],
+                        ['room_id', $classRoutine->room_id],
+                        ['session_id', $classRoutine->session_id],
+                        ['semester_id', $classRoutine->semester_id],
+                        ['start_time', $classRoutine->start_time],
+                        ['end_time', $classRoutine->end_time],
+                    ])->update([
+                        'subject_id' => $data['subject'][$j],
+                        'teacher_id' => $data['teacher'][$j],
+                        'room_id' => $data['room'][$j],
+                        'session_id' => $session,
+                        'semester_id' => $semester,
+                        'start_time' => $data['start_time'][$j],
+                        'end_time' => $data['end_time'][$j],
+                        'day' => $day,
+                    ]);
 
                     Toastr::success(__('msg_updated_successfully'), __('msg_success'));
                 } else {
@@ -305,17 +315,26 @@ class ClassRoutineController extends Controller
                     if (!empty($subject_check)) {
                         Toastr::error(__('msg_data_already_exists'), __('msg_error'));
                     } else {
-                        $classRoutine = new ClassRoutine;
-                        $classRoutine->subject_id = $data['subject'][$j];
-                        $classRoutine->teacher_id = $data['teacher'][$j];
-                        $classRoutine->room_id = $data['room'][$j];
-                        $classRoutine->session_id = $session;
-                        $classRoutine->program_id = $program;
-                        $classRoutine->semester_id = $semester;
-                        $classRoutine->start_time = $data['start_time'][$j];
-                        $classRoutine->end_time = $data['end_time'][$j];
-                        $classRoutine->day = $day;
-                        $classRoutine->save();
+                        $subject = Subject::query()->with('programs')->find($data['subject'][$j]);
+                        foreach ($subject->programs as $subject_program) {
+                            $enroll_subject = EnrollSubject::query()->where('program_id', $subject_program->id)
+                                ->where('session_id', $session)->whereHas('subjects', function($query)use($subject){
+                                    $query->where('id' , $subject->id);
+                                })->exists();
+                            if ($enroll_subject) {
+                                $classRoutine = new ClassRoutine;
+                                $classRoutine->subject_id = $subject->id;
+                                $classRoutine->teacher_id = $data['teacher'][$j];
+                                $classRoutine->room_id = $data['room'][$j];
+                                $classRoutine->session_id = $session;
+                                $classRoutine->program_id = $subject_program->id;
+                                $classRoutine->semester_id = $semester;
+                                $classRoutine->start_time = $data['start_time'][$j];
+                                $classRoutine->end_time = $data['end_time'][$j];
+                                $classRoutine->day = $day;
+                                $classRoutine->save();
+                            }
+                        }
 
                         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
                     }
