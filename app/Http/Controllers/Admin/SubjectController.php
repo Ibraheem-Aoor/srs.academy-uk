@@ -150,6 +150,7 @@ class SubjectController extends Controller
         foreach ($request->programs as $program_id => $attributes) {
             if (isset($attributes['is_checked'])) {
                 $programs_to_sync[$program_id] = [
+                    'exam_type_category_id' => $request->exam_type,
                 ];
             }
         }
@@ -187,6 +188,7 @@ class SubjectController extends Controller
             'prerequisites.*.*' => 'required',
             'programs' => 'required|array',
             'programs.*' => 'required',
+            'exam_type' =>'required|exists:exam_type_categories,id',
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),
             'prerequisites.*.array' => __('invalid_prerequisites'),
@@ -291,6 +293,8 @@ class SubjectController extends Controller
             'prerequisites.*.*' => 'required',
             'programs' => 'required|array',
             'programs.*' => 'required',
+            'exam_type' =>'required|exists:exam_type_categories,id',
+
 
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),

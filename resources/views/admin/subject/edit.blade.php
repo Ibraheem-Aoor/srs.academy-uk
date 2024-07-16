@@ -58,6 +58,17 @@
                                             {{ __('required_field') }} {{ __('field_credit_hour') }}
                                         </div>
                                     </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="status" class="form-label">{{ __('module_exam_type') }}</label>
+                                        <select class="form-control" name="exam_type" required>
+                                            <option value="">{{ __('select') }}</option>
+                                            @foreach ($mark_distribution_systems as $mark_distribution_system)
+                                                <option value="{{ $mark_distribution_system->id }}"
+                                                    @selected(@$row->programs->first()->pivot['exam_type_category_id'] == $mark_distribution_system->id || (old('exam_type') == $mark_distribution_system->id))>
+                                                    {{ $mark_distribution_system->title }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
 
 

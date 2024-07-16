@@ -40,7 +40,6 @@
                                                     <th>#</th>
                                                     <th>{{ trans_choice('module_subject', 1) }}</th>
                                                     <th>{{ __('field_type') }}</th>
-                                                    <th>{{ __('module_exam_type') }}</th>
 
                                                 </tr>
                                             </thead>
@@ -64,18 +63,6 @@
                                                                     <option value="{{ $key }}"
                                                                         @selected(@$program_subject->pivot['subject_type_id'] == $key)>{{ $name }}
                                                                     </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-control"
-                                                                name="enroll_subjects[{{ $program_subject->id }}][category]"
-                                                                id="category-{{ $program_subject->id }}" required>
-                                                                <option value="">{{ __('select') }}</option>
-                                                                @foreach ($mark_distribution_systems as $mark_distribution_system)
-                                                                    <option value="{{ $mark_distribution_system->id }}"
-                                                                        @selected($mark_distribution_system->id == @$program_subject->pivot['exam_type_category_id'])>
-                                                                        {{ $mark_distribution_system->title }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </td>

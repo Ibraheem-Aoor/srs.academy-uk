@@ -242,10 +242,9 @@ class ProgramController extends Controller
         foreach ($enroll_subjects as $enroll_subject_data) {
             $subject_id = $enroll_subject_data['subject_id'];
             $subject_type_id = $enroll_subject_data['subject_type_id'];
-            $category = $enroll_subject_data['category'];
             // Update the pivot record
             $program->subjects()
-                ->updateExistingPivot($subject_id, ['subject_type_id' => $subject_type_id , 'exam_type_category_id' => $category]);
+                ->updateExistingPivot($subject_id, ['subject_type_id' => $subject_type_id]);
         }
         $program->update([
             'notes' => $request->notes,
