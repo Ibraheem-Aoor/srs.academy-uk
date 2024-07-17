@@ -117,9 +117,14 @@ class VClassController extends Controller
 
         $recordingParams = new GetRecordingsParameters();
 
-
+        $subjectCode = null;
         if ($meetingId) {
-            $recordingParams->setMeetingId($meetingId);
+            // Split the string by hyphens
+            $parts = explode('-', $meetingId);
+
+            // Get the second last element which is the subject code
+            $subjectCode = $parts[count($parts) - 2];
+            // $recordingParams->setMeetingId($meetingId);
         }
 
         $response = $bbb->getRecordings($recordingParams);
@@ -143,10 +148,20 @@ class VClassController extends Controller
                 'size' => AppHelper::humanFileSize(intval($recording->playback->format->size . '')),
                 'url' => $recording->playback->format->url . '',
             ];
-
-            $recordings[] = $rec;
+            // If we are searching for a recording. we will get all the subject recordings and show them to the student. regardless the session and sesmester.
+            if (isset($subjectCode)) {
+                if (strpos($rec['meetingId'], $subjectCode) !== false) {
+                    $recordings[] = $rec;
+                }
+            }else{
+                $recordings[] = $rec;
+            }
         }
-
+        if (is_array($recordings)) {
+            usort($recordings, function ($a, $b) {
+                return $b['startTime'] <=> $a['startTime'];
+            });
+        }
         return response()->json($recordings);
     }
 
@@ -202,7 +217,7 @@ class VClassController extends Controller
         $response = $bbb->getRecordings($recordingParams);
 
         if ($response->getReturnCode() == 'SUCCESS') {
-            dd($response->getRawXml()->recordings->recording , $response->getRawXml()->recordings);
+            dd($response->getRawXml()->recordings->recording, $response->getRawXml()->recordings);
             foreach ($response->getRawXml()->recordings->recording as $recording) {
                 // process all recording
             }
