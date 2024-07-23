@@ -68,7 +68,7 @@
                     @endcanany
 
                     @canany(['id-card-setting-view'])
-                        <li
+                        {{-- <li
                             class="nav-item pcoded-hasmenu {{ Request::is('admin/admission/id-card-setting*') ? 'pcoded-trigger active' : '' }}">
                             <a href="#!" class="nav-link">
                                 <span class="pcoded-mtext">{{ trans_choice('module_setting', 2) }}</span>
@@ -80,22 +80,25 @@
                                             href="{{ route('admin.id-card-setting.index') }}"
                                             class="">{{ trans_choice('module_id_card_setting', 1) }}</a></li>
                                 @endcan
-                                {{-- @can('application-installments-view') --}}
-                                    <li class="{{ Request::is('admin/admission/application-installments*') ? 'active' : '' }}"><a
-                                            href="{{ route('admin.id-card-setting.index') }}"
-                                            class="">{{ trans_choice('module_id_card_setting', 1) }}</a></li>
-                                {{-- @endcan --}}
                             </ul>
-                        </li>
+                        </li> --}}
                     @endcanany
                 </ul>
             </li>
         @endcanany
 
+        {{-- Student Section --}}
         @canany(['student-attendance-action', 'student-attendance-report', 'student-leave-manage-view',
             'student-leave-manage-edit', 'student-note-create', 'student-note-view', 'student-enroll-single',
             'student-enroll-group', 'student-enroll-adddrop', 'student-enroll-complete', 'student-enroll-alumni'])
-            <li class="nav-item pcoded-hasmenu {{ Request::is('admin/student*') ? 'pcoded-trigger active' : '' }}">
+            <li
+                class="nav-item pcoded-hasmenu {{ Request::is('admin/student*') ||
+                Request::is('admin/admission/id-card-setting*') ||
+                Request::is('admin/report*') ||
+                Request::is('admin/report/student') ||
+                Request::is('admin/report/subject')
+                    ? 'pcoded-trigger active'
+                    : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-user-graduate"></i></span>
                     <span class="pcoded-mtext">{{ trans_choice('module_student', 2) }}</span>
@@ -125,7 +128,7 @@
                         </li>
                     @endcanany --}}
 
-                    @canany(['student-leave-manage-view', 'student-leave-manage-edit'])
+                    {{-- @canany(['student-leave-manage-view', 'student-leave-manage-edit'])
                         <li class="{{ Request::is('admin/student-leave-manage*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.student-leave-manage.index') }}"
                                 class="">{{ trans_choice('module_leave_manage', 1) }}</a></li>
@@ -135,7 +138,7 @@
                         <li class="{{ Request::is('admin/student/student-note*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.student-note.index') }}"
                                 class="">{{ trans_choice('module_student_note', 2) }}</a></li>
-                    @endcanany
+                    @endcanany --}}
 
                     @canany(['student-enroll-single', 'student-enroll-group', 'student-enroll-adddrop',
                         'student-enroll-complete'])
@@ -173,10 +176,40 @@
                         </li>
                     @endcanany
 
-                    @canany(['student-enroll-alumni'])
+                    {{-- @canany(['student-enroll-alumni'])
                         <li class="{{ Request::is('admin/student/student-alumni*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.student-alumni.index') }}"
                                 class="">{{ trans_choice('module_student_alumni', 2) }}</a></li>
+                    @endcanany --}}
+                    @canany(['id-card-setting-view'])
+                        @can('id-card-setting-view')
+                            <li class="{{ Request::is('admin/admission/id-card-setting*') ? 'active' : '' }}"><a
+                                    href="{{ route('admin.id-card-setting.index') }}"
+                                    class="">{{ trans_choice('module_id_card_setting', 1) }}</a></li>
+                        @endcan
+                    @endcanany
+                    @canany(['report-student', 'report-subject', 'report-fees', 'report-payroll', 'report-leave',
+                        'report-income', 'report-expense', 'report-library', 'report-hostel', 'report-transport'])
+                        <li
+                            class="nav-item pcoded-hasmenu {{  Request::is('admin/report/student') || Request::is('admin/report/subject') ? 'pcoded-trigger active' : '' }}">
+                            <a href="#!" class="nav-link">
+                                <span class="pcoded-mtext">{{ trans_choice('module_report', 2) }}</span>
+                            </a>
+
+                            <ul class="pcoded-submenu">
+                                @can('report-student')
+                                    <li class="{{ Request::is('admin/report/student') ? 'active' : '' }}"><a
+                                            href="{{ route('admin.report.student') }}"
+                                            class="">{{ trans_choice('module_student_progress', 1) }}</a></li>
+                                @endcan
+
+                                @can('report-subject')
+                                    <li class="{{ Request::is('admin/report/subject') ? 'active' : '' }}"><a
+                                            href="{{ route('admin.report.subject') }}"
+                                            class="">{{ trans_choice('module_course_students', 1) }}</a></li>
+                                @endcan
+                            </ul>
+                        </li>
                     @endcanany
                 </ul>
             </li>
@@ -188,7 +221,8 @@
             'enroll-subject-view', 'class-routine-create', 'class-routine-view', 'class-routine-print',
             'exam-routine-create', 'exam-routine-view', 'exam-routine-print', 'class-routine-teacher',
             'routine-setting-class', 'routine-setting-exam'])
-            <li class="nav-item pcoded-hasmenu {{ Request::is('admin/academic*') ? 'pcoded-trigger active' : '' }}">
+            <li
+                class="nav-item pcoded-hasmenu {{ Request::is('admin/academic*') || Request::is('admin/staff/user*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fab fa-accusoft"></i></span>
                     <span class="pcoded-mtext">{{ trans_choice('module_academic', 2) }}</span>
@@ -242,7 +276,8 @@
                         <li
                             class="{{ Request::is('admin/academic/subject*') && !Request::is('admin/academic/subject-type*') ? 'active' : '' }}">
                             <a href="{{ route('admin.subject.index') }}"
-                                class="">{{ trans_choice('module_subject', 2) }}</a></li>
+                                class="">{{ trans_choice('module_subject', 2) }}</a>
+                        </li>
                     @endcanany
                     @canany(['subject-create', 'subject-view'])
                         <li class="{{ Request::is('admin/academic/subject-type*') ? 'active' : '' }}"><a
@@ -260,7 +295,8 @@
                         <li
                             class="{{ Request::is('admin/academic/class-routine') ? 'active' : '' }} {{ Request::is('admin/academic/class-routine/create') ? 'active' : '' }}">
                             <a href="{{ route('admin.class-routine.index') }}"
-                                class="">{{ trans_choice('module_class_routine', 2) }}</a></li>
+                                class="">{{ trans_choice('module_class_routine', 2) }}</a>
+                        </li>
                     @endcanany
 
                     @canany(['exam-routine-create', 'exam-routine-view', 'exam-routine-print'])
@@ -274,7 +310,12 @@
                                 href="{{ route('admin.class-routine.teacher') }}"
                                 class="">{{ trans_choice('module_teacher_routine', 2) }}</a></li>
                     @endcan
-
+                    @canany(['user-create', 'user-view', 'user-password-print', 'user-password-change'])
+                        <li class="{{ Request::is('admin/staff/user*') ? 'active' : '' }}"><a
+                                href="{{ route('admin.user.index') }}"
+                                class="">{{ trans_choice('module_staff', 1) }}
+                                {{ __('list') }}</a></li>
+                    @endcanany
                     @canany(['routine-setting-class', 'routine-setting-exam'])
                         <li
                             class="nav-item pcoded-hasmenu {{ Request::is('admin/academic/routine-setting*') ? 'pcoded-trigger active' : '' }}">
@@ -284,15 +325,17 @@
 
                             <ul class="pcoded-submenu">
                                 @can('routine-setting-class')
-                                    <li class="{{ Request::is('admin/academic/routine-setting/class*') ? 'active' : '' }}"><a
-                                            href="{{ route('admin.routine-setting.class') }}"
-                                            class="">{{ trans_choice('module_class_routine', 1) }}</a></li>
+                                    <li class="{{ Request::is('admin/academic/routine-setting/class*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.routine-setting.class') }}"
+                                            class="">{{ trans_choice('module_class_routine', 1) }}</a>
+                                    </li>
                                 @endcan
 
                                 @can('routine-setting-exam')
-                                    <li class="{{ Request::is('admin/academic/routine-setting/exam*') ? 'active' : '' }}"><a
-                                            href="{{ route('admin.routine-setting.exam') }}"
-                                            class="">{{ trans_choice('module_exam_routine', 1) }}</a></li>
+                                    <li class="{{ Request::is('admin/academic/routine-setting/exam*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.routine-setting.exam') }}"
+                                            class="">{{ trans_choice('module_exam_routine', 1) }}</a>
+                                    </li>
                                 @endcan
                             </ul>
                         </li>
@@ -311,11 +354,11 @@
                     <span class="pcoded-mtext">{{ trans_choice('module_examination', 2) }}</span>
                 </a>
                 <ul class="pcoded-submenu">
-                    @can('exam-attendance')
+                    {{-- @can('exam-attendance')
                         <li class="{{ Request::is('admin/exam/exam-attendance*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.exam-attendance.index') }}"
                                 class="">{{ trans_choice('module_exam_attendance', 2) }}</a></li>
-                    @endcan
+                    @endcan --}}
 
                     @can('exam-marking')
                         <li class="{{ Request::is('admin/exam/exam-marking*') ? 'active' : '' }}"><a
@@ -358,7 +401,7 @@
                                 class="">{{ trans_choice('module_exam_type', 2) }}</a></li>
                     @endcanany
 
-                    @canany(['admit-card-view', 'admit-card-print', 'admit-card-download'])
+                    {{-- @canany(['admit-card-view', 'admit-card-print', 'admit-card-download'])
                         <li class="{{ Request::is('admin/exam/admit-card*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.admit-card.index') }}"
                                 class="">{{ trans_choice('module_admit_card', 2) }}</a></li>
@@ -385,13 +428,12 @@
                                 @endcan
                             </ul>
                         </li>
-                    @endcanany
+                    @endcanany --}}
                 </ul>
             </li>
         @endcanany
 
-        {{-- @canany(['assignment-create', 'assignment-view', 'assignment-marking', 'content-create', 'content-view',
-            'content-type-view', 'content-type-create'])
+        {{-- @canany(['assignment-create', 'assignment-view', 'assignment-marking', 'content-create', 'content-view', 'content-type-view', 'content-type-create'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/download*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-newspaper"></i></span>
@@ -422,7 +464,7 @@
         @canany(['fees-student-due', 'fees-student-quick-assign', 'fees-student-quick-received', 'fees-student-report',
             'fees-student-print', 'fees-master-view', 'fees-master-create', 'fees-category-view', 'fees-category-create',
             'fees-discount-view', 'fees-discount-create', 'fees-fine-view', 'fees-fine-create', 'fees-receipt-view'])
-            <li class="nav-item pcoded-hasmenu {{ Request::is('admin/fees*') ? 'pcoded-trigger active' : '' }}">
+            <li class="nav-item pcoded-hasmenu {{ Request::is('admin/fees*') || Request::is('admin/report/fees') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-money-bill-wave"></i></span>
                     <span class="pcoded-mtext">{{ trans_choice('module_fees_collection', 2) }}</span>
@@ -450,9 +492,10 @@
                                 @endcan
 
                                 @can('fees-student-quick-received')
-                                    <li class="{{ Request::is('admin/fees-student-quick-received*') ? 'active' : '' }}"><a
-                                            href="{{ route('admin.fees-student.quick.received') }}"
-                                            class="">{{ trans_choice('module_fees_quick_received', 1) }}</a></li>
+                                    <li class="{{ Request::is('admin/fees-student-quick-received*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.fees-student.quick.received') }}"
+                                            class="">{{ trans_choice('module_fees_quick_received', 1) }}</a>
+                                    </li>
                                 @endcan
 
                                 @canany(['fees-student-report', 'fees-student-print'])
@@ -504,17 +547,16 @@
                             </ul>
                         </li>
                     @endcanany
+                    @can('report-fees')
+                        <li class="{{ Request::is('admin/report/fees') ? 'active' : '' }}"><a
+                                href="{{ route('admin.report.fees') }}"
+                                class="">{{ trans_choice('module_collected_fees', 1) }}</a></li>
+                    @endcan
                 </ul>
             </li>
         @endcanany
 
-        @canany(['user-create', 'user-view', 'user-password-print', 'user-password-change',
-            'staff-daily-attendance-action', 'staff-daily-attendance-report', 'staff-hourly-attendance-action',
-            'staff-hourly-attendance-report', 'staff-note-create', 'staff-note-view', 'payroll-view', 'payroll-action',
-            'payroll-print', 'payroll-report', 'staff-leave-manage-edit', 'staff-leave-manage-view', 'staff-leave-create',
-            'staff-leave-view', 'leave-type-create', 'leave-type-view', 'work-shift-type-create', 'work-shift-type-view',
-            'designation-create', 'designation-view', 'department-create', 'department-view', 'tax-setting-create',
-            'tax-setting-view', 'pay-slip-setting-view'])
+        {{-- @canany(['user-create', 'user-view', 'user-password-print', 'user-password-change', 'staff-daily-attendance-action', 'staff-daily-attendance-report', 'staff-hourly-attendance-action', 'staff-hourly-attendance-report', 'staff-note-create', 'staff-note-view', 'payroll-view', 'payroll-action', 'payroll-print', 'payroll-report', 'staff-leave-manage-edit', 'staff-leave-manage-view', 'staff-leave-create', 'staff-leave-view', 'leave-type-create', 'leave-type-view', 'work-shift-type-create', 'work-shift-type-view', 'designation-create', 'designation-view', 'department-create', 'department-view', 'tax-setting-create', 'tax-setting-view', 'pay-slip-setting-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/staff*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-users-cog"></i></span>
@@ -527,8 +569,7 @@
                                 class="">{{ trans_choice('module_staff', 1) }} {{ __('list') }}</a></li>
                     @endcanany
 
-                    @canany(['staff-daily-attendance-action', 'staff-daily-attendance-report',
-                        'staff-hourly-attendance-action', 'staff-hourly-attendance-report'])
+                    @canany(['staff-daily-attendance-action', 'staff-daily-attendance-report', 'staff-hourly-attendance-action', 'staff-hourly-attendance-report'])
                         <li
                             class="nav-item pcoded-hasmenu {{ Request::is('admin/staff-daily-attendance*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/staff-daily-report*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/staff-hourly-attendance*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/staff-hourly-report*') ? 'pcoded-trigger active' : '' }}">
                             <a href="#!" class="nav-link">
@@ -641,10 +682,9 @@
                     @endcanany
                 </ul>
             </li>
-        @endcanany
+        @endcanany --}}
 
-        {{-- @canany(['income-create', 'income-view', 'income-category-create', 'income-category-view', 'expense-create',
-            'expense-view', 'expense-category-create', 'expense-category-view', 'outcome-view'])
+        {{-- @canany(['income-create', 'income-view', 'income-category-create', 'income-category-view', 'expense-create', 'expense-view', 'expense-category-create', 'expense-category-view', 'outcome-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/account*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-credit-card"></i></span>
@@ -684,9 +724,7 @@
             </li>
         @endcanany --}}
 
-        {{-- @canany(['email-notify-create', 'email-notify-view', 'sms-notify-create', 'sms-notify-view', 'event-create',
-            'event-view', 'event-calendar', 'notice-create', 'notice-view', 'notice-category-create',
-            'notice-category-view'])
+        {{-- @canany(['email-notify-create', 'email-notify-view', 'sms-notify-create', 'sms-notify-view', 'event-create', 'event-view', 'event-calendar', 'notice-create', 'notice-view', 'notice-category-create', 'notice-category-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/communicate*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-bullhorn"></i></span>
@@ -732,9 +770,7 @@
             </li>
         @endcanany --}}
 
-        {{-- @canany(['book-issue-return-action', 'book-issue-return-view', 'book-issue-return-over', 'library-member-view',
-            'library-member-create', 'library-member-card', 'book-create', 'book-view', 'book-print', 'book-request-create',
-            'book-request-view', 'book-category-create', 'book-category-view', 'library-card-setting-view'])
+        {{-- @canany(['book-issue-return-action', 'book-issue-return-view', 'book-issue-return-over', 'library-member-view', 'library-member-create', 'library-member-card', 'book-create', 'book-view', 'book-print', 'book-request-create', 'book-request-view', 'book-category-create', 'book-category-view', 'library-card-setting-view'])
             <li
                 class="nav-item pcoded-hasmenu {{ Request::is('admin/library*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/member/library*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
@@ -816,9 +852,7 @@
             </li>
         @endcanany
 
-        @canany(['item-issue-action', 'item-issue-view', 'item-stock-create', 'item-stock-view', 'item-create',
-            'item-view', 'item-store-create', 'item-store-view', 'item-supplier-create', 'item-supplier-view',
-            'item-category-create', 'item-category-view'])
+        @canany(['item-issue-action', 'item-issue-view', 'item-stock-create', 'item-stock-view', 'item-create', 'item-view', 'item-store-create', 'item-store-view', 'item-supplier-create', 'item-supplier-view', 'item-category-create', 'item-category-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/inventory*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-dolly-flatbed"></i></span>
@@ -864,8 +898,7 @@
             </li>
         @endcanany
 
-        @canany(['hostel-member-create', 'hostel-member-view', 'hostel-room-create', 'hostel-room-view',
-            'hostel-create', 'hostel-view', 'room-type-create', 'room-type-view'])
+        @canany(['hostel-member-create', 'hostel-member-view', 'hostel-room-create', 'hostel-room-view', 'hostel-create', 'hostel-view', 'room-type-create', 'room-type-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/hostel*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-hotel"></i></span>
@@ -912,8 +945,7 @@
             </li>
         @endcanany
 
-        @canany(['transport-member-create', 'transport-member-view', 'transport-vehicle-create',
-            'transport-vehicle-view', 'transport-route-create', 'transport-route-view'])
+        @canany(['transport-member-create', 'transport-member-view', 'transport-vehicle-create', 'transport-vehicle-view', 'transport-route-create', 'transport-route-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/transport*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-bus-alt"></i></span>
@@ -954,12 +986,7 @@
             </li>
         @endcanany
 
-        @canany(['visitor-create', 'visitor-view', 'visitor-print', 'visit-purpose-create', 'visit-purpose-view',
-            'visitor-token-setting-view', 'enquiry-create', 'enquiry-view', 'enquiry-source-create', 'enquiry-source-view',
-            'enquiry-reference-create', 'enquiry-reference-view', 'phone-log-create', 'phone-log-view', 'complain-create',
-            'complain-view', 'complain-type-create', 'complain-type-view', 'complain-source-create', 'complain-source-view',
-            'postal-exchange-create', 'postal-exchange-view', 'postal-type-create', 'postal-type-view', 'meeting-create',
-            'meeting-view', 'meeting-type-create', 'meeting-type-view'])
+        @canany(['visitor-create', 'visitor-view', 'visitor-print', 'visit-purpose-create', 'visit-purpose-view', 'visitor-token-setting-view', 'enquiry-create', 'enquiry-view', 'enquiry-source-create', 'enquiry-source-view', 'enquiry-reference-create', 'enquiry-reference-view', 'phone-log-create', 'phone-log-view', 'complain-create', 'complain-view', 'complain-type-create', 'complain-type-view', 'complain-source-create', 'complain-source-view', 'postal-exchange-create', 'postal-exchange-view', 'postal-type-create', 'postal-type-view', 'meeting-create', 'meeting-view', 'meeting-type-create', 'meeting-type-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/frontdesk*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-desktop"></i></span>
@@ -1002,10 +1029,7 @@
                                 class="">{{ trans_choice('module_meeting', 2) }}</a></li>
                     @endcanany
 
-                    @canany(['visit-purpose-create', 'visit-purpose-view', 'visitor-token-setting-view',
-                        'enquiry-source-create', 'enquiry-source-view', 'enquiry-reference-create', 'enquiry-reference-view',
-                        'complain-type-create', 'complain-type-view', 'complain-source-create', 'complain-source-view',
-                        'postal-type-create', 'postal-type-view', 'meeting-type-create', 'meeting-type-view'])
+                    @canany(['visit-purpose-create', 'visit-purpose-view', 'visitor-token-setting-view', 'enquiry-source-create', 'enquiry-source-view', 'enquiry-reference-create', 'enquiry-reference-view', 'complain-type-create', 'complain-type-view', 'complain-source-create', 'complain-source-view', 'postal-type-create', 'postal-type-view', 'meeting-type-create', 'meeting-type-view'])
                         <li
                             class="nav-item pcoded-hasmenu {{ Request::is('admin/frontdesk/visit-purpose*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/frontdesk/visitor-token-setting*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/frontdesk/enquiry-source*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/frontdesk/enquiry-reference*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/frontdesk/complain-type*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/frontdesk/complain-source*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/frontdesk/postal-type*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/frontdesk/meeting-type*') ? 'pcoded-trigger active' : '' }}">
                             <a href="#!" class="nav-link">
@@ -1109,7 +1133,8 @@
             </li>
         @endcanany
 
-        @canany(['report-student', 'report-subject', 'report-fees', 'report-payroll', 'report-leave', 'report-income',
+        {{-- Reports --}}
+        {{-- @canany(['report-student', 'report-subject', 'report-fees', 'report-payroll', 'report-leave', 'report-income',
             'report-expense', 'report-library', 'report-hostel', 'report-transport'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/report*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
@@ -1178,12 +1203,9 @@
                     @endcan
                 </ul>
             </li>
-        @endcanany
+        @endcanany --}}
 
-        {{-- @canany(['topbar-setting-view', 'social-setting-view', 'slider-view', 'slider-create', 'about-us-view',
-            'feature-view', 'feature-create', 'course-view', 'course-create', 'web-event-view', 'web-event-create',
-            'news-view', 'news-create', 'gallery-view', 'gallery-create', 'faq-view', 'faq-create', 'testimonial-view',
-            'testimonial-create', 'page-view', 'page-create', 'call-to-action-view'])
+        {{-- @canany(['topbar-setting-view', 'social-setting-view', 'slider-view', 'slider-create', 'about-us-view', 'feature-view', 'feature-create', 'course-view', 'course-create', 'web-event-view', 'web-event-create', 'news-view', 'news-create', 'gallery-view', 'gallery-create', 'faq-view', 'faq-create', 'testimonial-view', 'testimonial-create', 'page-view', 'page-create', 'call-to-action-view'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/web*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-globe"></i></span>
@@ -1383,33 +1405,33 @@
         @endcanany
         {{-- BigBlueButton Module --}}
         @can('setting-view')
+            <li class="nav-item pcoded-hasmenu {{ Request::is('admin/bbb*') ? 'pcoded-trigger active' : '' }}">
+                <a href="#!" class="nav-link">
+                    <span class="pcoded-micon"><i class="fas fa-desktop"></i>
+                        &nbsp;{{ __('module_bbb') }}</span>
+                </a>
 
-        <li class="nav-item pcoded-hasmenu {{ Request::is('admin/bbb*') ? 'pcoded-trigger active' : '' }}">
-            <a href="#!" class="nav-link">
-                <span class="pcoded-micon"><i class="fas fa-desktop"></i> &nbsp;{{ __('module_bbb') }}</span>
-            </a>
-
-            <ul class="pcoded-submenu">
+                <ul class="pcoded-submenu">
                     <li class="{{ Request::is('admin/bbb*') ? 'active' : '' }}"><a
                             href="{{ route('admin.bbb.recordings.index') }}" class="">{{ __('recordings') }}</a>
                     </li>
-            </ul>
-        </li>
+                </ul>
+            </li>
         @endcan
         {{-- Acadeny Site Module --}}
         @can('setting-view')
+            {{-- <li class="nav-item pcoded-hasmenu {{ Request::is('admin/academy-site*') ? 'pcoded-trigger active' : '' }}">
+                <a href="#!" class="nav-link">
+                    <span class="pcoded-micon fs-12"><i class="fas fa-globe"></i>{{ __('module_academy_site') }}</span>
+                </a>
 
-        <li class="nav-item pcoded-hasmenu {{ Request::is('admin/academy-site*') ? 'pcoded-trigger active' : '' }}">
-            <a href="#!" class="nav-link">
-                <span class="pcoded-micon fs-12"><i class="fas fa-globe"></i>{{ __('module_academy_site') }}</span>
-            </a>
-
-            <ul class="pcoded-submenu">
+                <ul class="pcoded-submenu">
                     <li class="{{ Request::is('admin/bbb*') ? 'active' : '' }}"><a
-                            href="{{ route('admin.academy_site.contacts.index') }}" class="">{{ __('contacts') }}</a>
+                            href="{{ route('admin.academy_site.contacts.index') }}"
+                            class="">{{ __('contacts') }}</a>
                     </li>
-            </ul>
-        </li>
+                </ul>
+            </li> --}}
         @endcan
 
         @canany(['profile-view', 'profile-edit'])
