@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\EnrollSubject;
 use App\Models\Session;
+use App\Models\StudentEnroll;
 use App\Services\Moodle\CourseService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -49,6 +50,13 @@ class AutoSwitchCurrentSession extends Command
                     ]);
                     // $this->updateSessionOfferedCoursesOnMoodle($session);
                     $session->update(['current' => 1]);
+                    StudentEnroll::query()->where('session_id', $session->id)->update([
+                        'status' => 1,
+                    ]);
+                    StudentEnroll::query()->where('session_id', '!=' , $session->id)->update([
+                        'status' => 0,
+                    ]);
+                    info("CURRENT SESSION AND ENROLLMENT UPDATED");
                 }
             }
         } catch (Throwable $e) {
