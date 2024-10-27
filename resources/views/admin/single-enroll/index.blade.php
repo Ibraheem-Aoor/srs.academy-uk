@@ -42,9 +42,6 @@
 
                         @if (isset($row))
                             <div class="card-block">
-                                @php
-                                    $enroll = \App\Models\Student::enroll($row->id);
-                                @endphp
 
                                 @php
                                     $total_credits = 0;
@@ -121,21 +118,10 @@
                                             {{ $row->batch->title ?? '' }}</p>
                                         <hr />
 
-                                        <p><mark class="text-primary">{{ __('field_program') }}:</mark>
-                                            {{ $row->program->title ?? '' }}</p>
-                                        <hr />
-
                                         <p><mark class="text-primary">{{ __('field_session') }}:</mark>
-                                            {{ $enroll->session->title ?? '' }}</p>
+                                            {{ $row->getDegreesToString() ?? '' }}</p>
                                         <hr />
 
-                                        <p><mark class="text-primary">{{ __('field_semester') }}:</mark>
-                                            {{ $enroll->semester->title ?? '' }}</p>
-                                        <hr />
-
-                                        <p><mark class="text-primary">{{ __('field_section') }}:</mark>
-                                            {{ $enroll->section->title ?? '' }}</p>
-                                        <hr />
                                     </fieldset>
                                 </div>
                             </div>
@@ -150,15 +136,13 @@
                             <div class="card-header">
 
                                 <h5>
-                                    @if($enrollment->session->start_date > $current_session->start_date)
-                                    {{ __('future') }}
-                                @else
-                                {{ __('btn_previous') }}
-                                @endif
-                                {{ __('field_session') }}:
+                                    @if ($enrollment->session->start_date > $current_session->start_date)
+                                        {{ __('future') }}
+                                    @else
+                                        {{ __('btn_previous') }}
+                                    @endif
+                                    {{ __('field_session') }}:
                                     {{ $enrollment->session->title ?? '' }} |
-                                    {{ $enrollment->semester->title ?? '' }} |
-                                    {{ $enrollment->section->title ?? '' }}</h5>
                             </div>
                             <div class="card-block">
                                 <!-- [ Data table ] start -->
@@ -243,88 +227,92 @@
                 {{-- Current Session  --}}
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="text-success">{{ __('status_current') }} {{ __('field_session') }}:
-                            {{ $row->currentEnroll->session->title ?? '' }} |
-                            {{ $row->currentEnroll->semester->title ?? '' }} |
-                            </h5>
+                        <h5 class="text-success">{{ __('status_current') }} {{ trans('field_session') }}s:
+                        </h5>
                     </div>
-                    <div class="card-block">
-                        <!-- [ Data table ] start -->
-                        <div class="table-responsive">
-                            <table class="display table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>{{ __('field_code') }}</th>
-                                        <th>{{ __('field_subject') }}</th>
-                                        <th>{{ __('field_credit_hour') }}</th>
-                                        <th>{{ __('field_point') }}</th>
-                                        <th>{{ __('field_grade') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php
-                                        $semester_credits = 0;
-                                        $semester_cgpa = 0;
-                                    @endphp
+                    @foreach ($row->activeEnrolls as $enrollment)
+                    <h5 class="text-success p-2">#{{ $loop->index +1 }} {{ $enrollment->session->title }} - {{ $enrollment->program->title }}
+                    </h5>
+                        <div class="card-block">
+                            <!-- [ Data table ] start -->
+                            <div class="table-responsive">
+                                <table class="display table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ __('field_code') }}</th>
+                                            <th>{{ __('field_subject') }}</th>
+                                            <th>{{ __('field_credit_hour') }}</th>
+                                            <th>{{ __('field_point') }}</th>
+                                            <th>{{ __('field_grade') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $semester_credits = 0;
+                                            $semester_cgpa = 0;
+                                        @endphp
 
-                                    @isset($row->currentEnroll->subjects)
-                                        @foreach ($row->currentEnroll->subjects as $subject)
-                                            @php
-                                                $semester_credits = $semester_credits + $subject->credit_hour;
-                                                $subject_grade = null;
-                                            @endphp
+                                        @isset($enrollment->subjects)
+                                            @foreach ($enrollment->subjects as $subject)
+                                                @php
+                                                    $semester_credits = $semester_credits + $subject->credit_hour;
+                                                    $subject_grade = null;
+                                                @endphp
 
-                                            <tr>
-                                                <td>{{ $subject->code }}</td>
-                                                <td>
-                                                    {{ $subject->title }}
-                                                    @if ($subject->subject_type == 0)
-                                                        ({{ __('subject_type_optional') }})
+                                                <tr>
+                                                    <td>{{ $subject->code }}</td>
+                                                    <td>
+                                                        {{ $subject->title }}
+                                                        @if ($subject->subject_type == 0)
+                                                            ({{ __('subject_type_optional') }})
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ round($subject->credit_hour, 2) }}</td>
+                                                    <td>
+                                                        @if (isset($enrollment->subjectMarks))
+                                                            @foreach ($enrollment->subjectMarks as $mark)
+                                                                @if ($mark->subject_id == $subject->id)
+                                                                    @php
+                                                                        $marks_per = round($mark->total_marks);
+                                                                    @endphp
+
+                                                                    @foreach ($grades as $grade)
+                                                                        @if ($marks_per >= $grade->min_mark && $marks_per <= $grade->max_mark)
+                                                                            {{ number_format((float) $grade->point * $subject->credit_hour, 2, '.', '') }}
+                                                                            @php
+                                                                                $semester_cgpa =
+                                                                                    $semester_cgpa +
+                                                                                    $grade->point *
+                                                                                        $subject->credit_hour;
+                                                                                $subject_grade = $grade->title;
+                                                                            @endphp
+                                                                        @break
+                                                                    @endif
+                                                                @endforeach
+
+                                                            @endif
+                                                        @endforeach
                                                     @endif
                                                 </td>
-                                                <td>{{ round($subject->credit_hour, 2) }}</td>
-                                                <td>
-                                                    @if (isset($row->currentEnroll->subjectMarks))
-                                                        @foreach ($row->currentEnroll->subjectMarks as $mark)
-                                                            @if ($mark->subject_id == $subject->id)
-                                                                @php
-                                                                    $marks_per = round($mark->total_marks);
-                                                                @endphp
-
-                                                                @foreach ($grades as $grade)
-                                                                    @if ($marks_per >= $grade->min_mark && $marks_per <= $grade->max_mark)
-                                                                        {{ number_format((float) $grade->point * $subject->credit_hour, 2, '.', '') }}
-                                                                        @php
-                                                                            $semester_cgpa =
-                                                                                $semester_cgpa +
-                                                                                $grade->point * $subject->credit_hour;
-                                                                            $subject_grade = $grade->title;
-                                                                        @endphp
-                                                                    @break
-                                                                @endif
-                                                            @endforeach
-
-                                                        @endif
-                                                    @endforeach
-                                                @endif
-                                            </td>
-                                            <td>{{ $subject_grade ?? '' }}</td>
-                                        </tr>
-                                    @endforeach
-                                @endisset
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="2">{{ __('field_term_total') }}</th>
-                                    <th>{{ $semester_credits }}</th>
-                                    <th>{{ number_format((float) $semester_cgpa, 2, '.', '') }}</th>
-                                    <th></th>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                                <td>{{ $subject_grade ?? '' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @endisset
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2">{{ __('field_term_total') }}</th>
+                                        <th>{{ $semester_credits }}</th>
+                                        <th>{{ number_format((float) $semester_cgpa, 2, '.', '') }}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
-                    <!-- [ Data table ] end -->
-                </div>
+                @endforeach
+
+                <!-- [ Data table ] end -->
             </div>
 
 
@@ -357,63 +345,10 @@
                                 <label for="session">{{ __('field_session') }} <span>*</span></label>
                                 <select class="form-control session" name="session" id="session" required>
                                     <option value="">{{ __('select') }}</option>
-                                    @foreach ($sessions as $session)
-                                        <option value="{{ $session->id }}"
-                                            @if ($enroll?->session_id == $session->id) selected @endif>
-                                            {{ $session->title }}</option>
-                                    @endforeach
                                 </select>
 
                                 <div class="invalid-feedback">
                                     {{ __('required_field') }} {{ __('field_session') }}
-                                </div>
-                            </div>
-                            <div class="form-group col-md-3 d-none">
-                                <label for="semester">{{ __('field_semester') }} <span>*</span></label>
-                                <select class="form-control next_semester" name="semester" id="semester"
-                                    >
-                                    <option value="">{{ __('select') }}</option>
-                                    @foreach ($semesters as $semester)
-                                        <option value="{{ $semester->id }}"
-                                            @if ($enroll?->semester_id == $semester->id) selected @endif>
-                                            {{ $semester->title }}</option>
-                                    @endforeach
-                                </select>
-
-                                <div class="invalid-feedback">
-                                    {{ __('required_field') }} {{ __('field_semester') }}
-                                </div>
-                            </div>
-                            {{-- Section Is Optional --}}
-                            <div class="form-group col-md-3 d-none">
-                                <label for="section">{{ __('field_section') }} <span>*</span></label>
-                                <select class="form-control next_section" name="section" id="section">
-                                    <option value="">{{ __('select') }}</option>
-                                    @foreach ($sections as $section)
-                                        <option value="{{ $section->id }}"
-                                            @if ($enroll?->section_id == $section->id) selected @endif>
-                                            {{ $section?->title }}</option>
-                                    @endforeach
-                                </select>
-
-                                <div class="invalid-feedback">
-                                    {{ __('required_field') }} {{ __('field_section') }}
-                                </div>
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label for="subject">{{ __('field_subject') }} <span>*
-                                        ({{ __('select_multiple') }})</span></label>
-                                <select class="form-control select2 next_subject" name="subjects[]"
-                                    id="subject" multiple required>
-                                    @foreach ($enroll?->subjects ?? []  as $subject)
-                                        <option value="{{ $subject->id }}">
-                                            {{ $subject->code }} - {{ $subject->title }}
-                                        </option>
-                                    @endforeach
-                                </select>
-
-                                <div class="invalid-feedback">
-                                    {{ __('required_field') }} {{ __('field_subject') }}
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
@@ -427,6 +362,7 @@
                         </div>
                     </div>
                 </div>
+
             </form>
         @endif
 
@@ -440,14 +376,15 @@
 @endsection
 
 @section('page_js')
-@if (isset($row))
 <script type="text/javascript">
     "use strict";
 
     // Next Subject
-    $(".session").on('change', function(e) {
+    $("#program").on('change', function(e) {
         e.preventDefault(e);
-        var subject = $(".next_subject");
+        $('.session').html("");
+
+        var subject = $(".session");
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -455,11 +392,10 @@
         });
         $.ajax({
             type: 'POST',
-            url: "{{ route('filter-enroll-subject') }}",
+            url: "{{ route('filter-session') }}",
             data: {
                 _token: $('input[name=_token]').val(),
-                session: $(this).val(),
-                program: '{{ $row->program_id }}',
+                program: $(this).val(),
             },
             success: function(response) {
                 // var jsonData=JSON.parse(response);
@@ -467,16 +403,15 @@
                     $.each(response, function() {
                         $('<option/>', {
                             'value': this.id,
-                            'text':  this.code + " - " + this.title
-                        }).appendTo('.next_subject');
+                            'text': this.title
+                        }).appendTo('.session');
                     });
-                }else{
-                    $('.next_subject').html("");
+                } else {
+                    $('.session').html("");
                 }
             }
 
         });
     });
 </script>
-@endif
 @endsection

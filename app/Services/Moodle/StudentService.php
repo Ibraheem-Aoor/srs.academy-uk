@@ -33,8 +33,8 @@ class StudentService extends BaseService
                 'email' => $student->email, //  email
                 'country' => $student->country ?? "", // Optional home country code
                 'middlename' => $student->father_name ?? "", // Optional
-                // 'institution' => 'Example Institution', // Optional  
-                'department' => $student->program->title, // Optional
+                // 'institution' => 'Example Institution', // Optional
+                // 'department' => $student->program->title, // Optional
                 'phone1' => $student->phone, // Optional
                 'address' => $student->present_address, // Optional
                 'lang' => 'en', // Default language

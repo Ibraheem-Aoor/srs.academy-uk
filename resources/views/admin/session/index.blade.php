@@ -50,7 +50,7 @@
                                         </div>
                                     </div>
                                     {{-- Semester Select --}}
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label for="semester_id" class="form-label">{{ __('field_semester') }}
                                             <span>*</span></label>
                                         <select name="semester_id" id="semester_id" class="form-control" required>
@@ -62,7 +62,7 @@
                                         <div class="invalid-feedback">
                                             {{ __('required_field') }} {{ __('field_semester') }}
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="form-group">
                                         <label for="program">{{ __('field_assign') }} {{ __('field_program') }}

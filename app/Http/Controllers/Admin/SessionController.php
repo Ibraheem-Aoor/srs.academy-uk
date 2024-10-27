@@ -82,8 +82,6 @@ class SessionController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'programs' => 'required',
-            'semester_id' => ['required', 'exists:semesters,id', new SessionDateWithinSemesterPeriodRule(start_date: $request->start_date, end_date: $request->end_date)],
-
         ]);
 
         try {
@@ -95,7 +93,6 @@ class SessionController extends Controller
             $session->start_date = $request->start_date;
             $session->end_date = $request->end_date;
             $session->current = 1;
-            $session->semester_id = $request->semester_id;
             $session->save();
             // Unset current
             Session::where('id', '!=', $session->id)->update([
@@ -154,7 +151,6 @@ class SessionController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'programs' => 'required',
-            'semester_id' => ['required', 'exists:semesters,id', new SessionDateWithinSemesterPeriodRule(start_date: $request->start_date, end_date: $request->end_date)],
         ]);
         try {
             DB::beginTransaction();
@@ -166,7 +162,6 @@ class SessionController extends Controller
             if ($session->current != 1) {
                 $session->status = $request->status;
             }
-            $session->semester_id = $request->semester_id;
             $session->save();
 
             DB::commit();

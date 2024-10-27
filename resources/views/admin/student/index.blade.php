@@ -83,7 +83,6 @@
                                             <th>{{ __('field_name') }}</th>
                                             <th>{{ __('field_program') }}</th>
                                             <th>{{ __('field_session') }}</th>
-                                            <th>{{ __('field_admission_semester') }}</th>
                                             <th>{{ __('field_status') }}</th>
                                             <th>{{ __('field_srs_status') }}</th>
                                             <th>{{ __('field_moodle_status') }}</th>
@@ -93,9 +92,6 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($rows as $key => $row)
-                                            @php
-                                                $enroll = \App\Models\Student::enroll($row->id);
-                                            @endphp
                                             <tr>
                                                 <td>{{ $key + 1 }}</td>
                                                 <td>
@@ -105,8 +101,7 @@
                                                 </td>
                                                 <td>{{ $row->first_name }} {{ $row->last_name }}</td>
                                                 <td>{{ $row->program->shortcode ?? '' }}</td>
-                                                <td>{{ $enroll?->session?->title ?? '' }}</td>
-                                                <td>{{ $row->admissionSemester() }} </td>
+                                                <td>{{ $row->getDegreesToString() }}</td>
                                                 <td>
                                                     @foreach ($row->statuses as $key => $status)
                                                         <span class="badge badge-primary">{{ $status->title }}</span><br>

@@ -21,7 +21,7 @@ class Session extends Model
         'end_date',
         'current',
         'status',
-        'semester_id',
+        // 'semester_id',
         'id_on_moodle'
     ];
 
@@ -56,6 +56,7 @@ class Session extends Model
      */
     public function getShortTitleForMoodle()
     {
+        return "";
         return str_replace([' ' , '-' , '_'] , '',Carbon::parse( substr($this->title , 0 , 4))->format('y').''. substr($this->title, 4, 4).''. substr($this->title, -1));
     }
 }

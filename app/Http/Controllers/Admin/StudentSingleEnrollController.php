@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\EnrollSubject;
 use App\Models\StudentEnroll;
 use Illuminate\Http\Request;
 use App\Models\Semester;
@@ -62,9 +63,7 @@ class StudentSingleEnrollController extends Controller
             // Filter Enroll Data
             $data['programs'] = Program::where('status', '1')->orderBy('title', 'asc')->get();
 
-            $data['sessions'] = Session::with('programs')->whereHas('programs', function ($query) use ($student) {
-                $query->where('program_id', $student->program_id);
-            })->where('status', '1')->orderBy('id', 'desc')->get();
+            $data['sessions'] = Session::get();
 
             $data['semesters'] = Semester::with('programs')->whereHas('programs', function ($query) use ($student) {
                 $query->where('program_id', $student->program_id);
@@ -96,36 +95,30 @@ class StudentSingleEnrollController extends Controller
             'student' => 'required',
             'program' => 'required',
             'session' => 'required',
-            'section' => 'nullable',
-            'subjects' => ['required' ,new SubjectMustBeOfferedWithSingleEnrollmentSession($request->student , $request->session)],
         ]);
         try {
             DB::beginTransaction();
             // Duplicate Enroll Check
-            $duplicate_check = StudentEnroll::where('student_id', $request->student)->where('session_id', $request->session)->first();
+            $duplicate_check = StudentEnroll::where('student_id', $request->student)
+            ->where('session_id', $request->session)
+                ->where('program_id', $request->program)->first();
             // $semester_check = StudentEnroll::where('student_id', $request->student)->where('semester_id', $request->semester)->first();
 
             if (!isset($duplicate_check)) {
-                // Pre Enroll Update
-                $pre_enroll = StudentEnroll::where('student_id', $request->student)->where('status', '1')->first();
-                if (isset($pre_enroll)) {
-                    $pre_enroll->status = '0';
-                    $pre_enroll->save();
-                }
+
 
                 // Student New Enroll
                 $enroll = new StudentEnroll;
                 $enroll->student_id = $request->student;
                 $enroll->program_id = $request->program;
                 $enroll->session_id = $request->session;
-                $enroll->semester_id = Session::query()->find($request->session)->semester_id;
-                $enroll->section_id = $request->section ?? null;
                 $enroll->created_by = Auth::guard('web')->user()->id;
                 $enroll->status = 1;
                 $enroll->save();
 
                 // Attach Subject
-                $enroll->subjects()->attach($request->subjects);
+                $subjects = EnrollSubject::query()->where('program_id', $request->program)->where('session_id', $request->session)->first()?->subjects ?? [];
+                $enroll->subjects()->attach($subjects);
                 // get the student
                 $student = Student::find($request->student);
 

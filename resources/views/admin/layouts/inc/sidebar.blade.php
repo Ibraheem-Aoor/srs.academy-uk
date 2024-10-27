@@ -161,7 +161,7 @@
                                             class="">{{ trans_choice('module_group_enroll', 2) }}</a></li> --}}
                                 @endcanany
 
-                                @canany(['student-enroll-adddrop'])
+                                {{-- @canany(['student-enroll-adddrop'])
                                     <li class="{{ Request::is('admin/student/subject-adddrop*') ? 'active' : '' }}"><a
                                             href="{{ route('admin.subject-adddrop.index') }}"
                                             class="">{{ trans_choice('module_subject_adddrop', 2) }}</a></li>
@@ -171,7 +171,7 @@
                                     <li class="{{ Request::is('admin/student/course-complete*') ? 'active' : '' }}"><a
                                             href="{{ route('admin.course-complete.index') }}"
                                             class="">{{ trans_choice('module_course_complete', 2) }}</a></li>
-                                @endcanany
+                                @endcanany --}}
                             </ul>
                         </li>
                     @endcanany
@@ -240,16 +240,16 @@
                                 class="">{{ trans_choice('module_program', 2) }}</a></li>
                     @endcanany
 
-                    @canany(['batch-create', 'batch-view'])
+                    {{-- @canany(['batch-create', 'batch-view'])
                         <li class="{{ Request::is('admin/academic/batch*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.batch.index') }}"
                                 class="">{{ trans_choice('module_batch', 2) }}</a></li>
-                    @endcanany
+                    @endcanany --}}
 
                     @canany(['semester-create', 'semester-view'])
                         <li class="{{ Request::is('admin/academic/semester*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.semester.index') }}"
-                                class="">{{ trans_choice('module_semester', 2) }}</a></li>
+                                class="d-none">{{ trans_choice('module_semester', 2) }}</a></li>
                     @endcanany
 
                     @canany(['session-create', 'session-view'])

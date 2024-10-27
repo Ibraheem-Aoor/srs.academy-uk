@@ -216,6 +216,13 @@ if (!function_exists('generate_moodle_username')) {
     }
 
 }
+if (!function_exists('implode')) {
+    function implode($first_name = '', $last_name = '')
+    {
+        return preg_replace('/[^-.@_0-9a-z]/', '', strtolower($first_name . ' ' . $last_name));
+    }
+
+}
 
 
 

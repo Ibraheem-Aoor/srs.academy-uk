@@ -230,15 +230,12 @@ class StudentController extends Controller
         // Field Validation
         $request->validate([
             'student_id' => 'required|unique:students,student_id',
-            'batch' => 'required',
-            'program' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:students,email',
             'phone' => 'required',
             'gender' => 'required',
             'dob' => 'required|date',
-            'admission_date' => ['required', 'exists:sessions,id', new SessionOfferedToProgram($request->program)],
             'photo' => 'nullable|image',
             'signature' => 'nullable|image',
         ]);
@@ -247,13 +244,11 @@ class StudentController extends Controller
         $password = generate_moodle_password();
         // Insert Data
         try {
-            $session = Session::query()->findOrFail($request->admission_date);
             DB::beginTransaction();
             $student = new Student;
             $student->student_id = $request->student_id;
             $student->batch_id = $request->batch;
             $student->program_id = $request->program;
-            $student->admission_date = $session->start_date;
 
             $student->first_name = $request->first_name;
             $student->last_name = $request->last_name;
@@ -360,35 +355,33 @@ class StudentController extends Controller
 
 
             // Student Enroll
-            $enroll = new StudentEnroll();
-            $enroll->student_id = $student->id;
-            $enroll->session_id = $session->id;
-            $enroll->semester_id = $session->semester_id;
-            $enroll->program_id = $request->program;
-            $enroll->created_by = Auth::guard('web')->user()->id;
-            $enroll->save();
+            // $enroll = new StudentEnroll();
+            // $enroll->student_id = $student->id;
+            // $enroll->program_id = $request->program;
+            // $enroll->created_by = Auth::guard('web')->user()->id;
+            // $enroll->save();
 
 
-            // Assign Subjects
-            $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('session_id', $session->id)->first();
+            // // Assign Subjects
+            // $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('session_id', $session->id)->first();
 
-            if (isset($enrollSubject)) {
-                foreach ($enrollSubject->subjects as $subject) {
-                    // Attach Subject
-                    $enroll->subjects()->attach($subject->id);
+            // if (isset($enrollSubject)) {
+            //     foreach ($enrollSubject->subjects as $subject) {
+            //         // Attach Subject
+            //         $enroll->subjects()->attach($subject->id);
 
-                }
+            //     }
 
-            }
+            // }
 
 
             $student_on_moodle = $student_service->store($student, $password);
             $student->id_on_moodle = $student_on_moodle[0]['id'];
             $student->save();
-            if (isset($enrollSubject)) {
-                // Enroll The Student on Moodle
-                $moodle_student_enroll_service->store($enroll);
-            }
+            // if (isset($enrollSubject)) {
+            //     // Enroll The Student on Moodle
+            //     $moodle_student_enroll_service->store($enroll);
+            // }
             DB::commit();
 
 

@@ -114,6 +114,11 @@ class Student extends Authenticatable
         return $this->hasMany(StudentEnroll::class, 'student_id');
     }
 
+    public function activeEnrolls()
+    {
+        return $this->studentEnrolls()->where('status' , 1);
+    }
+
     public function currentEnroll()
     {
         return $this->hasOne(StudentEnroll::class, 'student_id')->ofMany([
@@ -226,22 +231,31 @@ class Student extends Authenticatable
     }
 
     // Get Current Enroll
-    public static function enroll($id)
+    public static function enrolls($id)
     {
         $enroll = StudentEnroll::where('student_id', $id)
             ->where('status', '1')
             ->orderBy('id', 'desc')
-            ->first();
-
+            ->get();
         return $enroll;
+    }
+
+    /**
+     * Return a string containing all the degrees of the student, separated by comma.
+     * It will return all the degrees the student has enrolled in.
+     * @return string
+     */
+    public function getDegreesToString()
+    {
+        return implode(',', self::enrolls($this->id)->pluck('title')->toArray());
     }
 
     /**
      * Get The Admission semester Of The Student According To Admission Date.
      */
-    public function admissionSemester() :  string
+    public function admissionSemester(): string
     {
-        $semester = Semester::query()->where('start_date' , '<=' , $this->admission_date)->where('end_date' , '>=' , $this->admission_date)->first();
+        $semester = Semester::query()->where('start_date', '<=', $this->admission_date)->where('end_date', '>=', $this->admission_date)->first();
         return isset($semester) ? $semester->title : $this->admission_date;
     }
 
@@ -251,7 +265,7 @@ class Student extends Authenticatable
      */
     public function admissionSession()
     {
-        $session = Session::query()->where('start_date' , '=' , $this->admission_date)->first();
+        $session = Session::query()->where('start_date', '=', $this->admission_date)->first();
         return isset($session) ? $session : $this->admission_date;
     }
 

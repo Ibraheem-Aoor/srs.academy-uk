@@ -320,7 +320,7 @@
                                                     </div>
                                                 @endif
 
-                                                <div class="form-group col-md-6">
+                                                {{-- <div class="form-group col-md-6">
                                                     <label for="admission_date">{{ __('field_admission_date') }}
                                                         <span>*</span></label>
                                                     <select name="admission_date" id="admission_date" class="form-control">
@@ -333,7 +333,7 @@
                                                     <div class="invalid-feedback">
                                                         {{ __('required_field') }} {{ __('field_admission_date') }}
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                             </fieldset>
                                         </div>
                                     </div>
@@ -495,7 +495,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group col-md-6">
+                                        {{-- <div class="form-group col-md-6">
                                             <label for="batch">{{ __('field_batch') }} <span>*</span></label>
                                             <select class="form-control batch" name="batch" id="batch" required>
                                                 <option value="">{{ __('select') }}</option>
@@ -509,9 +509,9 @@
                                             <div class="invalid-feedback">
                                                 {{ __('required_field') }} {{ __('field_batch') }}
                                             </div>
-                                        </div>
+                                        </div> --}}
 
-                                        <div class="form-group col-md-6">
+                                        {{-- <div class="form-group col-md-6">
                                             <label for="program">{{ __('field_program') }} <span>*</span></label>
                                             <select class="form-control program" name="program" id="program" required>
                                                 <option value="">{{ __('select') }}</option>
@@ -520,7 +520,7 @@
                                             <div class="invalid-feedback">
                                                 {{ __('required_field') }} {{ __('field_program') }}
                                             </div>
-                                        </div>
+                                        </div> --}}
 
 
                                         <div class="form-group col-md-6 d-none">
