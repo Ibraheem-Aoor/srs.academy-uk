@@ -11,6 +11,7 @@ use App\Models\Session;
 use App\Models\Student;
 use App\Models\Event;
 use App\Models\Fee;
+use App\Models\Subject;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -43,36 +44,29 @@ class DashboardController extends Controller
 
 
         $student_id = Auth::guard('student')->user()->id;
-        $current_session = Session::where('status', '1')->where('current', '1')->first();
 
-        if (isset($current_session)) {
-            $enroll = StudentEnroll::where('student_id', $student_id)
-                ->where('session_id', $current_session->id)
-                ->where('status', '1')
-                ->first();
+        // Get All Auth Active Student Enrollments "degrees/courses"
+        $enrolls = StudentEnroll::where('student_id', $student_id)
+            ->where('status', '1')
+            ->with(['subjects'])
+            ->get();
 
-            if (isset($enroll)) {
-                $session = $enroll->session_id;
-                $semester = $enroll->semester_id;
+        if (isset($enrolls) && !$enrolls->isEmpty()) {
+            $subject_ids = [];
+            $enrolls->each(function ($enroll) use (&$subject_ids) {
+                $subject_ids = array_merge($subject_ids, $enroll->subjects->pluck('id')->toArray());
+            });
 
-
-                if (isset($current_session)) {
-                    $enroll = StudentEnroll::where('student_id', Auth::guard('student')->user()->id)
-                        ->where('session_id', $current_session->id)
-                        ->where('status', '1')
-                        ->first();
-                }
-
-                // Class Routine
-                if (isset($enroll) && isset($current_session)) {
-                    $data['class_routine_rows'] = ClassRoutine::where('status', '1')
-                        ->where('session_id', $enroll->session_id)
-                        ->where('program_id', $enroll->program_id)
-                        ->where('semester_id', $enroll->semester_id)
-                        ->whereIn('subject_id', $enroll->subjects()->pluck('id')->toArray())
-                        ->orderBy('start_time', 'asc')
-                        ->get();
-                }
+            $session_ids = $enrolls->pluck('session_id')->toArray();
+            $program_ids = $enrolls->pluck('program_id')->toArray();
+            // Class Routine
+            if (isset($enrolls) && isset($session_ids)) {
+                $data['class_routine_rows'] = ClassRoutine::where('status', '1')
+                    ->whereIn('session_id', $session_ids)
+                    ->whereIn('program_id', $program_ids)
+                    ->whereIn('subject_id', $subject_ids)
+                    ->orderBy('start_time', 'asc')
+                    ->get();
             }
         }
 

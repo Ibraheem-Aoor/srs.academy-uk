@@ -18,6 +18,10 @@ return new class extends Migration
         Schema::table('student_enrolls', function (Blueprint $table) {
             $table->integer('semester_id')->nullable()->change();
         });
+        Schema::table('class_routines', callback: function (Blueprint $table) {
+            $table->dropForeign('class_routines_semester_id_foreign');
+            $table->integer('semester_id')->nullable()->change();
+        });
     }
 
     /**
