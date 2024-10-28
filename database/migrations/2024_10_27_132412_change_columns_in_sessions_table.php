@@ -13,12 +13,17 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('student_enrolls', function (Blueprint $table) {
-            $table->dropForeign('student_enrolls_session_id_foreign');
-            $table->dropColumn('semester_id');
+            if (Schema::hasColumn('student_enrolls', 'semester_id')) {
+                $table->dropForeign(['semester_id']);
+                $table->dropColumn('semester_id');
+            }
         });
-        Schema::table('class_routines', callback: function (Blueprint $table) {
-            $table->dropForeign('class_routines_semester_id_foreign');
-            $table->dropColumn('semester_id');
+
+        Schema::table('class_routines', function (Blueprint $table) {
+            if (Schema::hasColumn('class_routines', 'semester_id')) {
+                $table->dropForeign(['semester_id']);
+                $table->dropColumn('semester_id');
+            }
         });
     }
 
@@ -29,8 +34,18 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::table('sessions', function (Blueprint $table) {
-            //
+        Schema::table('student_enrolls', function (Blueprint $table) {
+            if (!Schema::hasColumn('student_enrolls', 'semester_id')) {
+                $table->unsignedBigInteger('semester_id')->nullable();
+                $table->foreign('semester_id')->references('id')->on('semesters')->onDelete('cascade');
+            }
+        });
+
+        Schema::table('class_routines', function (Blueprint $table) {
+            if (!Schema::hasColumn('class_routines', 'semester_id')) {
+                $table->unsignedBigInteger('semester_id')->nullable();
+                $table->foreign('semester_id')->references('id')->on('semesters')->onDelete('cascade');
+            }
         });
     }
 };
