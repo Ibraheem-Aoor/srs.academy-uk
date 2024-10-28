@@ -83,8 +83,9 @@ class CourseService extends BaseService
 
     public function duplicateCourseForNewSession(Subject $subject, Session $session)
     {
+        info('START DUPLICATE COURSE ON MOODLE FOR COURSE:  ' . $subject->code . ' IN SESSION: ' . $session->title .' COURSE ID: ' . $subject->id);
         $subject_id_on_moodle_to_duplicate = MoodleSubjectSession::query()->where('subject_id', $subject->id)->orderByDesc('created_at')->first()->id_on_moodle;
-
+        info('subject_id_on_moodle_to_duplicate: ' . $subject_id_on_moodle_to_duplicate);
         $query_params['wsfunction'] = 'core_course_duplicate_course';
         $query_params['courseid'] = $subject_id_on_moodle_to_duplicate;
         $query_params['fullname'] = $subject->title;
@@ -96,7 +97,9 @@ class CourseService extends BaseService
         //         'value' => 0,
         //     ],
         // ];
+        info($query_params);
         $created_course = parent::create($query_params);
+        info($created_course);
         MoodleSubjectSession::query()->updateOrCreate([
             'session_id' => $session->id,
             'subject_id' => $subject->id,

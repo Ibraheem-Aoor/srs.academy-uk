@@ -50,7 +50,7 @@
                                                 <tr>
                                                     <th>{{ __('field_student_id') }}</th>
                                                     <th>{{ __('field_name') }}</th>
-                                                    @foreach ($rows->first()->exams->groupBy('exam_type_id') as $exam_type_id => $exams)
+                                                    @foreach ($rows->first()->exams->where('subject_id' , request('subject'))->groupBy('exam_type_id') as $exam_type_id => $exams)
                                                         <th>{{ $exams->first()->type->title }}
                                                             ({{ $exams->first()->type->marks }})
                                                         </th>

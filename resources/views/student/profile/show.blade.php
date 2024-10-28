@@ -10,7 +10,7 @@
         @endif
 
         @php
-            $enroll = \App\Models\Student::enroll($row->id);
+            $enroll = $row->activeEnrolls()->first();
         @endphp
 
         <br /><br />

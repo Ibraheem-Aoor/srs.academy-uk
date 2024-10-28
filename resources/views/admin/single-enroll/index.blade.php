@@ -142,7 +142,7 @@
                                         {{ __('btn_previous') }}
                                     @endif
                                     {{ __('field_session') }}:
-                                    {{ $enrollment->session->title ?? '' }} |
+                                    {{ $enrollment->session->title ?? '' }} - {{ $enrollment->program->title }}
                             </div>
                             <div class="card-block">
                                 <!-- [ Data table ] start -->

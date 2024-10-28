@@ -77,6 +77,7 @@ class User extends Authenticatable
         'is_admin',
         'login',
         'status',
+        'id_on_moodle',
         'created_by',
         'updated_by',
     ];

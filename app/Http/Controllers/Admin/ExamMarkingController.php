@@ -176,8 +176,8 @@ class ExamMarkingController extends Controller
                 $exam_types = $this->getExamTypes($request, new FilterController())->pluck('title', 'id')->toArray();
                 // Enrollments
                 $enrollments = StudentEnroll::query()
-                    ->where('program_id', $request->program)
-                    ->where('session_id', $request->session)
+                ->where('program_id', $request->program)
+                ->where('session_id', $request->session)
                 ->with('subjects' , 'exams')->whereHas('subjects' , function($q)use($subject){
                     $q->where('id' , $subject);
                 });
@@ -189,10 +189,12 @@ class ExamMarkingController extends Controller
                 // Array Sorting
                 $data['rows'] = $rows;
             }
+            // dd($rows->first()->exams);
             return view($this->view . '.marking', $data);
         } catch (Throwable $e) {
+            dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this));
-            return back();
+            // return back();
         }
 
     }
@@ -210,7 +212,6 @@ class ExamMarkingController extends Controller
             ->whereHas('subjects', function ($subjects) use ($request) {
                 $subjects->where('id', $request->subject);
             })->get();
-
         foreach ($enrollments as $enrollment) {
             foreach ($exam_types as $exam_type) {
                 Exam::create([

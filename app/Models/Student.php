@@ -114,7 +114,7 @@ class Student extends Authenticatable
         return $this->hasMany(StudentEnroll::class, 'student_id');
     }
 
-    public function activeEnrolls()
+    public function activeEnrolls(): HasMany
     {
         return $this->studentEnrolls()->where('status' , 1);
     }

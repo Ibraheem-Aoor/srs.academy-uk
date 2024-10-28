@@ -18,6 +18,8 @@ use App\Models\District;
 use App\Models\Province;
 use App\Models\Document;
 use App\Models\Program;
+use App\Rules\MoodlePassword;
+use App\Services\Moodle\TeacherService;
 use App\User;
 use Toastr;
 use Hash;
@@ -28,13 +30,13 @@ use DB;
 class UserController extends Controller
 {
     use FileUploader;
-
+    protected $teacher_service;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct() 
+    public function __construct()
     {
         // Module Data
         $this->title     = trans_choice('module_staff', 1);
@@ -51,6 +53,7 @@ class UserController extends Controller
         $this->middleware('permission:'.$this->access.'-password-print', ['only' => ['printPassword']]);
         $this->middleware('permission:'.$this->access.'-password-change', ['only' => ['passwordChange']]);
         $this->middleware('permission:'.$this->access.'-import', ['only' => ['index','import','importStore']]);
+        $this->teacher_service = new TeacherService();
     }
 
     /**
@@ -197,7 +200,7 @@ class UserController extends Controller
         ]);
 
         // Random Password
-        $password = str_random(8);
+        $password = generate_moodle_password();
 
         // Insert Data
         try{
@@ -307,7 +310,9 @@ class UserController extends Controller
 
             // Attach Programs
             $user->programs()->attach($request->programs);
-        
+            $moodle_user = $this->teacher_service->store($user , $password);
+            $user->id_on_moodle = $moodle_user[0]['id'];
+            $user->save();
             DB::commit();
 
 
@@ -316,7 +321,7 @@ class UserController extends Controller
             return redirect()->route($this->route.'.index');
         }
         catch(\Exception $e){
-
+            dd($e);
             Toastr::error(__('msg_created_error'), __('msg_error'));
 
             return redirect()->back();
@@ -420,7 +425,7 @@ class UserController extends Controller
             'joining_letter' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip,rar,csv,xls,xlsx,ppt,pptx|max:20480',
         ]);
 
-        
+
         // Update Data
         try{
             DB::beginTransaction();
@@ -526,7 +531,7 @@ class UserController extends Controller
 
             // Attach Update
             $user->programs()->sync($request->programs);
-        
+            $this->teacher_service->edit($user);
             DB::commit();
 
 
@@ -582,7 +587,7 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function status($id)
-    {   
+    {
         // Set Status
         $user = User::where('id', $id)->firstOrFail();
 
@@ -609,10 +614,10 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function sendPassword($id)
-    {   
+    {
         //
         $user = User::where('id', $id)->firstOrFail();
-        
+
         $mail = MailSetting::where('status', '1')->first();
 
         if(isset($mail->sender_email) && isset($mail->sender_name)){
@@ -630,12 +635,12 @@ class UserController extends Controller
             $data['subject'] = __('msg_your_login_credentials');
             $data['from'] = $mail->sender_email;
             $data['sender'] = $mail->sender_name;
-            
+
 
             // Send Mail
             Mail::to($sendTo, $receiver)->send(new SendPassword($data));
 
-            
+
             Toastr::success(__('msg_sent_successfully'), __('msg_success'));
         }
         else{
@@ -657,7 +662,7 @@ class UserController extends Controller
         $data['title'] = $this->title;
         $data['route'] = $this->route;
         $data['view'] = $this->view;
-        
+
         $data['row'] = User::where('id', $id)->firstOrFail();
 
         return view($this->view.'.password-print', $data);
@@ -674,14 +679,17 @@ class UserController extends Controller
         // Field Validation
         $request->validate([
             'staff_id' => 'required',
-            'password' => 'required|confirmed|min:8',
+            'password' => ['required', 'confirmed', 'min:8', new MoodlePassword],
+
         ]);
+
 
         // Update Data
         $user = User::findOrFail($request->staff_id);
         $user->password = Hash::make($request->password);
         $user->password_text = Crypt::encryptString($request->password);
         $user->save();
+        $this->teacher_service->changePassword($user, $request->password);
 
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
@@ -729,7 +737,7 @@ class UserController extends Controller
         $data['designation'] = $request->designation;
 
         Excel::import(new UsersImport($data), $request->file('import'));
-        
+
 
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 

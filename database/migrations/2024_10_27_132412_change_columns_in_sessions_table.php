@@ -13,15 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('sessions', function (Blueprint $table) {
-        });
-        Schema::table('student_enrolls', function (Blueprint $table) {
-            $table->integer('semester_id')->nullable()->change();
-        });
-        Schema::table('class_routines', callback: function (Blueprint $table) {
-            $table->dropForeign('class_routines_semester_id_foreign');
-            $table->integer('semester_id')->nullable()->change();
-        });
+        // Schema::table('sessions', function (Blueprint $table) {
+        // });
+        // Schema::table('student_enrolls', function (Blueprint $table) {
+        //     $table->integer('semester_id')->nullable()->change();
+        // });
+        // Schema::table('class_routines', callback: function (Blueprint $table) {
+        //     $table->dropForeign('class_routines_semester_id_foreign');
+        //     $table->integer('semester_id')->nullable()->change();
+        // });
     }
 
     /**
