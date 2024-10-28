@@ -64,6 +64,12 @@ class CertificateController extends Controller
         else{
             $data['selected_program'] = '0';
         }
+        if(!empty($request->session) || $request->session != null){
+            $data['selected_session'] = $session = $request->session;
+        }
+        else{
+            $data['selected_session'] = '0';
+        }
 
         if(!empty($request->student_id) || $request->student_id != null){
             $data['selected_student_id'] = $student_id = $request->student_id;
@@ -105,7 +111,14 @@ class CertificateController extends Controller
                 $students->where('batch_id', $batch);
             }
             if(!empty($request->program) && $request->program != '0'){
-                $students->where('program_id', $program);
+                $students->whereHas('studentEnrolls', function($query) use ($program){
+                    $query->where('program_id', $program);
+                });
+            }
+            if(!empty($request->session) && $request->session != '0'){
+                $students->whereHas('studentEnrolls', function($query) use ($session){
+                    $query->where('session_id', $session);
+                });
             }
             if(!empty($request->student_id)){
                 $students->where('student_id', 'LIKE', '%'.$student_id.'%');
@@ -117,7 +130,7 @@ class CertificateController extends Controller
 
         // Certificate List
         if(!empty($request->batch) || !empty($request->program) || !empty($request->student_id) || !empty($request->template)){
-        
+
             $certificate = Certificate::where('status', '!=', '0');
             if(!empty($request->template) && $request->template != '0'){
                 $certificate->where('template_id', $template);
@@ -129,7 +142,16 @@ class CertificateController extends Controller
             }
             if(!empty($request->program) && $request->program != '0'){
                 $certificate->with('student')->whereHas('student', function ($query) use ($program){
-                    $query->where('program_id', $program);
+                    $query->whereHas('studentEnrolls', function($query) use ($program){
+                        $query->where('program_id', $program);
+                    });
+                });
+            }
+            if(!empty($request->session) && $request->session != '0'){
+                $certificate->with('student')->whereHas('student', function ($query) use ($session){
+                    $query->whereHas('studentEnrolls', function($query) use ($session){
+                        $query->where('session_id', $session);
+                    });
                 });
             }
             if(!empty($request->student_id) && $request->student_id != '0'){
@@ -157,12 +179,11 @@ class CertificateController extends Controller
             'student_id' => 'required',
             'template_id' => 'required',
             'date' => 'required|date',
-            'starting_year' => 'required|numeric',
-            'ending_year' => 'required|numeric',
+            'starting_year' => 'required',
+            'ending_year' => 'required',
             'credits' => 'required|numeric',
             'point' => 'required|numeric',
         ]);
-
 
         $row = Student::where('id', $request->student_id)->first();
         $grades = Grade::where('status', '1')
@@ -173,16 +194,17 @@ class CertificateController extends Controller
         $total_cgpa = 0;
         $starting_year = '0000';
         $ending_year = '0000';
+        $student_enroll = $row->studentEnrolls
+        ->where('program_id', request('program'))
+        ->where('session_id', request('session'))
+        ->first();
 
-        foreach( $row->studentEnrolls as $key => $item ){
-            if($key == 0){
-            $starting_year = $item->session->start_date;
-            }
-            $ending_year = $item->session->end_date;
+            $starting_year = $student_enroll->session->start_date;
+            $ending_year = $student_enroll->session->end_date;
 
 
-            if(isset($item->subjectMarks)){
-            foreach($item->subjectMarks as $mark){
+            if(isset($student_enroll->subjectMarks)){
+            foreach($student_enroll->subjectMarks as $mark){
 
                 $marks_per = round($mark->total_marks);
 
@@ -196,7 +218,6 @@ class CertificateController extends Controller
                     }
                 }
             }}
-        }
 
         $original_credits = $total_credits;
         if($total_credits <= 0){
@@ -215,6 +236,7 @@ class CertificateController extends Controller
         $certificate->credits = $original_credits;
         $certificate->point = number_format((float)$com_gpa, 2, '.', '');
         $certificate->status = '1';
+        $certificate->student_enroll_id = $student_enroll->id;
         $certificate->save();
 
         // Set SL No
@@ -256,16 +278,16 @@ class CertificateController extends Controller
         $total_cgpa = 0;
         $starting_year = '0000';
         $ending_year = '0000';
+        $student_enroll = $row->studentEnrolls
+        ->where('program_id', request('program'))
+        ->where('session_id', request('session'))
+        ->first();
+            $starting_year = $student_enroll->session->start_date;
+            $ending_year = $student_enroll->session->end_date;
 
-        foreach( $row->studentEnrolls as $key => $item ){
-            if($key == 0){
-            $starting_year = $item->session->start_date;
-            }
-            $ending_year = $item->session->end_date;
-            
 
-            if(isset($item->subjectMarks)){
-            foreach($item->subjectMarks as $mark){
+            if(isset($student_enroll->subjectMarks)){
+            foreach($student_enroll->subjectMarks as $mark){
 
                 $marks_per = round($mark->total_marks);
 
@@ -279,7 +301,6 @@ class CertificateController extends Controller
                     }
                 }
             }}
-        }
 
         $original_credits = $total_credits;
         if($total_credits <= 0){
@@ -294,6 +315,8 @@ class CertificateController extends Controller
         $certificate->ending_year = $ending_year;
         $certificate->credits = $original_credits;
         $certificate->point = number_format((float)$com_gpa, 2, '.', '');
+        $certificate->student_enroll_id = $student_enroll->id;
+
         $certificate->save();
 
 

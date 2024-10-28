@@ -37,8 +37,8 @@
                             <label for="body" class="form-label">{{ __('field_body') }} <span>*</span></label>
                             <textarea class="form-control" name="body" id="body" rows="8" required>{{ old('body') }}</textarea>
                             <div class="alert alert-secondary" role="alert">
-                                {{ __('field_shortcode') }}: 
-                                [first_name] [last_name] [dob] [gender] [student_id] [batch] [program] [faculty] [father_name] [mother_name] [starting_year] [ending_year] [credits] [cgpa] [grade] [email] [phone]
+                                {{ __('field_shortcode') }}:
+                                [first_name] [last_name] [dob] [gender] [student_id] [batch] [degree]  [father_name] [mother_name] [starting_date] [ending_date] [credits] [cgpa] [grade] [email] [phone]
                             </div>
                         </div>
 

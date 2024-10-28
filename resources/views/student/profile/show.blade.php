@@ -18,14 +18,7 @@
             <legend>{{ __('field_academic_information') }}</legend>
             <p><mark class="text-primary">{{ __('field_batch') }}:</mark> {{ $row->batch->title ?? '' }}</p>
             <hr />
-            <p><mark class="text-primary">{{ __('field_program') }}:</mark> {{ $row->program->title ?? '' }} &nbsp;<a
-                    class="btn-icon btn-success p-2" href="{{ route('admin.program.download' , $row->program->id) }}" target="_blank"><i class="fa fa-download"></i></a> </p>
-            <hr />
-            <p><mark class="text-primary">{{ __('field_session') }}:</mark> {{ $enroll->session->title ?? '' }}</p>
-            <hr />
-            <p><mark class="text-primary">{{ __('field_semester') }}:</mark> {{ $enroll->semester->title ?? '' }}</p>
-            <hr />
-            <p><mark class="text-primary">{{ __('field_section') }}:</mark> {{ $enroll->section->title ?? '' }}</p>
+            <p><mark class="text-primary">{{ trans_choice('module_single_enroll' , 2) }}:</mark> {{ $row->getDegreesToString() ?? '' }}</p>
             <hr />
             <p><mark class="text-primary">{{ __('field_status') }}:</mark>
                 @foreach ($row->statuses as $key => $status)

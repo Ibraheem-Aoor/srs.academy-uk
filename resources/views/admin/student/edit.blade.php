@@ -29,9 +29,11 @@
                         </div>
 
                         @php
-                            function field($slug)
-                            {
-                                return \App\Models\Field::field($slug);
+                            if (!function_exists('field')) {
+                                function field($slug)
+                                {
+                                    return \App\Models\Field::field($slug);
+                                }
                             }
                         @endphp
                         <div class="wizard-sec-bg">
@@ -321,21 +323,6 @@
                                                     </div>
                                                 @endif
 
-                                                <div class="form-group col-md-6">
-                                                    <label for="admission_date">{{ __('field_admission_date') }}
-                                                        <span>*</span></label>
-                                                    <select name="admission_date" id="admission_date"
-                                                        class="form-control">
-                                                        <option value="">{{ __('select') }}</option>
-                                                        @foreach ($sessions as $session)
-                                                            <option value="{{ $session->id }}" @selected($session->start_date == $row->admission_date)>
-                                                                {{ $session->title }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    <div class="invalid-feedback">
-                                                        {{ __('required_field') }} {{ __('field_admission_date') }}
-                                                    </div>
-                                                </div>
                                             </fieldset>
                                         </div>
                                     </div>
@@ -508,21 +495,6 @@
 
                                             <div class="invalid-feedback">
                                                 {{ __('required_field') }} {{ __('field_batch') }}
-                                            </div>
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            <label for="program">{{ __('field_program') }} <span>*</span></label>
-                                            <select class="form-control program" name="program" id="program" required>
-                                                <option value="">{{ __('select') }}</option>
-                                                @foreach ($row->batch->programs as $program)
-                                                    <option value="{{ $program->id }}"
-                                                        @if ($row->program_id == $program->id) selected @endif>
-                                                        {{ $program->title }}</option>
-                                                @endforeach
-                                            </select>
-
-                                            <div class="invalid-feedback">
-                                                {{ __('required_field') }} {{ __('field_program') }}
                                             </div>
                                         </div>
 

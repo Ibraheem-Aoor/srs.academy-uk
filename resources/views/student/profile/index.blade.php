@@ -20,8 +20,11 @@
                             </li>
                         </ul> --}}
                         @php
-                            function field($slug){
-                                return \App\Models\Field::field($slug);
+                           if (!function_exists('field')) {
+                                function field($slug)
+                                {
+                                    return \App\Models\Field::field($slug);
+                                }
                             }
                         @endphp
                         <div class="tab-content" id="pills-tabContent">

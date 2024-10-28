@@ -116,7 +116,7 @@ class Student extends Authenticatable
 
     public function activeEnrolls(): HasMany
     {
-        return $this->studentEnrolls()->where('status' , 1);
+        return $this->studentEnrolls()->where('status', 1);
     }
 
     public function currentEnroll()
@@ -234,6 +234,7 @@ class Student extends Authenticatable
     public static function enrolls($id)
     {
         $enroll = StudentEnroll::where('student_id', $id)
+            ->with('session')
             ->where('status', '1')
             ->orderBy('id', 'desc')
             ->get();
@@ -247,7 +248,7 @@ class Student extends Authenticatable
      */
     public function getDegreesToString()
     {
-        return implode(',', self::enrolls($this->id)->pluck('title')->toArray());
+        return implode(',', self::enrolls($this->id)->pluck('session.title')->toArray());
     }
 
     /**

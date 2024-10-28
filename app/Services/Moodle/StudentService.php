@@ -64,7 +64,7 @@ class StudentService extends BaseService
                 'country' => $student->country ?? "", // Optional home country code
                 'middlename' => $student->father_name ?? "", // Optional
                 // 'institution' => 'Example Institution', // Optional
-                'department' => $student->program->title, // Optional
+                // 'department' => $student->program->title, // Optional
                 'phone1' => $student->phone, // Optional
                 'address' => $student->present_address, // Optional
                 'suspended' => $suspended,

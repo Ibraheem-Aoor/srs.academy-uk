@@ -330,7 +330,7 @@
                                             class="">{{ trans_choice('module_class_routine', 1) }}</a>
                                     </li>
                                 @endcan
-{{-- 
+{{--
                                 @can('routine-setting-exam')
                                     <li class="{{ Request::is('admin/academic/routine-setting/exam*') ? 'active' : '' }}">
                                         <a href="{{ route('admin.routine-setting.exam') }}"
@@ -1106,11 +1106,11 @@
                                 class="">{{ trans_choice('module_marksheet_semester', 2) }}</a></li>
                     @endcanany
 
-                    @canany(['marksheet-view', 'marksheet-print', 'marksheet-download'])
+                    {{-- @canany(['marksheet-view', 'marksheet-print', 'marksheet-download'])
                         <li class="{{ Request::is('admin/transcript/marksheet') ? 'active' : '' }}"><a
                                 href="{{ route('admin.marksheet.index') }}"
                                 class="">{{ trans_choice('module_marksheet_total', 2) }}</a></li>
-                    @endcanany
+                    @endcanany --}}
 
                     @canany(['marksheet-setting-view'])
                         <li class="{{ Request::is('admin/transcript/marksheet-setting*') ? 'active' : '' }}"><a

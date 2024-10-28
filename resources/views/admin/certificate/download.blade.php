@@ -5,14 +5,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }}</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Italianno&display=swap" rel="stylesheet"> 
-    
+
+    <link href="https://fonts.googleapis.com/css2?family=Italianno&display=swap" rel="stylesheet">
+
 
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/css/prints/certificate.css') }}" media="screen, print">
 
-    @php 
-    $version = App\Models\Language::version(); 
+    @php
+    $version = App\Models\Language::version();
     @endphp
     @if($version->direction == 1)
     <!-- RTL css -->
@@ -74,7 +74,7 @@
                     <div class="inner">{{ __('field_no') }}: {{ $certificate->serial_no }}</div>
                 </td>
                 <td class="meta-data last">
-                    <div class="inner">{{ __('field_date') }}: 
+                    <div class="inner">{{ __('field_date') }}:
                         @if(isset($setting->date_format))
                         {{ date($setting->date_format, strtotime($certificate->date)) }}
                         @else
@@ -130,26 +130,58 @@
                     @endif
                     @endforeach
 
-
                     @php
-                        $first_name = $certificate->student->first_name ?? '';
-                        $last_name = $certificate->student->last_name ?? '';
-                        $student_id = $certificate->student->student_id ?? '';
-                        $batch = $certificate->student->batch->title ?? '';
-                        $program = $certificate->student->program->title ?? '';
-                        $faculty = $certificate->student->program->faculty->title ?? '';
-                        $father_name = $certificate->student->father_name ?? '';
-                        $mother_name = $certificate->student->mother_name ?? '';
-                        $email = $certificate->student->email ?? '';
-                        $phone = $certificate->student->phone ?? '';
-                    @endphp
+                    $first_name = $certificate->student->first_name ?? '';
+                    $last_name = $certificate->student->last_name ?? '';
+                    $student_id = $certificate->student->student_id ?? '';
+                    $batch = $certificate->student->batch->title ?? '';
+                    $degree = $certificate->studentEnroll?->session?->title ?? '';
+                    $father_name = $certificate->student->father_name ?? '';
+                    $mother_name = $certificate->student->mother_name ?? '';
+                    $email = $certificate->student->email ?? '';
+                    $phone = $certificate->student->phone ?? '';
+                @endphp
                     @php
-                    $search = array('[first_name]', '[last_name]', '[dob]', '[gender]', '[student_id]', '[batch]', '[program]', '[faculty]', '[father_name]', '[mother_name]', '[starting_year]', '[ending_year]', '[credits]', '[cgpa]', '[grade]', '[email]', '[phone]');
+                    $search = [
+                        '[first_name]',
+                        '[last_name]',
+                        '[dob]',
+                        '[gender]',
+                        '[student_id]',
+                        '[batch]',
+                        '[degree]',
+                        '[father_name]',
+                        '[mother_name]',
+                        '[starting_date]',
+                        '[ending_date]',
+                        '[credits]',
+                        '[cgpa]',
+                        '[grade]',
+                        '[email]',
+                        '[phone]',
+                    ];
 
-                    $replace = array('<span>'.$first_name.'</span>', '<span>'.$last_name.'</span>', '<span>'.$student_dob.'</span>', '<span>'.$student_gender.'</span>', '<span>'.$student_id.'</span>', '<span>'.$batch.'</span>', '<span>'.$program.'</span>', '<span>'.$faculty.'</span>', '<span>'.$father_name.'</span>', '<span>'.$mother_name.'</span>', '<span>'.date('Y',strtotime($certificate->starting_year)).'</span>', '<span>'.date('Y',strtotime($certificate->ending_year)).'</span>', '<span>'.round($certificate->credits, 2).'</span>', '<span>'.number_format((float)$certificate->point, 2, '.', '').'</span>', '<span>'.$grade_point.'</span>', '<span>'.$email.'</span>', '<span>'.$phone.'</span>');
+                    $replace = [
+                        '<span>' . $first_name . '</span>',
+                        '<span>' . $last_name . '</span>',
+                        '<span>' . $student_dob . '</span>',
+                        '<span>' . $student_gender . '</span>',
+                        '<span>' . $student_id . '</span>',
+                        '<span>' . $batch . '</span>',
+                        '<span>' . $degree . '</span>',
+                        '<span>' . $father_name . '</span>',
+                        '<span>' . $mother_name . '</span>',
+                        '<span>' . date('Y-M-d', strtotime($certificate->starting_year)) . '</span>',
+                        '<span>' . date('Y-M-d', strtotime($certificate->ending_year)) . '</span>',
+                        '<span>' . round($certificate->credits, 2) . '</span>',
+                        '<span>' . number_format((float) $certificate->point, 2, '.', '') . '</span>',
+                        '<span>' . $grade_point . '</span>',
+                        '<span>' . $email . '</span>',
+                        '<span>' . $phone . '</span>',
+                    ];
 
                     $string = $certificate->template->body;
-                    @endphp
+                @endphp
 
                     {!! str_replace($search, $replace, $string) !!}
                     </div>
@@ -197,7 +229,7 @@
     <!-- Header Section -->
     </div>
 </div>
-    
+
     <!-- PDF Js -->
     <script src="{{ asset('dashboard/plugins/jquery/js/jquery.min.js') }}"></script>
     <script src="{{ asset('dashboard/plugins/html2pdf/js/html2pdf.bundle.min.js') }}"></script>

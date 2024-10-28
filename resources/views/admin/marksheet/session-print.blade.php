@@ -5,10 +5,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width,maximum-scale=1.0">
     <title>{{ $title }}</title>
-    
+
     <style type="text/css" media="print">
     @media print {
-      @page { size: A4 portrait; margin: 50px auto; }   
+      @page { size: A4 portrait; margin: 50px auto; }
       @page :footer { display: none }
       @page :header { display: none }
       body { margin: 15mm auto 15mm auto; }
@@ -27,8 +27,8 @@
     </style>
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/css/prints/marksheet.css') }}" media="screen, print">
 
-    @php 
-    $version = App\Models\Language::version(); 
+    @php
+    $version = App\Models\Language::version();
     @endphp
     @if($version->direction == 1)
     <!-- RTL css -->
@@ -41,7 +41,7 @@
       float: right;
       text-align: right;
     }
-    .table-no-border.marksheet td:nth-child(1), 
+    .table-no-border.marksheet td:nth-child(1),
     .table-no-border.marksheet td:nth-child(2) {
       text-align: right;
     }
@@ -132,12 +132,8 @@
             <tr>
                 <td class="meta-data">{{ __('field_name') }}</td>
                 <td class="meta-data width2">: {{ $row->first_name }} {{ $row->last_name }}</td>
-                <td class="meta-data">{{ __('field_semester') }}</td>
-                <td class="meta-data">: {{ $session_data->semester->title ?? '' }}</td>
-            </tr>
-            <tr>
                 <td class="meta-data">{{ __('field_gender') }}</td>
-                <td class="meta-data width2">: 
+                <td class="meta-data">:
                     @if( $row->gender == 1 )
                     {{ __('gender_male') }}
                     @elseif( $row->gender == 2 )
@@ -146,19 +142,12 @@
                     {{ __('gender_other') }}
                     @endif
                 </td>
-                <td class="meta-data">{{ __('field_section') }}</td>
-                <td class="meta-data">: {{ $session_data->section->title ?? '' }}</td>
-            </tr>
             <tr>
-                <td class="meta-data">{{ __('field_batch') }}</td>
-                <td class="meta-data width2">: {{ $row->batch->title ?? '' }}</td>
-                <td class="meta-data">{{ __('field_total_credit_hour') }}</td>
-                <td class="meta-data">: {{ round($total_credits, 2) }}</td>
-            </tr>
-            <tr>
-                <td class="meta-data">{{ __('field_program') }}</td>
-                <td class="meta-data width2">: {{ $row->program->title ?? '' }}</td>
 
+            </tr>
+            <tr>
+                <td class="meta-data">{{ __('field_total_credit_hour') }}</td>
+                <td class="meta-data width2">: {{ round($total_credits, 2) }}</td>
                 @php
                     if($total_credits <= 0){
                         $total_credits = 1;
@@ -200,7 +189,7 @@
                 $semester_credits = $semester_credits + $subject->credit_hour;
                 $subject_grade = null;
             @endphp
-            
+
             <tr>
                 <td>{{ $subject->code }}</td>
                 <td>

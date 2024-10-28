@@ -248,7 +248,6 @@ class StudentController extends Controller
             $student = new Student;
             $student->student_id = $request->student_id;
             $student->batch_id = $request->batch;
-            $student->program_id = $request->program;
 
             $student->first_name = $request->first_name;
             $student->last_name = $request->last_name;
@@ -469,28 +468,24 @@ class StudentController extends Controller
         $request->validate([
             'student_id' => 'required|unique:students,student_id,' . $student->id,
             'batch' => 'required',
-            'program' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:students,email,' . $student->id,
             'phone' => 'required',
             'gender' => 'required',
             'dob' => 'required|date',
-            'admission_date' => ['required', 'exists:sessions,id', new SessionOfferedToProgram($request->program)],
             'photo' => 'nullable|image',
             'signature' => 'nullable|image',
         ]);
 
         // Update Data
         try {
-            $session = Session::query()->findOrFail($request->admission_date);
             $is_program_changed = $student->program_id != $request->program;
             DB::beginTransaction();
 
             $student->student_id = $request->student_id;
             $student->batch_id = $request->batch;
             $student->program_id = $request->program;
-            $student->admission_date = $session->start_date;
 
             $student->first_name = $request->first_name;
             $student->last_name = $request->last_name;
@@ -593,33 +588,7 @@ class StudentController extends Controller
                     }
                 }
             }
-            // Change The Program Enrollment If Program Is Changed
-            if ($is_program_changed) {
-                $semester_id = $session->semester_id;
-                $program_id = $request->program;
-                $enrollSubject = EnrollSubject::query()->where('program_id', $program_id)->where('session_id', $session->id)->first();
-                if (isset($enrollSubject)) {
-                    $prev_enroll = $student->currentEnroll;
-                    $student->studentEnrolls()->update(['status' => 0]);
-                    $new_enroll = StudentEnroll::query()->create([
-                        'student_id' => $student->id,
-                        'program_id' => $program_id,
-                        'session_id' => $session->id,
-                        'semester_id' => $semester_id,
-                        'status' => 1,
-                    ]);
-                    foreach ($enrollSubject->subjects as $subject) {
-                        // Attach Subject
-                        $new_enroll->subjects()->attach($subject->id);
-                    }
-                    // Enroll On Moodle
-                    if (isset($prev_enroll, $new_enroll)) {
-                        $moodle_student_enroll_service->bulkUnEnroll($student->id_on_moodle, $prev_enroll);
-                        $moodle_student_enroll_service->store($new_enroll);
-                    }
-                }
 
-            }
             $moodle_student_service->edit($student);
 
             DB::commit();

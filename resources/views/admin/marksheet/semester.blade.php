@@ -97,7 +97,7 @@
                                             </a>
                                             @endif
                                             @endcan
-                                            
+
                                             @can($access.'-download')
                                             @if(isset($print))
                                             <a href="{{ route($route.'.semester.download', ['id' => $row->id, 'session' => $selected_session]) }}" target="_blank" class="btn btn-icon btn-dark btn-sm">
