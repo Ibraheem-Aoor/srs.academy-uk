@@ -23,6 +23,7 @@ use App\Models\ClassRoutine;
 use App\Models\Event;
 use App\Models\Fee;
 use App\Models\Session;
+use App\Models\StudentEnroll;
 use Carbon\Carbon;
 use App\User;
 use Illuminate\Support\Facades\Auth;
@@ -173,10 +174,17 @@ class DashboardController extends Controller
 
     protected function getClassRoutines()
     {
-        $session = Session::where('status', '1')->where('current', '1')->first();
+        // Get All Auth Active Student Enrollments "degrees/courses"
+        $enrolls = StudentEnroll::query()->where('status', '1')
+            ->with(['subjects'])
+            ->get();
+
+        $session_ids = $enrolls->pluck('session_id')->toArray();
+        $program_ids = $enrolls->pluck('program_id')->toArray();
         return ClassRoutine::where('status', '1')
-            ->where('session_id', $session->id)
             ->where('teacher_id', Auth::id())
+            ->whereIn('session_id', $session_ids)
+            ->whereIn('program_id', $program_ids)
             ->orderBy('start_time', 'asc')
             ->get();
     }

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\EnrollSubject;
 use App\Models\Session;
+use App\Models\Student;
 use App\Models\StudentEnroll;
 use App\Services\Moodle\CourseService;
 use Carbon\Carbon;
@@ -40,51 +41,20 @@ class AutoSwitchCurrentSession extends Command
     public function handle()
     {
         try {
-
-            $sessions = Session::query()->where('current', 0)->get();
-            $today_date = Carbon::today()->toDateString();
-            foreach ($sessions as $session) {
-                if ($session->start_date == $today_date) {
-                    Session::query()->where('current', 1)->update([
-                        'current' => 0,
-                    ]);
-                    // $this->updateSessionOfferedCoursesOnMoodle($session);
-                    $session->update(['current' => 1]);
-                    StudentEnroll::query()->where('session_id', $session->id)->update([
-                        'status' => 1,
-                    ]);
-                    StudentEnroll::query()->where('session_id', '!=' , $session->id)->update([
-                        'status' => 0,
-                    ]);
-                    info("CURRENT SESSION AND ENROLLMENT UPDATED");
+            StudentEnroll::query()->where('status', '1')->chunkById(20, function ($enrolls) {
+                foreach ($enrolls as $enroll) {
+                    if ($enroll->session->end_date == Carbon::today()->toDateString()) {
+                        $enroll->status = 0;
+                        $enroll->save();
+                        info('STUDENT ENROLL WITH ENROLL_ID : ' . $enroll->id . ' HAS BEEN DEACTIVATED');
+                    }
                 }
-            }
+            });
         } catch (Throwable $e) {
             logError(e: $e, method: __METHOD__, class: get_class($this), custom_message: __('Moodle_Error'));
         }
     }
 
-    /**
-     * Deperecated for now.
-     */
-    public function updateSessionOfferedCoursesOnMoodle($session)
-    {
-        $moodle_course_service = new CourseService();
-        EnrollSubject::query()->where('session_id', $session->id)
-            ->chunkById(10, function ($subject_enrolls) use ($moodle_course_service, $session) {
-                foreach ($subject_enrolls as $subject_enroll) {
-                    foreach ($subject_enroll->subjects as $subject) {
-                        if (!isset($subject->id_on_moodle)) {
-                            $created_course_on_moodle = $moodle_course_service->store($subject, $session->id_on_moodle);
-                            $subject->id_on_moodle = $created_course_on_moodle[0]['id'];
-                            $subject->save();
-                        } else {
-                            $moodle_course_service->edit($subject, $session->id_on_moodle);
-                        }
-                    }
-                }
-            });
-    }
 
 
 }
