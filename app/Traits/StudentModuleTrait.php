@@ -18,11 +18,13 @@ trait StudentModuleTrait
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['path'] = 'print-setting';
-        // Getting all student fees regaring the enrollement "because enrollments changed according to sessions and we don't konow when the admin adding the fees".
+        // Getting all student fees regarding the enrollement "because enrollments changed according to sessions and we don't know when the admin adding the fees".
         $student_enrollments = $student->studentEnrolls()->pluck('id')->toArray();
         // View
         $data['print'] = PrintSetting::where('slug', 'fees-receipt')->firstOrFail();
-        $data['rows'] = Fee::query()->whereIn('student_enroll_id', array_values($student_enrollments))->get()->groupBy('assign_date');
+        $data['rows'] = Fee::query()->with(['studentEnroll' => function($query) {
+            $query->with('session');
+        }])->whereIn('student_enroll_id', array_values($student_enrollments))->get()->groupBy('studentEnroll.session.title');
         $data['student'] = $student;
         return view('admin.student.financial_agreement', $data);
 

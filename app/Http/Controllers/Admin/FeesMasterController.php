@@ -252,8 +252,6 @@ class FeesMasterController extends Controller
             'faculty' => 'required',
             'program' => 'required',
             'session' => 'required',
-            'semester' => 'required',
-            'section' => 'required',
             'amount' => 'required|numeric',
             'type' => 'required|numeric',
             'category' => 'required',
@@ -269,8 +267,6 @@ class FeesMasterController extends Controller
             $feesMaster = new FeesMaster;
             $feesMaster->faculty_id = $request->faculty;
             $feesMaster->program_id = $request->program;
-            $feesMaster->session_id = $request->session;
-            $feesMaster->semester_id = Session::query()->find($request->session)->semester_id;
             $feesMaster->category_id = $request->category;
             $feesMaster->assign_date = $session->start_date;
             $feesMaster->due_date = $session->end_date;

@@ -19,6 +19,7 @@
                             <div class="card-block">
                                 <div class="row">
                                     <!-- Form Start -->
+                                    {{-- These Actually Are Student Enrolls --}}
                                     <div class="form-group col-md-6">
                                         <label for="student">{{ __('field_student_id') }} <span>*</span></label>
                                         <select class="form-control select2" name="student" id="student" required>
@@ -28,7 +29,9 @@
                                                     @if (old('student') == $student->id) selected @endif>
                                                     {{ $student->student->student_id ?? '' }} -
                                                     {{ $student->student->first_name ?? '' }}
-                                                    {{ $student->student->last_name ?? '' }}</option>
+                                                    {{ $student->student->last_name ?? '' }}||
+                                                    {{ $student->session->title ?? '' }}
+                                                    </option>
                                             @endforeach
                                         </select>
 
@@ -45,21 +48,6 @@
                                                 <option value="{{ $category->id }}"
                                                     @if (old('category') == $category->id) selected @endif>
                                                     {{ $category->title }}</option>
-                                            @endforeach
-                                        </select>
-
-                                        <div class="invalid-feedback">
-                                            {{ __('required_field') }} {{ __('field_fees_type') }}
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="session">{{ __('field_session') }} <span>*</span></label>
-                                        <select class="form-control" name="session" id="session" required>
-                                            <option value="">{{ __('select') }}</option>
-                                            @foreach ($sessions as $session)
-                                                <option value="{{ $session->id }}"
-                                                    @if (old('session') == $session->id) selected @endif>{{ $session->title }}
-                                                </option>
                                             @endforeach
                                         </select>
 

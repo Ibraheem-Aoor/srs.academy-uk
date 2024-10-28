@@ -168,6 +168,7 @@
                                                         $notification_link = route('admin.fees-student.index', [
                                                             'searched_id' => $notification->data['id'],
                                                             'student_id' => $notification->data['student_id'],
+                                                            'notification' => $notification->id,
                                                         ]);
                                                     }
                                                 @endphp

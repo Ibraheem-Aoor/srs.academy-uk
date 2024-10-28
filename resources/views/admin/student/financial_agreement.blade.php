@@ -114,9 +114,6 @@
             </table>
             <!-- Header Section -->
 
-            @php
-                $enroll = \App\Models\Student::enroll($student->id);
-            @endphp
             <!-- Student Info Section -->
             <table class="table-no-border top-meta-table">
                 <tbody>
@@ -126,13 +123,6 @@
                         <td class="meta-data">{{ __('field_name') }}:</td>
                         <td class="meta-data value"> {{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}
                         </td>
-                    </tr>
-                    <tr>
-                        <td class="meta-data">{{ __('field_program') }}:</td>
-                        <td class="meta-data value width2">
-                            {{ $student->program->title . '(' . $student->program->shortcode . ')' ?? '' }}</td>
-                        <td class="meta-data">{{ __('field_batch') }}:</td>
-                        <td class="meta-data value"> {{ $student->batch->title ?? '' }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -144,20 +134,13 @@
                 $program_total_paid = 0;
                 $program_total_pending = 0;
             @endphp
-            @foreach ($rows as $session_start_date => $fees)
+            @foreach ($rows as $session => $fees)
                 @php
-                    $session = \App\Models\Session::whereStartDate($session_start_date)->first();
-                    if (!$session) {
-                        $session = \App\Models\Session::whereDate('start_date', '<=', $session_start_date)
-                            ->orWhere('end_date', '>=', $session_start_date)
-                            ->orderBy('start_date')
-                            ->first();
-                    }
                     $sessionTotalPaid = 0;
                     $sessionTotalPending = 0;
                 @endphp
                 <h2 class="text-center">{{ __('field_session') }}:
-                    {{ $session?->title }} ({{ $session->start_date }} - {{ $session?->end_date }})</h2>
+                    {{ $session }}</h2>
                 <table class="table-no-border receipt">
                     <thead>
                         <tr>

@@ -299,11 +299,11 @@
                         </li>
                     @endcanany
 
-                    @canany(['exam-routine-create', 'exam-routine-view', 'exam-routine-print'])
+                    {{-- @canany(['exam-routine-create', 'exam-routine-view', 'exam-routine-print'])
                         <li class="{{ Request::is('admin/academic/exam-routine*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.exam-routine.index') }}"
                                 class="">{{ trans_choice('module_exam_routine', 2) }}</a></li>
-                    @endcanany
+                    @endcanany --}}
 
                     @can('class-routine-teacher')
                         <li class="{{ Request::is('admin/academic/class-routine-teacher') ? 'active' : '' }}"><a
@@ -330,13 +330,13 @@
                                             class="">{{ trans_choice('module_class_routine', 1) }}</a>
                                     </li>
                                 @endcan
-
+{{-- 
                                 @can('routine-setting-exam')
                                     <li class="{{ Request::is('admin/academic/routine-setting/exam*') ? 'active' : '' }}">
                                         <a href="{{ route('admin.routine-setting.exam') }}"
                                             class="">{{ trans_choice('module_exam_routine', 1) }}</a>
                                     </li>
-                                @endcan
+                                @endcan --}}
                             </ul>
                         </li>
                     @endcanany

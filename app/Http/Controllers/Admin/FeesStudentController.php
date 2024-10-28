@@ -173,7 +173,6 @@ class FeesStudentController extends Controller
 
         $data['rows'] = $fees->orderBy('id', 'desc')->get();
 
-
         return view($this->view . '.index', $data);
     }
 
@@ -480,14 +479,13 @@ class FeesStudentController extends Controller
 
         // Filter Student
         $students = StudentEnroll::where('status', '1');
-        $students->with('student')->whereHas('student', function ($query) {
+        $students->with(['student' , 'session'])->whereHas('student', function ($query) {
             $query->where('status', '1');
             $query->orderBy('student_id', 'asc');
         });
 
         $data['students'] = $students->orderBy('student_id', 'asc')->get();
         $data['discounts'] = FeesDiscount::query()->get();
-
         return view($this->view . '.quick-assign', $data);
     }
 
@@ -506,30 +504,30 @@ class FeesStudentController extends Controller
             'amount' => 'required|numeric',
             'discount' => 'nullable|exists:fees_discounts,id',
             'type' => 'required|numeric',
-            'session' => 'required|exists:sessions,id',
+            // 'session' => 'required|exists:sessions,id',
             // 'assign_date' => 'required|date|after_or_equal:today',
             // 'due_date' => 'required|date|after_or_equal:assign_date',
         ]);
-
 
         $total_credits = 0;
 
         if ($request->type == 1) {
             $fee_amount = $request->amount;
         } else {
-            $enroll = StudentEnroll::find($request->student);
+            $enroll = StudentEnroll::query()->with(['session'])->find($request->student);
             foreach ($enroll->subjects as $subject) {
                 $total_credits = $total_credits + $subject->credit_hour;
             }
 
             $fee_amount = $total_credits * $request->amount;
         }
-        $session = Session::query()->find($request->session);
         // Assign Fees
         $fees = new Fee;
         $fees->student_enroll_id = $request->student;
         $fees->category_id = $request->category;
         $fees->fee_amount = $fee_amount;
+        $fees->assign_date = $enroll->session->start_date;
+        $fees->due_date = $enroll->session->end_date;
         $fees->save();
         $discount = FeesDiscount::query()->find($request->discount);
         $fees->insertDiscount($discount)->insertFineAmount();

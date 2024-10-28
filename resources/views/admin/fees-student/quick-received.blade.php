@@ -23,7 +23,8 @@
                             <select class="form-control select2" name="student" id="student" required>
                                 <option value="">{{ __('select') }}</option>
                                 @foreach( $students as $student )
-                                <option value="{{ $student->id }}" @if(old('student') == $student->id) selected @endif>{{ $student->student->student_id ?? '' }} - {{ $student->student->first_name ?? '' }} {{ $student->student->last_name ?? '' }}</option>
+                                <option value="{{ $student->id }}" @if(old('student') == $student->id) selected @endif>{{ $student->student->student_id ?? '' }} - {{ $student->student->first_name ?? '' }}   {{ $student->student->last_name ?? '' }}||
+                                    {{ $student->session->title ?? '' }}</option>
                                 @endforeach
                             </select>
 
@@ -146,7 +147,7 @@
           var fine_amount = $("input[name='fine_amount']").val();
           var discount_amount = $("input[name='discount_amount']").val();
           var paid_amount = $("input[name='paid_amount']").val();
-          
+
           //
           if (isNaN(parseFloat(fee_amount))) fee_amount = 0;
           if (isNaN(parseFloat(fine_amount))) fine_amount = 0;

@@ -45,8 +45,6 @@
                                         <input type="text" name="faculty" value="{{ $selected_faculty }}" hidden>
                                         <input type="text" name="program" value="{{ $selected_program }}" hidden>
                                         <input type="text" name="session" value="{{ $selected_session }}" hidden>
-                                        <input type="text" name="semester" value="{{ $selected_semester }}" hidden>
-                                        <input type="text" name="section" value="{{ $selected_section }}" hidden>
 
 
                                         <!-- [ Data table ] start -->
@@ -68,8 +66,6 @@
                                                         <th>{{ __('field_credit_hour_short') }}</th>
                                                         <th>{{ __('field_program') }}</th>
                                                         <th>{{ __('field_session') }}</th>
-                                                        <th>{{ __('field_semester') }}</th>
-                                                        <th>{{ __('field_section') }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -106,8 +102,6 @@
                                                             </td>
                                                             <td>{{ $row->program->shortcode ?? '' }}</td>
                                                             <td>{{ $row->session->title ?? '' }}</td>
-                                                            <td>{{ $row->semester->title ?? '' }}</td>
-                                                            <td>{{ $row->section->title ?? '' }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>

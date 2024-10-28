@@ -76,11 +76,7 @@ class FeesController extends Controller
             // Apply session-related filters if session is set
             if (isset($session)) {
                 $query->where(function ($query) use ($session) {
-                    $query->where('session_id', $session->id)
-                        ->where('semester_id', $session->semester_id)
-                        ->orWhereDate('assign_date', $session->start_date ?? null)
-                        ->orWhereDate('due_date', $session->end_date ?? null)
-                        ->orWhereBetween('pay_date', [$session->start_date ?? null, $session->end_date ?? null]);
+                    $query->where('session_id', $session->id);
                 });
             }
 
@@ -94,7 +90,7 @@ class FeesController extends Controller
         });
 
         // Retrieve and order the data
-        $data['rows'] = $fees->orderBy('assign_date', 'desc')->get();
+        $data['rows'] = $fees->orderBy('created_at', direction: 'desc')->get();
 
         // Filter Assignment
         $data['auth_student'] = getAuthUser('student');
