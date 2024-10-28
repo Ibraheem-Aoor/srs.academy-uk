@@ -238,6 +238,7 @@ class StudentController extends Controller
             'dob' => 'required|date',
             'photo' => 'nullable|image',
             'signature' => 'nullable|image',
+            'batch' => 'required',
         ]);
 
         // Random Password

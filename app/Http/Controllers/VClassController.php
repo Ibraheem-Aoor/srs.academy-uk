@@ -34,7 +34,7 @@ class VClassController extends Controller
         $result->meetingName = $result->routine->room->title . ' - ' . $result->routine->teacher->first_name . ' ' . $result->routine->teacher->last_name . ' presenting ' . $result->routine->subject->code;
         // $meetingID = $classRoutine->program->id.'-'.$classRoutine->session->id.'-'.$classRoutine->semester->id.'-'.$classRoutine->section->id.'-'.$classRoutine->teacher->id.'-'.$classRoutine->subject->code.'-'.$classRoutine->room->id;
         // $result->meetingID = $result->routine->session->id.'-'.$result->routine->semester->id.'-'.$result->routine->teacher->id.'-'.$result->routine->subject->code.'-'.$result->routine->room->id.'-'.$result->routine->day.'-'.$result->routine->start_time.'-'.$result->routine->end_time;
-        $result->meetingID = $result->routine->session->id . '-' . $result->routine->semester->id . '-' . $result->routine->teacher->id . '-' . $result->routine->subject->code . '-' . $result->routine->room->id;
+        $result->meetingID = $result->routine->session->id . '-' . $result->routine->teacher->id . '-' . $result->routine->subject->code . '-' . $result->routine->room->id;
 
         return $result;
     }

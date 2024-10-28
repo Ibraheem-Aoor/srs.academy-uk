@@ -42,6 +42,10 @@
                                         <label for="program">{{ __('field_program') }}</label>
                                         <select class="form-control" name="program" id="program" required>
                                             <option value="0">{{ __('all') }}</option>
+                                            @isset($program)
+                                                <option value="{{ $program->id }}" selected>{{ $program->title }}
+                                                </option>
+                                            @endisset
                                         </select>
 
                                         <div class="invalid-feedback">
@@ -52,6 +56,10 @@
                                         <label for="session">{{ __('field_session') }} <span>*</span></label>
                                         <select class="form-control session" name="session" id="session" required>
                                             <option value="">{{ __('select') }}</option>
+                                            @isset($session)
+                                                <option value="{{ $session->id }}" selected>{{ $session->title }}
+                                                </option>
+                                            @endisset
                                         </select>
 
                                         <div class="invalid-feedback">
@@ -105,7 +113,7 @@
                                                 <th>{{ __('field_student_id') }}</th>
                                                 <th>{{ __('field_name') }}</th>
                                                 <th>{{ __('field_batch') }}</th>
-                                                <th>{{ __('field_program') }}</th>
+                                                <th>{{ __('field_session') }}</th>
                                                 <th>{{ __('field_status') }}</th>
                                                 <th>{{ __('field_action') }}</th>
                                             </tr>
@@ -122,7 +130,7 @@
                                                     </td>
                                                     <td>{{ $row->first_name }} {{ $row->last_name }}</td>
                                                     <td>{{ $row->batch->title ?? '' }}</td>
-                                                    <td>{{ $row->program->shortcode ?? '' }}</td>
+                                                    <td>{{ $session->title ?? '' }}</td>
 
                                                     @php
                                                         $certificate_generate = 0;

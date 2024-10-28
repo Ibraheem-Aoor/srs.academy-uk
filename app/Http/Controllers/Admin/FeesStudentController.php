@@ -511,10 +511,10 @@ class FeesStudentController extends Controller
 
         $total_credits = 0;
 
+        $enroll = StudentEnroll::query()->with(['session'])->find($request->student);
         if ($request->type == 1) {
             $fee_amount = $request->amount;
         } else {
-            $enroll = StudentEnroll::query()->with(['session'])->find($request->student);
             foreach ($enroll->subjects as $subject) {
                 $total_credits = $total_credits + $subject->credit_hour;
             }

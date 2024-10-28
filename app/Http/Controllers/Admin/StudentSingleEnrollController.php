@@ -122,8 +122,6 @@ class StudentSingleEnrollController extends Controller
                 // get the student
                 $student = Student::find($request->student);
 
-                //!! Disable All Enrolls And Make The Current Enroll Where The Current Session !!
-                $student->studentEnrolls()->update(['status' => 0]);
                 // Get The CURRENT SESSION
                 $current_running_session = Session::query()->where('current', 1)->first();
                 $student->studentEnrolls()->where('session_id', $current_running_session->id)->update(['status' => 1]);

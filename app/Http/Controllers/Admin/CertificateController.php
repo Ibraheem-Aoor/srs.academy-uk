@@ -10,6 +10,7 @@ use App\Models\Student;
 use App\Models\Program;
 use App\Models\Batch;
 use App\Models\Grade;
+use App\Models\Session;
 use Toastr;
 
 class CertificateController extends Controller
@@ -161,6 +162,8 @@ class CertificateController extends Controller
             }
             $data['certificates'] = $certificate->orderBy('id', 'desc')->get();
         }
+        $data['program'] = Program::query()->find($request->program);
+        $data['session'] = Session::query()->find($request->session);
 
 
         return view($this->view.'.index', $data);

@@ -19,11 +19,11 @@
                     <span class="pcoded-mtext">{{ trans_choice('module_admission', 2) }}</span>
                 </a>
                 <ul class="pcoded-submenu">
-                    @canany(['application-create', 'application-view'])
+                    {{-- @canany(['application-create', 'application-view'])
                         <li class="{{ Request::is('admin/admission/application*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.application.index') }}"
                                 class="">{{ trans_choice('module_application', 2) }}</a></li>
-                    @endcanany
+                    @endcanany --}}
 
                     @canany(['student-create'])
                         <li class="{{ Request::is('admin/admission/student/create') ? 'active' : '' }}"><a
@@ -37,7 +37,7 @@
                                 class="">{{ trans_choice('module_student', 1) }} {{ __('list') }}</a></li>
                     @endcanany
 
-                    @canany(['student-transfer-in-create', 'student-transfer-in-view', 'student-transfer-out-create',
+                    {{-- @canany(['student-transfer-in-create', 'student-transfer-in-view', 'student-transfer-out-create',
                         'student-transfer-out-view'])
                         <li
                             class="nav-item pcoded-hasmenu {{ Request::is('admin/admission/student-transfer*') ? 'pcoded-trigger active' : '' }}">
@@ -59,7 +59,7 @@
                                 @endcanany
                             </ul>
                         </li>
-                    @endcanany
+                    @endcanany --}}
 
                     @canany(['status-type-create', 'status-type-view'])
                         <li class="{{ Request::is('admin/admission/status-type*') ? 'active' : '' }}"><a
@@ -1346,11 +1346,11 @@
                                 class="">{{ trans_choice('module_sms_setting', 1) }}</a></li>
                     @endcan
 
-                    @can('application-setting-view')
+                    {{-- @can('application-setting-view')
                         <li class="{{ Request::is('admin/setting/application-setting*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.application-setting.index') }}"
                                 class="">{{ trans_choice('module_application_setting', 1) }}</a></li>
-                    @endcan
+                    @endcan --}}
 
                     {{-- @can('schedule-setting-view')
                 <li class="{{ Request::is('admin/setting/schedule-setting*') ? 'active' : '' }}"><a href="{{ route('admin.schedule-setting.index') }}" class="">{{ trans_choice('module_schedule_setting', 1) }}</a></li>
@@ -1366,7 +1366,7 @@
                                 class="">{{ trans_choice('module_role', 2) }}</a></li>
                     @endcanany
 
-                    @canany(['field-staff', 'field-student', 'field-application'])
+                    {{-- @canany(['field-staff', 'field-student', 'field-application'])
                         <li
                             class="nav-item pcoded-hasmenu {{ Request::is('admin/setting/field*') ? 'pcoded-trigger active' : '' }}">
                             <a href="#!" class="nav-link">
@@ -1399,7 +1399,7 @@
                         <li class="{{ Request::is('admin/setting/student-panel*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.student.panel') }}"
                                 class="">{{ trans_choice('module_student_panel', 2) }}</a></li>
-                    @endcanany
+                    @endcanany --}}
                 </ul>
             </li>
         @endcanany

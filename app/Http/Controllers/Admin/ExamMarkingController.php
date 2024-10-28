@@ -174,6 +174,10 @@ class ExamMarkingController extends Controller
                 })->firstOrFail();
                 // User Enrollments For Easy Data Retrieval
                 $exam_types = $this->getExamTypes($request, new FilterController())->pluck('title', 'id')->toArray();
+                if($exam_types == null || empty($exam_types) ){
+                    toastError('No Exam Types Found!');
+                    return back();
+                }
                 // Enrollments
                 $enrollments = StudentEnroll::query()
                 ->where('program_id', $request->program)
@@ -189,12 +193,10 @@ class ExamMarkingController extends Controller
                 // Array Sorting
                 $data['rows'] = $rows;
             }
-            // dd($rows->first()->exams);
             return view($this->view . '.marking', $data);
         } catch (Throwable $e) {
-            dd($e);
             logError(e: $e, method: __METHOD__, class: get_class($this));
-            // return back();
+            return back();
         }
 
     }
