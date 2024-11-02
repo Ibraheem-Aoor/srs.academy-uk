@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\CourseTypeEnum;
+use App\Models\Scopes\CourseTypeScope;
 use App\Traits\HasStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -22,8 +24,19 @@ class Session extends Model
         'current',
         'status',
         // 'semester_id',
-        'id_on_moodle'
+        'id_on_moodle',
+        'type',
     ];
+    protected $casts = [
+        'type' => CourseTypeEnum::class,
+    ];
+
+
+    protected static function booted()
+    {
+        parent::boot();
+        static::addGlobalScope('courseType',new CourseTypeScope);
+    }
 
     public function programs()
     {
@@ -46,9 +59,9 @@ class Session extends Model
     }
 
 
-    public function semester() : BelongsTo
+    public function semester(): BelongsTo
     {
-        return $this->belongsTo(Semester::class , 'semester_id');
+        return $this->belongsTo(Semester::class, 'semester_id');
     }
 
     /**
@@ -57,6 +70,6 @@ class Session extends Model
     public function getShortTitleForMoodle()
     {
         return "";
-        return str_replace([' ' , '-' , '_'] , '',Carbon::parse( substr($this->title , 0 , 4))->format('y').''. substr($this->title, 4, 4).''. substr($this->title, -1));
+        return str_replace([' ', '-', '_'], '', Carbon::parse(substr($this->title, 0, 4))->format('y') . '' . substr($this->title, 4, 4) . '' . substr($this->title, -1));
     }
 }

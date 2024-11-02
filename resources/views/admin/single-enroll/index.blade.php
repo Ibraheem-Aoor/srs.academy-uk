@@ -14,6 +14,7 @@
                         </div>
                         <div class="card-block">
                             <form class="needs-validation" novalidate method="get" action="{{ route($route . '.index') }}">
+                                <input type="hidden" name="quick_course" value="{{ $is_quick_course }}">
                                 <div class="row gx-2">
                                     <div class="form-group col-md-3">
                                         <label for="student">{{ __('field_student_id') }} <span>*</span></label>
@@ -142,7 +143,7 @@
                                         {{ __('btn_previous') }}
                                     @endif
                                     {{ __('field_session') }}:
-                                    {{ $enrollment->session->title ?? '' }} - {{ $enrollment->program->title }}
+                                    {{ $enrollment->session->title ?? '' }} - {{ $enrollment->program?->title }}
                             </div>
                             <div class="card-block">
                                 <!-- [ Data table ] start -->
@@ -227,12 +228,13 @@
                 {{-- Current Session  --}}
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="text-success">{{ __('status_current') }} {{ trans('field_session') }}s:
+                        <h5 class="text-success">{{ __('status_current') }} {{ $title }}s:
                         </h5>
                     </div>
                     @foreach ($row->activeEnrolls as $enrollment)
-                    <h5 class="text-success p-2">#{{ $loop->index +1 }} {{ $enrollment->session->title }} - {{ $enrollment->program->title }}
-                    </h5>
+                        <h5 class="text-success p-2">#{{ $loop->index + 1 }} {{ $enrollment->session->title }} -
+                            {{ $enrollment->program?->title }}
+                        </h5>
                         <div class="card-block">
                             <!-- [ Data table ] start -->
                             <div class="table-responsive">
@@ -318,6 +320,8 @@
 
             <form action="{{ route($route . '.store') }}" method="post">
                 @csrf
+                <input type="hidden" name="quick_course" value="{{ $is_quick_course }}">
+
                 <div class="card">
                     <div class="card-header">
                         <h5>{{ __('field_next_enrollment') }}</h5>
@@ -327,19 +331,33 @@
                             <input type="text" name="student" value="{{ $row->id }}" hidden>
 
                             <div class="form-group col-md-3">
-                                <label for="program">{{ __('field_program') }} <span>*</span></label>
-                                <select class="form-control" name="program" id="program" required>
-                                    <option value="">{{ __('select') }}</option>
-                                    @foreach ($programs as $program)
-                                        <option value="{{ $program->id }}"
-                                            @if ($row->program_id == $program->id) selected @endif>
-                                            {{ $program->title }}</option>
-                                    @endforeach
-                                </select>
+                                @if (isset($quick_courses))
+                                    <label for="session">{{ __('module_quick_subject') }}
+                                        <span>*</span></label>
+                                    <select class="form-control" name="session" id="session" required>
+                                        <option value="">{{ __('select') }}</option>
+                                        @foreach ($quick_courses as $course)
+                                            <option value="{{ $course->id }}">
+                                                {{ $course->title }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <div class="invalid-feedback">
+                                        {{ __('required_field') }} {{ __('field_program') }}
+                                    </div>
+                                    <label for="program">{{ __('field_program') }} <span>*</span></label>
+                                    <select class="form-control" name="program" id="program" required>
+                                        <option value="">{{ __('select') }}</option>
+                                        @foreach ($programs as $program)
+                                            <option value="{{ $program->id }}"
+                                                @if ($row->program_id == $program->id) selected @endif>
+                                                {{ $program?->title }}</option>
+                                        @endforeach
+                                    </select>
 
-                                <div class="invalid-feedback">
-                                    {{ __('required_field') }} {{ __('field_program') }}
-                                </div>
+                                    <div class="invalid-feedback">
+                                        {{ __('required_field') }} {{ __('field_program') }}
+                                    </div>
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="session">{{ __('field_session') }} <span>*</span></label>
@@ -351,6 +369,8 @@
                                     {{ __('required_field') }} {{ __('field_session') }}
                                 </div>
                             </div>
+                            @endif
+ <br>
                             <div class="form-group col-md-3">
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal"
                                     data-bs-target="#confirmModal">

@@ -2,6 +2,7 @@
 
 namespace App\Models\Web;
 
+use App\Enums\CourseTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,8 +11,21 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
-        'language_id', 'title', 'slug', 'faculty', 'semesters', 'credits', 'courses', 'duration', 'fee', 'description', 'attach', 'status',
+        'language_id',
+        'title',
+        'slug',
+        'faculty',
+        'semesters',
+        'credits',
+        'courses',
+        'duration',
+        'fee',
+        'description',
+        'attach',
+        'status',
     ];
+
+
 
     public function language()
     {

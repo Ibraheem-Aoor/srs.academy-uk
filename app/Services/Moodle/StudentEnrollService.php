@@ -45,6 +45,7 @@ class StudentEnrollService extends BaseService
             }else{
                 $session = Session::find($student_enroll->session_id);
                 $created_course_on_moodle = $course_service->store($subject, $session);
+                dd($created_course_on_moodle);
                 MoodleSubjectSession::query()->updateOrCreate([
                     'session_id' => $session->id,
                     'subject_id' => $subject->id,

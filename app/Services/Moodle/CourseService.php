@@ -89,16 +89,11 @@ class CourseService extends BaseService
         $query_params['wsfunction'] = 'core_course_duplicate_course';
         $query_params['courseid'] = $subject_id_on_moodle_to_duplicate;
         $query_params['fullname'] = $subject->title;
-        $query_params['shortname'] = $subject->code . '_' . $session->getShortTitleForMoodle();
+        $query_params['shortname'] = $subject->code . '_' .now();
         $query_params['categoryid'] = $session->id_on_moodle;
-        // $query_params['options'] = [
-        //     [
-        //         'name' => 'enrolments',
-        //         'value' => 0,
-        //     ],
-        // ];
         info($query_params);
         $created_course = parent::create($query_params);
+        info('CREATED COURSE');
         info($created_course);
         MoodleSubjectSession::query()->updateOrCreate([
             'session_id' => $session->id,
@@ -108,7 +103,7 @@ class CourseService extends BaseService
             'subject_id' => $subject->id,
             'id_on_moodle' => $created_course['id'],//duplicated course
         ]);
-        $this->editSubjectNameForSession($subject, $session, $created_course['id']);
+        // $this->editSubjectNameForSession($subject, $session, $created_course['id']);
     }
 
     /**

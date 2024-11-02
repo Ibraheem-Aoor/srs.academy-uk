@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoursableController;
 use App\Jobs\DuplicateMoodleCourseJob;
 use App\Models\EnrollSubject;
 use App\Models\MoodleSubjectSession;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Throwable;
 use Toastr;
 
-class EnrollSubjectController extends Controller
+class EnrollSubjectController extends CoursableController
 {
     /**
      * Create a new controller instance.

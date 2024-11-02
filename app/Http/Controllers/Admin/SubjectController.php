@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ClassTypeEnum;
+use App\Enums\CourseTypeEnum;
 use App\Enums\SubjectTypeEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoursableController;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\SubjectsImport;
 use App\Models\ExamType;
@@ -19,7 +21,7 @@ use Toastr;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
-class SubjectController extends Controller
+class SubjectController extends CoursableController
 {
     public $mark_distribution_systems;
     /**
@@ -29,6 +31,7 @@ class SubjectController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         // Module Data
         $this->title = trans_choice('module_subject', 1);
         $this->route = 'admin.subject';
@@ -115,7 +118,13 @@ class SubjectController extends Controller
             $subject->where('class_type', $class_type);
         }
 
-        $data['rows'] = $subject->orderBy('title', 'asc')->get();
+        $data['rows'] = $subject
+        ->when($this->is_quick_course == true, function ($query) {
+            $query->where('type', CourseTypeEnum::QUICK_COURSE);
+        })->when($this->is_quick_course == false, function ($query) {
+            $query->where('type', CourseTypeEnum::CERTIFICATE);
+        })->orderBy('title', 'asc')->get();
+        $data['is_quick_course'] = $this->is_quick_course;
 
         return view($this->view . '.index', $data);
     }
@@ -138,6 +147,8 @@ class SubjectController extends Controller
 
         $data['class_types'] = ClassTypeEnum::getValues();
         $data['mark_distribution_systems'] = $this->mark_distribution_systems;
+        $data['is_quick_course'] = $this->is_quick_course;
+
         return view($this->view . '.create', $data);
     }
 
@@ -186,9 +197,9 @@ class SubjectController extends Controller
             'prerequisites' => 'nullable|array',
             'prerequisites.*' => 'required|array',
             'prerequisites.*.*' => 'required',
-            'programs' => 'required|array',
-            'programs.*' => 'required',
-            'exam_type' =>'required|exists:exam_type_categories,id',
+            'programs' => 'required_if:is_quick_course,false|array',
+            'programs.*' => 'required_if:is_quick_course,false|required',
+            'exam_type' => 'required|exists:exam_type_categories,id',
         ], [
             'prerequisites.array' => __('invalid_prerequisites'),
             'prerequisites.*.array' => __('invalid_prerequisites'),
@@ -208,10 +219,13 @@ class SubjectController extends Controller
             $subject->passing_marks = $request->passing_marks;
             $subject->description = $request->description;
             $subject->status = $request->status;
+            $subject->type = $request->is_quick_course ? CourseTypeEnum::QUICK_COURSE : CourseTypeEnum::CERTIFICATE;
             $subject->save();
 
             // Attach Programs
-            $this->attachPrograms(subject: $subject, request: $request);
+            if (isset($request->programs)) {
+                $this->attachPrograms(subject: $subject, request: $request);
+            }
 
             // Preqrequisites
             if (is_array($request->prerequisites)) {
@@ -220,6 +234,7 @@ class SubjectController extends Controller
             $subject->save();
             DB::commit();
         } catch (Throwable $e) {
+            dd($e);
             DB::rollBack();
             logError(e: $e, method: __METHOD__, class: get_class($this));
         }
@@ -293,7 +308,7 @@ class SubjectController extends Controller
             'prerequisites.*.*' => 'required',
             'programs' => 'required|array',
             'programs.*' => 'required',
-            'exam_type' =>'required|exists:exam_type_categories,id',
+            'exam_type' => 'required|exists:exam_type_categories,id',
 
 
         ], [

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CourseTypeEnum;
 use App\Traits\HasStatus;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,8 +15,31 @@ class StudentEnroll extends Model
      * @var array
      */
     protected $fillable = [
-        'student_id', 'program_id', 'session_id', 'semester_id', 'section_id', 'status', 'created_by', 'updated_by',
+        'student_id',
+        'program_id',
+        'session_id',
+        'semester_id',
+        'section_id',
+        'status',
+        'created_by',
+        'updated_by',
     ];
+    protected static function booted()
+    {
+        parent::boot();
+        static::addGlobalScope('courseType', function ($enroll) {
+            $enroll->when(request()->has('quick_course') && request()->quick_course == true, function ($query): void {
+                $query->whereHas('session' , function($session){
+                    $session->where('type', CourseTypeEnum::QUICK_COURSE);
+                });
+            });
+            $enroll->when( request()->quick_course == null, function ($query): void {
+                $query->whereHas('session' , function($session){
+                    $session->where('type', CourseTypeEnum::CERTIFICATE);
+                });
+            });
+        });
+    }
 
     public function student()
     {

@@ -150,9 +150,12 @@
 
                             <ul class="pcoded-submenu">
                                 @canany(['student-enroll-single'])
-                                    <li class="{{ Request::is('admin/student/single-enroll*') ? 'active' : '' }}"><a
+                                    <li class="{{ request('quick_course') == false && Request::is('admin/student/single-enroll*') ? 'active' : '' }}"><a
                                             href="{{ route('admin.single-enroll.index') }}"
                                             class="">{{ trans_choice('module_single_enroll', 1) }}</a></li>
+                                    <li class="{{ request('quick_course') == true && Request::is('admin/student/single-enroll*') ? 'active' : '' }}"><a
+                                            href="{{ route('admin.single-enroll.index' , ['quick_course' => true]) }}"
+                                            class="">{{ trans_choice('module_quick_subject', 1) }}</a></li>
                                 @endcanany
 
                                 @canany(['student-enroll-group'])
@@ -274,9 +277,14 @@
 
                     @canany(['subject-create', 'subject-view'])
                         <li
-                            class="{{ Request::is('admin/academic/subject*') && !Request::is('admin/academic/subject-type*') ? 'active' : '' }}">
+                            class="{{ request('quick_course') == null &&  Request::is('admin/academic/subject*') && !Request::is('admin/academic/subject-type*') ? 'active' : '' }}">
                             <a href="{{ route('admin.subject.index') }}"
                                 class="">{{ trans_choice('module_subject', 2) }}</a>
+                        </li>
+                        <li
+                            class="{{ request('quick_course') == true && Request::is('admin/academic/subject*') && !Request::is('admin/academic/subject-type*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.subject.index' , ['quick_course' => true]) }}"
+                                class="">{{ trans_choice('module_quick_subject', 2) }}</a>
                         </li>
                     @endcanany
                     @canany(['subject-create', 'subject-view'])
@@ -293,9 +301,14 @@
 
                     @canany(['class-routine-create', 'class-routine-view', 'class-routine-print'])
                         <li
-                            class="{{ Request::is('admin/academic/class-routine') ? 'active' : '' }} {{ Request::is('admin/academic/class-routine/create') ? 'active' : '' }}">
+                            class="{{ request('quick_course') == false && Request::is('admin/academic/class-routine') ? 'active' : '' }} {{ Request::is('admin/academic/class-routine/create') ? 'active' : '' }}">
                             <a href="{{ route('admin.class-routine.index') }}"
                                 class="">{{ trans_choice('module_class_routine', 2) }}</a>
+                        </li>
+                        <li
+                            class="{{ request('quick_course') == true && Request::is('admin/academic/class-routine') ? 'active' : '' }} {{ Request::is('admin/academic/class-routine/create') ? 'active' : '' }}">
+                            <a href="{{ route('admin.class-routine.index' , ['quick_course' => true]) }}"
+                                class="">{{ trans_choice('module_course_routine', 2) }}</a>
                         </li>
                     @endcanany
 

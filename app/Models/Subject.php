@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\CourseTypeEnum;
+use App\Observers\SubjectObserver;
 use App\Traits\HasStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -26,7 +28,17 @@ class Subject extends Model
         'description',
         'status',
         'id_on_moodle',
+        'type',
     ];
+    protected $casts = [
+        'type' => CourseTypeEnum::class,
+    ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::observe(SubjectObserver::class);
+    }
 
     public function programs()
     {

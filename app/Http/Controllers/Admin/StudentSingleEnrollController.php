@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CourseTypeEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoursableController;
 use App\Models\EnrollSubject;
 use App\Models\StudentEnroll;
 use Illuminate\Http\Request;
@@ -19,7 +21,7 @@ use Toastr;
 use Auth;
 use Illuminate\Support\Facades\DB;
 
-class StudentSingleEnrollController extends Controller
+class StudentSingleEnrollController extends CoursableController
 {
     /**
      * Create a new controller instance.
@@ -28,16 +30,21 @@ class StudentSingleEnrollController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         // Module Data
-        $this->title = trans_choice('module_single_enroll', 1);
+        $this->title = $this->is_quick_course ? trans_choice('module_quick_subject', 1) : trans_choice('module_single_enroll', 1);
         $this->route = 'admin.single-enroll';
         $this->view = 'admin.single-enroll';
         $this->path = 'student';
         $this->access = 'student-enroll';
 
-
         $this->middleware('permission:' . $this->access . '-single');
+
     }
+
+
+
+
 
     /**
      * Display a listing of the resource.
@@ -72,8 +79,9 @@ class StudentSingleEnrollController extends Controller
             $data['sections'] = Section::with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($student) {
                 $query->where('program_id', $student->program_id);
             })->where('status', '1')->orderBy('title', 'asc')->get();
-
-
+            if ($this->is_quick_course) {
+                $data['quick_courses'] = Session::query()->get();
+            }
             $data['grades'] = Grade::where('status', '1')->orderBy('min_mark', 'desc')->get();
         } else {
             $data['selected_student'] = Null;
@@ -93,16 +101,17 @@ class StudentSingleEnrollController extends Controller
         // Field Validation
         $request->validate([
             'student' => 'required',
-            'program' => 'required',
+            'program' => 'required_if:quick_course,false',
             'session' => 'required',
         ]);
         try {
             DB::beginTransaction();
             // Duplicate Enroll Check
             $duplicate_check = StudentEnroll::where('student_id', $request->student)
-            ->where('session_id', $request->session)
-                ->where('program_id', $request->program)->first();
-            // $semester_check = StudentEnroll::where('student_id', $request->student)->where('semester_id', $request->semester)->first();
+                ->where('session_id', $request->session)
+                ->when(isset($request->program), function ($query) use ($request) {
+                    $query->where('program_id', $request->program);
+                })->first();
 
             if (!isset($duplicate_check)) {
 
@@ -121,14 +130,11 @@ class StudentSingleEnrollController extends Controller
                 $enroll->subjects()->attach($subjects);
                 // get the student
                 $student = Student::find($request->student);
-
-                // Get The CURRENT SESSION
-                $current_running_session = Session::query()->where('current', 1)->first();
-                $student->studentEnrolls()->where('session_id', $current_running_session->id)->update(['status' => 1]);
-
-                // Program Update
-                $student->program_id = $request->program;
-                $student->save();
+                if ($request->quick_course != true) {
+                    // Program Update
+                    $student->program_id = $request->program;
+                    $student->save();
+                }
 
                 $moodle_stuent_enroll_service->store($enroll);
                 Toastr::success(__('msg_promoted_successfully'), __('msg_success'));
