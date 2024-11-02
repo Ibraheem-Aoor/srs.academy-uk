@@ -21,16 +21,16 @@ class CourseTypeScope implements Scope
         $builder->when(request()->has('quick_course') && request()->quick_course == true, function ($query): void {
             $query->where('type', CourseTypeEnum::QUICK_COURSE);
         });
-        $builder->when(request()->quick_course == null, function ($query): void {
-            $query->where('type', CourseTypeEnum::CERTIFICATE);
-        });
+        // $builder->when(request()->quick_course == null, function ($query): void {
+        //     $query->where('type', CourseTypeEnum::CERTIFICATE);
+        // });
 
         $model->when(request()->has('quick_course') && request()->quick_course == true, function ($query): void {
             $query->where('type', CourseTypeEnum::QUICK_COURSE);
         });
-        $model->when(request()->quick_course == null, function ($query): void {
-            $query->where('type', CourseTypeEnum::CERTIFICATE);
-        });
+        // $model->when(request()->quick_course == null, function ($query): void {
+        //     $query->where('type', CourseTypeEnum::CERTIFICATE);
+        // });
 
 
     }

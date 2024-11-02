@@ -1,35 +1,39 @@
-<div class="form-group col-md-3">
-    <label for="faculty">{{ __('field_faculty') }} <span>*</span></label>
-    <select class="form-control faculty" name="faculty" id="faculty" required>
-        <option value="">{{ __('select') }}</option>
-        @if (isset($faculties))
-            @foreach ($faculties->sortBy('title') as $faculty)
-                <option value="{{ $faculty->id }}" @if ($selected_faculty == $faculty->id) selected @endif>
-                    {{ $faculty->title }}</option>
-            @endforeach
-        @endif
-    </select>
+@if (!isset($is_quick_course) || $is_quick_course == false)
+    <div class="form-group col-md-3">
+        <label for="faculty">{{ __('field_faculty') }} <span>*</span></label>
+        <select class="form-control faculty" name="faculty" id="faculty" required>
+            <option value="">{{ __('select') }}</option>
+            @if (isset($faculties))
+                @foreach ($faculties->sortBy('title') as $faculty)
+                    <option value="{{ $faculty->id }}" @if ($selected_faculty == $faculty->id) selected @endif>
+                        {{ $faculty->title }}</option>
+                @endforeach
+            @endif
+        </select>
 
-    <div class="invalid-feedback">
-        {{ __('required_field') }} {{ __('field_faculty') }}
+        <div class="invalid-feedback">
+            {{ __('required_field') }} {{ __('field_faculty') }}
+        </div>
     </div>
-</div>
-<div class="form-group col-md-3">
-    <label for="program">{{ __('field_program') }} <span>*</span></label>
-    <select class="form-control program " name="program" id="program" required>
-        <option value="">{{ __('select') }}</option>
-        @if (isset($programs))
-            @foreach ($programs->sortBy('title') as $program)
-                <option value="{{ $program->id }}" @selected($program->id == $selected_program) >
-                    {{ $program->title }}</option>
-            @endforeach
-        @endif
-    </select>
+    <div class="form-group col-md-3">
+        <label for="program">{{ __('field_program') }} <span>*</span></label>
+        <select class="form-control program " name="program" id="program" required>
+            <option value="">{{ __('select') }}</option>
+            @if (isset($programs))
+                @foreach ($programs->sortBy('title') as $program)
+                    <option value="{{ $program->id }}" @selected($program->id == $selected_program)>
+                        {{ $program->title }}</option>
+                @endforeach
+            @endif
+        </select>
 
-    <div class="invalid-feedback">
-        {{ __('required_field') }} {{ __('field_program') }}
+        <div class="invalid-feedback">
+            {{ __('required_field') }} {{ __('field_program') }}
+        </div>
     </div>
-</div>
+@else
+    <input type="hidden" name="quick_course" value="{{ $is_quick_course }}">
+@endif
 <div class="form-group col-md-3">
     <label for="session">{{ __('field_session') }} <span>*</span></label>
     <select class="form-control session" name="session" id="session" required>

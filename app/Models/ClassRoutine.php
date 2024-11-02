@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\CourseTypeScopeForSessionOwner;
 use App\Observers\ClassRoutineObserver;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,11 +17,11 @@ class ClassRoutine extends Model
         'teacher_id', 'subject_id', 'room_id', 'session_id', 'program_id', 'semester_id', 'section_id', 'start_time', 'end_time', 'day', 'status',
     ];
 
-    // protected static function boot()
-    // {
-    //     parent::boot();
-    //     static::observe(ClassRoutineObserver::class);
-    // }
+    protected static function booted()
+    {
+        parent::boot();
+        static::addGlobalScope('courseTypeForOwner' , new CourseTypeScopeForSessionOwner);
+    }
 
     public function teacher()
     {

@@ -14,7 +14,7 @@
                         </div>
                         <div class="card-block">
                             @can($access . '-create')
-                                <a href="{{ route($route . '.create') }}" class="btn btn-primary"><i class="far fa-edit"></i>
+                                <a href="{{ route($route . '.create' , ['quick_course' => $is_quick_course]) }}" class="btn btn-primary"><i class="far fa-edit"></i>
                                     {{ __('modal_add') }} / {{ __('modal_edit') }}</a>
                             @endcan
 
@@ -43,6 +43,7 @@
                         <div class="card-block">
                             <form class="needs-validation" novalidate method="get"
                                 action="{{ route($route . '.index') }}">
+                                <input type="hidden" name="quick_course" value="{{ $is_quick_course }}">
                                 <div class="row gx-2">
                                     @include('common.inc.common_search_filter')
 

@@ -32,11 +32,11 @@ class EnrollSubject extends Model
                     $session->where('type', CourseTypeEnum::QUICK_COURSE);
                 });
             });
-            $enroll->when( request()->quick_course == null, function ($query): void {
-                $query->whereHas('session' , function($session){
-                    $session->where('type', CourseTypeEnum::CERTIFICATE);
-                });
-            });
+            // $enroll->when( request()->quick_course == null, function ($query): void {
+            //     $query->whereHas('session' , function($session){
+            //         $session->where('type', CourseTypeEnum::CERTIFICATE);
+            //     });
+            // });
         });
     }
 

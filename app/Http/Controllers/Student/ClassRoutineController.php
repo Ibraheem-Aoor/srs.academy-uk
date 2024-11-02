@@ -57,7 +57,7 @@ class ClassRoutineController extends Controller
             if (isset($enrolls) && isset($session_ids)) {
                 $data['rows'] = ClassRoutine::where('status', '1')
                     ->whereIn('session_id', $session_ids)
-                    ->whereIn('program_id', $program_ids)
+                    // ->whereIn('program_id', $program_ids)
                     ->whereIn('subject_id', $subject_ids)
                     ->orderBy('start_time', 'asc')
                     ->get();
