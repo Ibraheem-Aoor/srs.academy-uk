@@ -374,9 +374,12 @@
                     @endcan --}}
 
                     @can('exam-marking')
-                        <li class="{{ Request::is('admin/exam/exam-marking*') ? 'active' : '' }}"><a
+                        <li class="{{ request('quick_course') == false && Request::is('admin/exam/exam-marking*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.exam-marking.index') }}"
                                 class="">{{ trans_choice('module_exam_marking', 2) }}</a></li>
+                        <li class="{{ request('quick_course') == true && Request::is('admin/exam/exam-marking*') ? 'active' : '' }}"><a
+                                href="{{ route('admin.exam-marking-course.index' , ['quick_course' => true]) }}"
+                                class="">{{ trans_choice('module_exam_marking_course', 2) }}</a></li>
                     @endcan
 
                     @can('exam-result')

@@ -1,5 +1,8 @@
-<div class="form-group col-md-3">
-    <label for="faculty">{{ __('field_faculty') }} @if(!isset($is_optional_search))<span>*</span>@endif</label>
+@if(!isset($is_quick_course) || $is_quick_course == null)<div class="form-group col-md-3">
+    <label for="faculty">{{ __('field_faculty') }} @if (!isset($is_optional_search))
+            <span>*</span>
+        @endif
+    </label>
     <select class="form-control faculty" name="faculty" id="faculty" @if (!isset($is_optional_search)) required @endif>
         <option value="">{{ __('select') }}</option>
         @if (isset($faculties))
@@ -15,7 +18,10 @@
     </div>
 </div>
 <div class="form-group col-md-3">
-    <label for="program">{{ __('field_program') }} @if(!isset($is_optional_search))<span>*</span>@endif</label>
+    <label for="program">{{ __('field_program') }} @if (!isset($is_optional_search))
+            <span>*</span>
+        @endif
+    </label>
     <select class="form-control program" name="program" id="program"
         @if (!isset($is_optional_search)) required @endif>
         <option value="">{{ __('select') }}</option>
@@ -31,10 +37,15 @@
         {{ __('required_field') }} {{ __('field_program') }}
     </div>
 </div>
-<div class="form-group col-md-3">
-    <label for="session">{{ __('field_session') }} @if(!isset($is_optional_search))<span>*</span>@endif</label>
-    <select class="form-control session" name="session" id="session"
-        @if (!isset($is_optional_search)) required @endif>
+
+@endif
+<div class="form-group col-md-3 @isset($hide_session_filter) d-none @endisset">
+    <label for="session">{{ __('field_session') }} @if (!isset($is_optional_search))
+            <span>*</span>
+        @endif
+    </label>
+    <select class="form-control session " name="session" id="session"
+        @if (!isset($hide_session_filter)) required @endif>
         <option value="">{{ __('select') }}</option>
         @if (isset($sessions))
             @foreach ($sessions->sortByDesc('id') as $session)
@@ -49,7 +60,10 @@
     </div>
 </div>
 <div class="form-group col-md-3 d-none">
-    <label for="semester">{{ __('field_semester') }} @if(!isset($is_optional_search))<span>*</span>@endif</label>
+    <label for="semester">{{ __('field_semester') }} @if (!isset($is_optional_search))
+            <span>*</span>
+        @endif
+    </label>
     <select class="form-control semester" name="semester" id="semester"
         @if (!isset($is_optional_search)) required @endif>
         <option value="0">{{ __('all') }}</option>
@@ -65,25 +79,27 @@
         {{ __('required_field') }} {{ __('field_semester') }}
     </div>
 </div>
-@if(!isset($is_optional_search))
-{{-- section search --}}
-<div class="form-group col-md-3 d-none">
-    <label for="section">{{ __('field_section') }} @if(!isset($is_optional_search))<span>*</span>@endif</label>
-    <select class="form-control section" name="section" id="section"
-        >
-        <option value="0">{{ __('all') }}</option>
-        @if (isset($sections))
-            @foreach ($sections->sortBy('title') as $section)
-                <option value="{{ $section->id }}" @if ($selected_section == $section->id) selected @endif>
-                    {{ $section?->title }}</option>
-            @endforeach
-        @endif
-    </select>
+@if (!isset($is_optional_search))
+    {{-- section search --}}
+    <div class="form-group col-md-3 d-none">
+        <label for="section">{{ __('field_section') }} @if (!isset($is_optional_search))
+                <span>*</span>
+            @endif
+        </label>
+        <select class="form-control section" name="section" id="section">
+            <option value="0">{{ __('all') }}</option>
+            @if (isset($sections))
+                @foreach ($sections->sortBy('title') as $section)
+                    <option value="{{ $section->id }}" @if ($selected_section == $section->id) selected @endif>
+                        {{ $section?->title }}</option>
+                @endforeach
+            @endif
+        </select>
 
-    <div class="invalid-feedback">
-        {{ __('required_field') }} {{ __('field_section') }}
+        <div class="invalid-feedback">
+            {{ __('required_field') }} {{ __('field_section') }}
+        </div>
     </div>
-</div>
 @endif
 <div class="form-group col-md-3">
     <label for="subject">{{ __('field_subject') }} <span>*</span></label>
@@ -252,5 +268,4 @@
 
         });
     });
-    
 </script>

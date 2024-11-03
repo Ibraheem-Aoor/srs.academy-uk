@@ -193,6 +193,7 @@ Route::middleware(['auth:web', 'XSS'])->name('admin.')->namespace('Admin')->pref
     Route::post('exam/exam-attendance-import-store', 'ExamAttendanceController@importStore')->name('exam-attendance.import.store');
     Route::get('exam/exam-attendance-import-form-download', 'ExamAttendanceController@downloadFormToFill')->name('exam-attendance.import.download_form');
     Route::resource('exam/exam-marking', 'ExamMarkingController');
+    Route::resource('exam/exam-marking-course', 'ExamMarkingCourseController');
     Route::get('exam/exam-result', 'ExamMarkingController@result')->name('exam-result');
     Route::resource('exam/subject-marking', 'SubjectMarkingController');
     Route::get('exam/subject-result', 'SubjectMarkingController@result')->name('subject-result');

@@ -22,6 +22,7 @@
                             <form class="needs-validation" novalidate method="get"
                                 action="{{ route($route . '.index') }}">
                                 <div class="row gx-2">
+                                    <input type="hidden" name="quick_course" value="{{ $is_quick_course }}">
                                     @include('common.inc.subject_search_filter')
 
                                     <div class="form-group col-md-3">

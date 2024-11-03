@@ -16,6 +16,7 @@ use App\Models\Program;
 use App\Models\Subject;
 use App\Models\Faculty;
 use App\Models\Prerequisit;
+use App\Models\ProgramSubject;
 use App\Services\Moodle\CourseService;
 use Toastr;
 use Illuminate\Support\Facades\DB;
@@ -224,7 +225,12 @@ class SubjectController extends CoursableController
 
             // Attach Programs
             if (isset($request->programs)) {
-                $this->attachPrograms(subject: $subject, request: $request);
+                $this->attachPrograms( $subject, request: $request);
+            }else{
+                ProgramSubject::query()->insert([
+                    'subject_id' => $subject->id,
+                    'exam_type_category_id' => $request->exam_type,
+                ]);
             }
 
             // Preqrequisites

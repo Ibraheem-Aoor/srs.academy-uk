@@ -69,7 +69,7 @@ class Session extends Model
      */
     public function getShortTitleForMoodle()
     {
-        return "";
+        return now();
         return str_replace([' ', '-', '_'], '', Carbon::parse(substr($this->title, 0, 4))->format('y') . '' . substr($this->title, 4, 4) . '' . substr($this->title, -1));
     }
 }
