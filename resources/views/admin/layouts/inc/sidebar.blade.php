@@ -37,8 +37,7 @@
                                 class="">{{ trans_choice('module_student', 1) }} {{ __('list') }}</a></li>
                     @endcanany
 
-                    {{-- @canany(['student-transfer-in-create', 'student-transfer-in-view', 'student-transfer-out-create',
-                        'student-transfer-out-view'])
+                    {{-- @canany(['student-transfer-in-create', 'student-transfer-in-view', 'student-transfer-out-create', 'student-transfer-out-view'])
                         <li
                             class="nav-item pcoded-hasmenu {{ Request::is('admin/admission/student-transfer*') ? 'pcoded-trigger active' : '' }}">
                             <a href="#!" class="nav-link">
@@ -150,11 +149,13 @@
 
                             <ul class="pcoded-submenu">
                                 @canany(['student-enroll-single'])
-                                    <li class="{{ request('quick_course') == false && Request::is('admin/student/single-enroll*') ? 'active' : '' }}"><a
-                                            href="{{ route('admin.single-enroll.index') }}"
+                                    <li
+                                        class="{{ request('quick_course') == false && Request::is('admin/student/single-enroll*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.single-enroll.index') }}"
                                             class="">{{ trans_choice('module_single_enroll', 1) }}</a></li>
-                                    <li class="{{ request('quick_course') == true && Request::is('admin/student/single-enroll*') ? 'active' : '' }}"><a
-                                            href="{{ route('admin.single-enroll.index' , ['quick_course' => true]) }}"
+                                    <li
+                                        class="{{ request('quick_course') == true && Request::is('admin/student/single-enroll*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.single-enroll.index', ['quick_course' => true]) }}"
                                             class="">{{ trans_choice('module_quick_subject', 1) }}</a></li>
                                 @endcanany
 
@@ -194,7 +195,7 @@
                     @canany(['report-student', 'report-subject', 'report-fees', 'report-payroll', 'report-leave',
                         'report-income', 'report-expense', 'report-library', 'report-hostel', 'report-transport'])
                         <li
-                            class="nav-item pcoded-hasmenu {{  Request::is('admin/report/student') || Request::is('admin/report/subject') ? 'pcoded-trigger active' : '' }}">
+                            class="nav-item pcoded-hasmenu {{ Request::is('admin/report/student') || Request::is('admin/report/subject') ? 'pcoded-trigger active' : '' }}">
                             <a href="#!" class="nav-link">
                                 <span class="pcoded-mtext">{{ trans_choice('module_report', 2) }}</span>
                             </a>
@@ -277,13 +278,13 @@
 
                     @canany(['subject-create', 'subject-view'])
                         <li
-                            class="{{ request('quick_course') == null &&  Request::is('admin/academic/subject*') && !Request::is('admin/academic/subject-type*') ? 'active' : '' }}">
+                            class="{{ request('quick_course') == null && Request::is('admin/academic/subject*') && !Request::is('admin/academic/subject-type*') ? 'active' : '' }}">
                             <a href="{{ route('admin.subject.index') }}"
                                 class="">{{ trans_choice('module_subject', 2) }}</a>
                         </li>
                         <li
                             class="{{ request('quick_course') == true && Request::is('admin/academic/subject*') && !Request::is('admin/academic/subject-type*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.subject.index' , ['quick_course' => true]) }}"
+                            <a href="{{ route('admin.subject.index', ['quick_course' => true]) }}"
                                 class="">{{ trans_choice('module_quick_subject', 2) }}</a>
                         </li>
                     @endcanany
@@ -307,7 +308,7 @@
                         </li>
                         <li
                             class="{{ request('quick_course') == true && Request::is('admin/academic/class-routine') ? 'active' : '' }} {{ Request::is('admin/academic/class-routine/create') ? 'active' : '' }}">
-                            <a href="{{ route('admin.class-routine.index' , ['quick_course' => true]) }}"
+                            <a href="{{ route('admin.class-routine.index', ['quick_course' => true]) }}"
                                 class="">{{ trans_choice('module_course_routine', 2) }}</a>
                         </li>
                     @endcanany
@@ -325,8 +326,7 @@
                     @endcan
                     @canany(['user-create', 'user-view', 'user-password-print', 'user-password-change'])
                         <li class="{{ Request::is('admin/staff/user*') ? 'active' : '' }}"><a
-                                href="{{ route('admin.user.index') }}"
-                                class="">{{ trans_choice('module_staff', 1) }}
+                                href="{{ route('admin.user.index') }}" class="">{{ trans_choice('module_staff', 1) }}
                                 {{ __('list') }}</a></li>
                     @endcanany
                     @canany(['routine-setting-class', 'routine-setting-exam'])
@@ -343,7 +343,7 @@
                                             class="">{{ trans_choice('module_class_routine', 1) }}</a>
                                     </li>
                                 @endcan
-{{--
+                                {{--
                                 @can('routine-setting-exam')
                                     <li class="{{ Request::is('admin/academic/routine-setting/exam*') ? 'active' : '' }}">
                                         <a href="{{ route('admin.routine-setting.exam') }}"
@@ -374,11 +374,13 @@
                     @endcan --}}
 
                     @can('exam-marking')
-                        <li class="{{ request('quick_course') == false && Request::is('admin/exam/exam-marking*') ? 'active' : '' }}"><a
-                                href="{{ route('admin.exam-marking.index') }}"
+                        <li
+                            class="{{ request('quick_course') == false && Request::is('admin/exam/exam-marking*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.exam-marking.index') }}"
                                 class="">{{ trans_choice('module_exam_marking', 2) }}</a></li>
-                        <li class="{{ request('quick_course') == true && Request::is('admin/exam/exam-marking*') ? 'active' : '' }}"><a
-                                href="{{ route('admin.exam-marking-course.index' , ['quick_course' => true]) }}"
+                        <li
+                            class="{{ request('quick_course') == true && Request::is('admin/exam/exam-marking*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.exam-marking-course.index', ['quick_course' => true]) }}"
                                 class="">{{ trans_choice('module_exam_marking_course', 2) }}</a></li>
                     @endcan
 
@@ -480,7 +482,8 @@
         @canany(['fees-student-due', 'fees-student-quick-assign', 'fees-student-quick-received', 'fees-student-report',
             'fees-student-print', 'fees-master-view', 'fees-master-create', 'fees-category-view', 'fees-category-create',
             'fees-discount-view', 'fees-discount-create', 'fees-fine-view', 'fees-fine-create', 'fees-receipt-view'])
-            <li class="nav-item pcoded-hasmenu {{ Request::is('admin/fees*') || Request::is('admin/report/fees') ? 'pcoded-trigger active' : '' }}">
+            <li
+                class="nav-item pcoded-hasmenu {{ Request::is('admin/fees*') || Request::is('admin/report/fees') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-money-bill-wave"></i></span>
                     <span class="pcoded-mtext">{{ trans_choice('module_fees_collection', 2) }}</span>
@@ -1117,9 +1120,16 @@
                 </a>
                 <ul class="pcoded-submenu">
                     @canany(['marksheet-view', 'marksheet-print', 'marksheet-download'])
-                        <li class="{{ Request::is('admin/transcript/marksheet-semester*') ? 'active' : '' }}"><a
-                                href="{{ route('admin.marksheet.semester') }}"
+                        <li
+                            class="{{ request('quick_course') == false && Request::is('admin/transcript/marksheet-semester*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.marksheet.semester') }}"
                                 class="">{{ trans_choice('module_marksheet_semester', 2) }}</a></li>
+                    @endcanany
+                    @canany(['marksheet-view', 'marksheet-print', 'marksheet-download'])
+                        <li
+                            class="{{ request('quick_course') == true && Request::is('admin/transcript/marksheet-semester*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.marksheet.semester' , ['quick_course' => true  ]) }}"
+                                class="">{{ trans_choice('module_marksheet_semester_course', 2) }}</a></li>
                     @endcanany
 
                     {{-- @canany(['marksheet-view', 'marksheet-print', 'marksheet-download'])
@@ -1150,8 +1160,7 @@
         @endcanany
 
         {{-- Reports --}}
-        {{-- @canany(['report-student', 'report-subject', 'report-fees', 'report-payroll', 'report-leave', 'report-income',
-            'report-expense', 'report-library', 'report-hostel', 'report-transport'])
+        {{-- @canany(['report-student', 'report-subject', 'report-fees', 'report-payroll', 'report-leave', 'report-income', 'report-expense', 'report-library', 'report-hostel', 'report-transport'])
             <li class="nav-item pcoded-hasmenu {{ Request::is('admin/report*') ? 'pcoded-trigger active' : '' }}">
                 <a href="#!" class="nav-link">
                     <span class="pcoded-micon"><i class="fas fa-chart-line"></i></span>
