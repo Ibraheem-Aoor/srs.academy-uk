@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoursableController;
 use App\Models\CertificateTemplate;
 use Illuminate\Http\Request;
 use App\Models\Certificate;
@@ -11,9 +12,10 @@ use App\Models\Program;
 use App\Models\Batch;
 use App\Models\Grade;
 use App\Models\Session;
+use Carbon\Carbon;
 use Toastr;
 
-class CertificateController extends Controller
+class CertificateController extends CoursableController
 {
     /**
      * Create a new controller instance.
@@ -22,6 +24,7 @@ class CertificateController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         // Module Data
         $this->title = trans_choice('module_certificate', 1);
         $this->route = 'admin.certificate';
@@ -162,9 +165,28 @@ class CertificateController extends Controller
             }
             $data['certificates'] = $certificate->orderBy('id', 'desc')->get();
         }
-        $data['program'] = Program::query()->find($request->program);
-        $data['session'] = Session::query()->find($request->session);
-
+        $data['sessions'] = Session::query()->get();
+        if($this->is_quick_course)
+        {
+            $data['hide_filters'] = true;
+            $certificate = Certificate::where('status', '!=', '0');
+            if(!empty($request->template) && $request->template != '0'){
+                $certificate->where('template_id', $template);
+            }
+            if(!empty($request->session) && $request->session != '0'){
+                $certificate->with('student')->whereHas('student', function ($query) use ($session){
+                    $query->whereHas('studentEnrolls', function($query) use ($session){
+                        $query->where('session_id', $session);
+                    });
+                });
+            }
+            if(!empty($request->student_id) && $request->student_id != '0'){
+                $certificate->with('student')->whereHas('student', function ($query) use ($student_id){
+                    $query->where('student_id', 'LIKE', '%'.$student_id.'%');
+                });
+            }
+            $data['certificates'] = $certificate->orderBy('id', 'desc')->get();
+        }
 
         return view($this->view.'.index', $data);
     }
@@ -197,13 +219,11 @@ class CertificateController extends Controller
         $total_cgpa = 0;
         $starting_year = '0000';
         $ending_year = '0000';
-        $student_enroll = $row->studentEnrolls
-        ->where('program_id', request('program'))
-        ->where('session_id', request('session'))
-        ->first();
-
-            $starting_year = $student_enroll->session->start_date;
-            $ending_year = $student_enroll->session->end_date;
+        $student_enroll = $row->studentEnrolls->when(request('program') != null , function($q){
+            $q->where('program_id', request('program'));
+        })->where('session_id', request('session'))->first();
+            $starting_year = $student_enroll->session?->start_date ?? Carbon::parse($student_enroll->created_at)->toDateString();
+            $ending_year = $student_enroll->session?->end_date ?? today()->toDateString();
 
 
             if(isset($student_enroll->subjectMarks)){

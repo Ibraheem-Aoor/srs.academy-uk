@@ -23,7 +23,7 @@
                             <form class="needs-validation" novalidate method="get"
                                 action="{{ route($route . '.index') }}">
                                 <div class="row gx-2">
-                                    <div class="form-group col-md-2">
+                                    <div class="form-group col-md-2 @isset($hide_filters) d-none @endisset">
                                         <label for="batch">{{ __('field_batch') }}</label>
                                         <select class="form-control" name="batch" id="batch" required>
                                             <option value="0">{{ __('all') }}</option>
@@ -38,7 +38,7 @@
                                             {{ __('required_field') }} {{ __('field_batch') }}
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-2">
+                                    <div class="form-group col-md-2 @isset($hide_filters) d-none @endisset">
                                         <label for="program">{{ __('field_program') }}</label>
                                         <select class="form-control" name="program" id="program" required>
                                             <option value="0">{{ __('all') }}</option>
@@ -52,7 +52,7 @@
                                             {{ __('required_field') }} {{ __('field_program') }}
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-3">
+                                    <div class="form-group col-md-3 ">
                                         <label for="session">{{ __('field_session') }} <span>*</span></label>
                                         <select class="form-control session" name="session" id="session" required>
                                             <option value="">{{ __('select') }}</option>
@@ -60,13 +60,18 @@
                                                 <option value="{{ $session->id }}" selected>{{ $session->title }}
                                                 </option>
                                             @endisset
+                                            @isset($sessions)
+                                                @foreach ($sessions as $session)
+                                                    <option value="{{ $session->id }}">{{ $session->title }}</option>
+                                                @endforeach
+                                            @endisset
                                         </select>
 
                                         <div class="invalid-feedback">
                                             {{ __('required_field') }} {{ __('field_session') }}
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-3">
+                                    <div class="form-group col-md-3 ">
                                         <label for="student_id">{{ __('field_student_id') }}</label>
                                         <input type="text" class="form-control" name="student_id" id="student_id"
                                             value="{{ $selected_student_id }}">
@@ -75,7 +80,7 @@
                                             {{ __('required_field') }} {{ __('field_student_id') }}
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-3">
+                                    <div class="form-group col-md-3 ">
                                         <label for="template">{{ __('field_certificate') }} <span>*</span></label>
                                         <select class="form-control" name="template" id="template" required>
                                             <option value="">{{ __('select') }}</option>

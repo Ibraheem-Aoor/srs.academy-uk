@@ -456,6 +456,7 @@
     "field_gpa": "GPA",
     "field_cumulative_gpa": "Cumulative GPA",
     "field_certificate": "Certificate",
+    "field_certificate_course": "Course Certificate",
     "field_starting_year": "Starting Year",
     "field_ending_year": "Ending Year",
     "field_term_total": "Term Total",

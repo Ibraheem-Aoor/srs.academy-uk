@@ -28,7 +28,6 @@
                                 @php
                                     // We Must Print Certificate Per Session "Degree" ONLY
                                     $student_target_enroll = $row->studentEnrolls
-                                        ->where('program_id', request('program'))
                                         ->where('session_id', request('session'))
                                         ->first();
                                 @endphp
@@ -61,8 +60,8 @@
                         {{-- CGPA and Credit Cal --}}
                         {{-- Year Selection --}}
                         @php
-                            $starting_year = $student_target_enroll->session->start_date;
-                            $ending_year = $student_target_enroll->session->end_date;
+                            $starting_year = $student_target_enroll->session->start_date ??  \Carbon\Carbon::parse($student_target_enroll->created_at)->toDateString();
+                            $ending_year = $student_target_enroll->session->end_date ?? today()->toDateString();
                         @endphp
 
                         @if (isset($student_target_enroll->subjectMarks))

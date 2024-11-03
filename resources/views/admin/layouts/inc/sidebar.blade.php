@@ -1145,9 +1145,12 @@
                     @endcanany
 
                     @canany(['certificate-view', 'certificate-create', 'certificate-print', 'certificate-download'])
-                        <li class="{{ Request::is('admin/transcript/certificate*') ? 'active' : '' }}"><a
+                        <li class="{{ request('quick_course') == false && Request::is('admin/transcript/certificate*') ? 'active' : '' }}"><a
                                 href="{{ route('admin.certificate.index') }}"
                                 class="">{{ trans_choice('module_certificate', 2) }}</a></li>
+                        <li class="{{request('quick_course') == true &&  Request::is('admin/transcript/certificate*') ? 'active' : '' }}"><a
+                                href="{{ route('admin.certificate.index' , ['quick_course' => true]) }}"
+                                class="">{{ trans_choice('field_certificate_course', 2) }}</a></li>
                     @endcanany
 
                     @canany(['certificate-template-view', 'certificate-template-create'])
