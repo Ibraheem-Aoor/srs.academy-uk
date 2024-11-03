@@ -30,6 +30,7 @@ class MarksheetController extends CoursableController
         $this->path = 'marksheet-setting';
         $this->access = 'marksheet';
 
+        
 
         $this->middleware('permission:' . $this->access . '-view|' . $this->access . '-print|' . $this->access . '-download', ['only' => ['index', 'show', 'semester']]);
         $this->middleware('permission:' . $this->access . '-print', ['only' => ['print', 'semesterPrint']]);
