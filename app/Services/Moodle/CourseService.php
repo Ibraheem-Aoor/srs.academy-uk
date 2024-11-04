@@ -102,7 +102,7 @@ class CourseService extends BaseService
         ]);
         $this->editSubjectNameForSession($subject, $session, $created_course['id']);
         // Make worker here instead of set up cron job to avoid SQLSTATE[HY000] [1203]
-        Artisan::call('queue:work --queue=moodle --tries=3');
+        // Artisan::call('queue:work --queue=moodle --tries=3');
     }
 
     /**
