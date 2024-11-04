@@ -269,7 +269,8 @@ class EnrollSubjectController extends Controller
         foreach ($subjects as $subject) {
             $is_subject_exists_on_moodle_at_all = MoodleSubjectSession::query()->where('subject_id', $subject->id)->exists();
             $is_sujbect_exists_for_session = MoodleSubjectSession::query()->where('session_id', $session->id)->where('subject_id', $subject->id)->exists();
-            if (!$is_subject_exists_on_moodle_at_all) {
+            // Always store the subject on moodel because there is error in duplicating !.
+            if (!$is_sujbect_exists_for_session) {
                 $created_course_on_moodle = $moodle_course_service->store($subject, $session);
                 MoodleSubjectSession::query()->updateOrCreate([
                     'session_id' => $session->id,
@@ -280,10 +281,10 @@ class EnrollSubjectController extends Controller
                     'id_on_moodle' => $created_course_on_moodle[0]['id'],
                 ]);
                 $subject->save();
-            } elseif (!$is_sujbect_exists_for_session) {
+            } #elseif (!$is_sujbect_exists_for_session) {
 
-                DuplicateMoodleCourseJob::dispatch($subject, $session);
-            }
+                // DuplicateMoodleCourseJob::dispatch($subject, $session);
+            // }
         }
     }
 
