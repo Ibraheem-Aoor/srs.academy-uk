@@ -6,6 +6,7 @@ use App\Models\Program;
 use App\Models\Session;
 use App\Models\Subject;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
@@ -88,7 +89,7 @@ class CourseService extends BaseService
         $query_params['wsfunction'] = 'core_course_duplicate_course';
         $query_params['courseid'] = $subject_id_on_moodle_to_duplicate;
         $query_params['fullname'] = $subject->title;
-        $query_params['shortname'] = $subject->code . '_' . $session->getShortTitleForMoodle().' | '.now();
+        // $query_params['shortname'] = $subject->code . '_' . $session->getShortTitleForMoodle();
         $query_params['categoryid'] = $session->id_on_moodle;
         $created_course = parent::create($query_params);
         MoodleSubjectSession::query()->updateOrCreate([
@@ -100,6 +101,8 @@ class CourseService extends BaseService
             'id_on_moodle' => $created_course['id'],//duplicated course
         ]);
         $this->editSubjectNameForSession($subject, $session, $created_course['id']);
+        // Make worker here instead of set up cron job to avoid SQLSTATE[HY000] [1203]
+        Artisan::call('queue:work --queue=moodle --tries=3');
     }
 
     /**

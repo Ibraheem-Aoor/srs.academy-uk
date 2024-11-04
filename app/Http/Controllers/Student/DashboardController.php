@@ -47,8 +47,8 @@ class DashboardController extends Controller
 
         if (isset($current_session)) {
             $enroll = StudentEnroll::where('student_id', $student_id)
-                ->where('session_id', $current_session->id)
                 ->where('status', '1')
+                ->where('session_id', $current_session->id)
                 ->first();
 
             if (isset($enroll)) {
