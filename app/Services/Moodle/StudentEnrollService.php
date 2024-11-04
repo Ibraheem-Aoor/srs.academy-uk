@@ -73,7 +73,7 @@ class StudentEnrollService extends BaseService
 
         // Determine subjects to enroll in and subjects to drop
         $subjects_to_enroll = array_diff($requested_subjects, $currently_enrolled_subjects);
-        $subjects_to_drop = array_diff($currently_enrolled_subjects, $requested_subjects);
+        $subjects_to_drop = [];#array_diff($currently_enrolled_subjects, $requested_subjects);
         // Prepare enrolments data
         $enrolments = [];
 
