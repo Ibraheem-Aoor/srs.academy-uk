@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CourseTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Rules\Admin\SessionDateWithinSemesterPeriodRule;
 use Illuminate\Http\Request;
@@ -53,7 +54,7 @@ class SessionController extends Controller
 
         $data['programs'] = Program::where('status', '1')
             ->orderBy('title', 'asc')->get();
-        $data['rows'] = Session::orderBy('id', 'desc')->get();
+        $data['rows'] = Session::query()->whereNot('type' , CourseTypeEnum::QUICK_COURSE)->orderBy('id', 'desc')->get();
         $data['semesters'] = Semester::query()->status(1)->get(['title', 'id']);
         return view($this->view . '.index', $data);
     }

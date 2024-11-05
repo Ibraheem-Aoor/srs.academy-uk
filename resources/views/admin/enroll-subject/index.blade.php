@@ -60,7 +60,7 @@
                                   @foreach( $rows as $key => $row )
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>{{ $row->program->title }}</td>
+                                        <td>{{ $row->program?->title }}</td>
                                         <td>{{ $row->session?->title }}</td>
                                         <td>
                                             @foreach($row->subjects->sortBy('code') as $key => $subject)
