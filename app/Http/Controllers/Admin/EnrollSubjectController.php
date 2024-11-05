@@ -59,7 +59,9 @@ class EnrollSubjectController extends CoursableController
 
         $data['faculties'] = Faculty::where('status', '1')
             ->orderBy('title', 'asc')->get();
-        $data['rows'] = EnrollSubject::orderBy('id', 'desc')->get();
+        $data['rows'] = EnrollSubject::orderBy('id', 'desc')->whereHas('session' , function($query){
+            $query->whereNot('type' , CourseTypeEnum::QUICK_COURSE);
+        })->get();
         $data['sessions'] = Session::query()->status(1)->whereNot('type' , CourseTypeEnum::QUICK_COURSE)->with('semester:id,title')->get(['id', 'title']);
         return view($this->view . '.index', $data);
     }
