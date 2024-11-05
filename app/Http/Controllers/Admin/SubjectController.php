@@ -247,7 +247,7 @@ class SubjectController extends CoursableController
 
         Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-        return redirect()->route($this->route . '.index');
+        return redirect()->route($this->route . '.index' , ['quick_course' => $request->is_quick_course]);
     }
 
     /**
